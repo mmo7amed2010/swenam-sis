@@ -13,7 +13,7 @@ Great news! Your application has been approved and your course access is now act
 
 ## Access Your Courses
 
-You can now access your enrolled courses through "My Program" in your student portal.
+You can now access your enrolled courses through "My Courses" in your student portal.
 
 <x-mail::button :url="route('login')">
 Login to Access Courses
@@ -22,7 +22,7 @@ Login to Access Courses
 ## Next Steps
 
 1. **Login** to your student portal (use your existing credentials)
-2. Click on **"My Program"** in the sidebar
+2. Click on **"My Courses"** in the sidebar
 3. Start learning!
 
 ## Need Help?

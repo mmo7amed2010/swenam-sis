@@ -34,25 +34,41 @@ class MyCoursesController extends Controller
     }
 
     /**
+     * Generate SSO token and redirect to LMS courses.
+     */
+    public function redirectToCourses(Request $request)
+    {
+        return $this->redirectToLms($request, '/student/program');
+    }
+
+    /**
+     * Generate SSO token and redirect to LMS grades.
+     */
+    public function redirectToGrades(Request $request)
+    {
+        return $this->redirectToLms($request, '/student/grades');
+    }
+
+    /**
      * Generate SSO token and redirect to LMS.
      */
-    public function redirectToLms(Request $request)
+    protected function redirectToLms(Request $request, string $path = '/dashboard')
     {
         $user = $request->user();
 
         // Check if user has LMS account
         if (empty($user->lms_user_id)) {
-            Log::warning('Student without LMS account tried to access courses', [
+            Log::warning('Student without LMS account tried to access LMS', [
                 'user_id' => $user->id,
                 'email' => $user->email,
             ]);
 
-            return redirect()->route('student.my-courses')
+            return redirect()->route('dashboard')
                 ->with('error', 'Your LMS account is not yet set up. Please contact administration.');
         }
 
         // Generate SSO token
-        $tokenData = $this->lmsApiService->generateSsoToken($user, '/dashboard');
+        $tokenData = $this->lmsApiService->generateSsoToken($user, $path);
 
         if (! $tokenData) {
             Log::error('Failed to generate SSO token for student', [
@@ -60,7 +76,7 @@ class MyCoursesController extends Controller
                 'lms_user_id' => $user->lms_user_id,
             ]);
 
-            return redirect()->route('student.my-courses')
+            return redirect()->route('dashboard')
                 ->with('error', 'Unable to connect to Learning Management System. Please try again later.');
         }
 
@@ -73,6 +89,7 @@ class MyCoursesController extends Controller
         Log::info('Student redirecting to LMS via SSO', [
             'user_id' => $user->id,
             'lms_user_id' => $user->lms_user_id,
+            'path' => $path,
         ]);
 
         return redirect()->away($redirectUrl);

@@ -2,11 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\ModuleItemProgress;
 use App\Models\Program;
-use App\Models\QuizAttempt;
 use App\Models\Student;
-use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -164,7 +161,7 @@ class StudentService
 
     /**
      * Check if a student can be deleted.
-     * Students with progress records or submissions cannot be deleted.
+     * Students with approved applications or LMS accounts cannot be deleted.
      *
      * @param  Student  $student  Student to check
      * @return bool True if can be deleted
@@ -177,17 +174,18 @@ class StudentService
             return true; // Student has no user, can be deleted
         }
 
-        // Check if student has any progress records
-        $hasProgress = ModuleItemProgress::where('user_id', $user->id)->exists();
+        // Check if student has an LMS account (meaning they're active in LMS)
+        if ($user->lms_user_id) {
+            return false;
+        }
 
-        // Check if student has any submissions (uses user_id column)
-        $hasSubmissions = Submission::where('user_id', $user->id)->exists();
+        // Check if student has an approved application
+        $application = $student->studentApplication;
+        if ($application && $application->status === 'approved') {
+            return false;
+        }
 
-        // Check if student has any quiz attempts (uses student_id column which is actually user_id)
-        $hasQuizAttempts = QuizAttempt::where('student_id', $user->id)->exists();
-
-        // Can delete if no activity records exist
-        return ! ($hasProgress || $hasSubmissions || $hasQuizAttempts);
+        return true;
     }
 
     /**

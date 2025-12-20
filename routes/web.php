@@ -133,7 +133,10 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
 
         // My Courses - redirects to LMS with SSO
         Route::get('my-courses', [\App\Http\Controllers\Student\MyCoursesController::class, 'index'])->name('my-courses');
-        Route::get('my-courses/redirect', [\App\Http\Controllers\Student\MyCoursesController::class, 'redirectToLms'])->name('my-courses.redirect');
+        Route::get('my-courses/redirect', [\App\Http\Controllers\Student\MyCoursesController::class, 'redirectToCourses'])->name('my-courses.redirect');
+
+        // My Grades - redirects to LMS grades with SSO
+        Route::get('my-grades/redirect', [\App\Http\Controllers\Student\MyCoursesController::class, 'redirectToGrades'])->name('my-grades.redirect');
     });
 });
 
