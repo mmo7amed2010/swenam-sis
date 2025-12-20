@@ -19,15 +19,13 @@ class ApplicationRepository
         $userType = auth()->user()?->user_type ?? 'guest';
         $cacheKey = "application_stats_{$userId}_{$userType}";
 
-        return Cache::remember($cacheKey, $cacheMinutes * 60, function () {
-            return [
-                'total' => StudentApplication::count(),
-                'pending' => StudentApplication::where('status', 'pending')->count(),
-                'initial_approved' => StudentApplication::where('status', 'initial_approved')->count(),
-                'approved' => StudentApplication::where('status', 'approved')->count(),
-                'rejected' => StudentApplication::where('status', 'rejected')->count(),
-            ];
-        });
+        return [
+            'total' => StudentApplication::count(),
+            'pending' => StudentApplication::where('status', 'pending')->count(),
+            'initial_approved' => StudentApplication::where('status', 'initial_approved')->count(),
+            'approved' => StudentApplication::where('status', 'approved')->count(),
+            'rejected' => StudentApplication::where('status', 'rejected')->count(),
+        ];
     }
 
     /**

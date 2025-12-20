@@ -54,7 +54,6 @@ class LessonProgressRepository
     {
         $cacheKey = CacheKey::courseProgress($userId, $courseId);
 
-        return Cache::remember($cacheKey, 300, function () use ($userId, $courseId) {
             $totalLessons = DB::table('module_lessons')
                 ->join('course_modules', 'module_lessons.module_id', '=', 'course_modules.id')
                 ->where('course_modules.course_id', $courseId)
@@ -74,10 +73,9 @@ class LessonProgressRepository
 
             return [
                 'total_lessons' => $totalLessons,
-                'completed_lessons' => $completedLessons,
-                'percentage' => $percentage,
-            ];
-        });
+            'completed_lessons' => $completedLessons,
+            'percentage' => $percentage,
+        ];
     }
 
     /**

@@ -150,9 +150,7 @@ class AdminService
      */
     public function getTotalCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('admins.total.count', $cacheDuration, function () {
-            return User::where('user_type', 'admin')->count();
-        });
+        return User::where('user_type', 'admin')->count();
     }
 
     /**
@@ -162,11 +160,9 @@ class AdminService
      */
     public function getActiveCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('admins.active.count', $cacheDuration, function () {
             return User::where('user_type', 'admin')
-                ->where('last_login_at', '>=', now()->subDays(30))
-                ->count();
-        });
+            ->where('last_login_at', '>=', now()->subDays(30))
+            ->count();
     }
 
     /**
@@ -176,12 +172,10 @@ class AdminService
      */
     public function getNewThisMonthCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('admins.new_this_month.count', $cacheDuration, function () {
             return User::where('user_type', 'admin')
                 ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count();
-        });
     }
 
     /**

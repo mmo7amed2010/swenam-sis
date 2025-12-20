@@ -33,8 +33,8 @@ class ExistsInLms implements ValidationRule
 
         // Get cached data from LMS
         $items = match ($this->type) {
-            'programs' => Cache::remember('lms_programs', 300, fn () => collect($lmsApiService->getPrograms())),
-            'intakes' => Cache::remember('lms_intakes', 300, fn () => collect($lmsApiService->getIntakes())),
+            'programs' => collect($lmsApiService->getPrograms()),
+            'intakes' => collect($lmsApiService->getIntakes()),
             default => collect(),
         };
 

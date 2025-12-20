@@ -24,13 +24,9 @@ class CourseStatisticsService
      */
     public function getStudentCount(Course $course): int
     {
-        return Cache::remember(
-            "course_{$course->id}_student_count",
-            $this->cacheTtl,
-            fn () => User::where('program_id', $course->program_id)
-                ->where('user_type', 'student')
-                ->count()
-        );
+        return User::where('program_id', $course->program_id)
+            ->where('user_type', 'student')
+            ->count();
     }
 
     /**
@@ -41,11 +37,7 @@ class CourseStatisticsService
      */
     public function getPendingGradingCount(Course $course): int
     {
-        return Cache::remember(
-            "course_{$course->id}_pending_grading",
-            $this->cacheTtl,
-            fn () => $this->calculatePendingGrading($course)
-        );
+        return $this->calculatePendingGrading($course);
     }
 
     /**

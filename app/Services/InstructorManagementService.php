@@ -158,9 +158,7 @@ class InstructorManagementService
      */
     public function getTotalCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('instructors.total.count', $cacheDuration, function () {
-            return Instructor::count();
-        });
+        return Instructor::count();
     }
 
     /**
@@ -170,11 +168,9 @@ class InstructorManagementService
      */
     public function getActiveCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('instructors.active.count', $cacheDuration, function () {
-            return Instructor::whereHas('courseInstructors', function ($q) {
-                $q->whereNull('removed_at');
-            })->count();
-        });
+        return Instructor::whereHas('courseInstructors', function ($q) {
+            $q->whereNull('removed_at');
+        })->count();
     }
 
     /**
@@ -184,11 +180,9 @@ class InstructorManagementService
      */
     public function getNewThisMonthCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('instructors.new_this_month.count', $cacheDuration, function () {
-            return Instructor::whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->count();
-        });
+        return Instructor::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
     }
 
     /**

@@ -37,14 +37,10 @@ class StudentApplicationController extends Controller
     public function showStepOne()
     {
         // Fetch programs from LMS with caching
-        $programs = Cache::remember('lms_programs', 300, function () {
-            return collect($this->lmsApiService->getPrograms());
-        });
+        $programs = collect($this->lmsApiService->getPrograms());
 
         // Fetch intakes from LMS with caching
-        $intakes = Cache::remember('lms_intakes', 300, function () {
-            return collect($this->lmsApiService->getIntakes());
-        });
+        $intakes = collect($this->lmsApiService->getIntakes());
 
         $data = Session::get('application', []);
 
@@ -62,9 +58,7 @@ class StudentApplicationController extends Controller
         // If intake_id is provided, also set preferred_intake for backward compatibility
         if (! empty($validated['intake_id'])) {
             // Get intake data from cached LMS response
-            $intakes = Cache::remember('lms_intakes', 300, function () {
-                return collect($this->lmsApiService->getIntakes());
-            });
+            $intakes = collect($this->lmsApiService->getIntakes());
 
             $intake = $intakes->firstWhere('id', (int) $validated['intake_id']);
             if ($intake) {

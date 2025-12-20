@@ -81,9 +81,7 @@ class ModuleItemProgressService
      */
     public function getCourseProgress(int $userId, int $courseId): array
     {
-        $cacheKey = CacheKey::courseProgress($userId, $courseId);
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($userId, $courseId) {
             try {
                 // Get all published module items with their weights
                 $query = ModuleItem::with('itemable')
@@ -139,9 +137,8 @@ class ModuleItemProgressService
                     'total_weight' => 0,
                     'completed_weight' => 0,
                     'percentage' => 0,
-                ];
-            }
-        });
+            ];
+        }
     }
 
     /**

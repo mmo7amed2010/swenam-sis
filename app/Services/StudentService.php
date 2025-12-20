@@ -249,9 +249,7 @@ class StudentService
      */
     public function getTotalCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('students.total.count', $cacheDuration, function () {
-            return Student::count();
-        });
+        return Student::count();
     }
 
     /**
@@ -261,9 +259,7 @@ class StudentService
      */
     public function getWithApplicationsCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('students.with_applications.count', $cacheDuration, function () {
-            return Student::whereHas('studentApplication')->count();
-        });
+        return Student::whereHas('studentApplication')->count();
     }
 
     /**
@@ -273,9 +269,7 @@ class StudentService
      */
     public function getWithoutApplicationsCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('students.without_applications.count', $cacheDuration, function () {
-            return Student::whereDoesntHave('studentApplication')->count();
-        });
+        return Student::whereDoesntHave('studentApplication')->count();
     }
 
     /**
@@ -285,11 +279,9 @@ class StudentService
      */
     public function getNewThisMonthCount(int $cacheDuration = 300): int
     {
-        return Cache::remember('students.new_this_month.count', $cacheDuration, function () {
             return Student::whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
                 ->count();
-        });
     }
 
     /**
@@ -299,10 +291,6 @@ class StudentService
      */
     public function clearCountCache(): void
     {
-        Cache::forget('students.total.count');
-        Cache::forget('students.with_applications.count');
-        Cache::forget('students.without_applications.count');
-        Cache::forget('students.new_this_month.count');
     }
 
     /**

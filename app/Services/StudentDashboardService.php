@@ -41,7 +41,6 @@ class StudentDashboardService
     {
         $cacheKey = CacheKey::studentDashboard($userId, 'deadlines');
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($userId, $limit) {
             try {
                 // Get course IDs from student's program (program-based access)
                 $user = User::find($userId);
@@ -134,9 +133,8 @@ class StudentDashboardService
                     'error' => $e->getMessage(),
                 ]);
 
-                return collect();
-            }
-        });
+            return collect();
+        }
     }
 
     /**
@@ -150,9 +148,7 @@ class StudentDashboardService
      */
     public function getCurrentCourses(int $userId, ?int $programId): Collection
     {
-        $cacheKey = CacheKey::studentDashboard($userId, 'courses', $programId);
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($userId, $programId) {
             try {
                 if (! $programId) {
                     return collect();
@@ -222,9 +218,8 @@ class StudentDashboardService
                     'error' => $e->getMessage(),
                 ]);
 
-                return collect();
-            }
-        });
+            return collect();
+        }
     }
 
     /**
@@ -392,9 +387,6 @@ class StudentDashboardService
      */
     public function getProgressStats(int $userId, ?int $programId): array
     {
-        $cacheKey = CacheKey::studentDashboard($userId, 'stats', $programId);
-
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($userId, $programId) {
             try {
                 if (! $programId) {
                     return $this->getEmptyStats();
@@ -480,9 +472,8 @@ class StudentDashboardService
                     'error' => $e->getMessage(),
                 ]);
 
-                return $this->getEmptyStats();
-            }
-        });
+            return $this->getEmptyStats();
+        }
     }
 
     /**
@@ -494,9 +485,7 @@ class StudentDashboardService
      */
     public function getTodaysTasks(int $userId): Collection
     {
-        $cacheKey = CacheKey::studentDashboard($userId, 'today');
 
-        return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($userId) {
             try {
                 // Get course IDs from student's program (program-based access)
                 $user = User::find($userId);
@@ -602,9 +591,8 @@ class StudentDashboardService
                     'error' => $e->getMessage(),
                 ]);
 
-                return collect();
-            }
-        });
+            return collect();
+        }
     }
 
     /**

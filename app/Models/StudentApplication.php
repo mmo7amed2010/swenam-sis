@@ -101,7 +101,7 @@ class StudentApplication extends Model
         }
 
         $lmsApiService = app(\App\Services\LmsApiService::class);
-        $programs = \Illuminate\Support\Facades\Cache::remember('lms_programs', 300, fn () => collect($lmsApiService->getPrograms()));
+        $programs = collect($lmsApiService->getPrograms());
 
         return $programs->firstWhere('id', $this->program_id);
     }
@@ -119,7 +119,7 @@ class StudentApplication extends Model
         }
 
         $lmsApiService = app(\App\Services\LmsApiService::class);
-        $intakes = \Illuminate\Support\Facades\Cache::remember('lms_intakes', 300, fn () => collect($lmsApiService->getIntakes()));
+        $intakes = collect($lmsApiService->getIntakes());
 
         return $intakes->firstWhere('id', $this->intake_id);
     }
