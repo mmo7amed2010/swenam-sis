@@ -50,8 +50,8 @@
             @if (Auth::user()->profile_photo_url)
                 <img src="{{ \Auth::user()->profile_photo_url }}" alt="user" />
             @else
-                <div class="symbol-label fs-3 {{ app(\App\Actions\GetThemeType::class)->handle('bg-light-? text-?', Auth::user()->name) }}">
-                    {{ substr(Auth::user()->name, 0, 1) }}
+                <div class="symbol-label bg-light-primary">
+                    <i class="ki-duotone ki-user fs-3 text-primary"><span class="path1"></span><span class="path2"></span></i>
                 </div>
             @endif
         </div>
