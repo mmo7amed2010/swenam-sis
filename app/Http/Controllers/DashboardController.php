@@ -49,7 +49,6 @@ class DashboardController extends Controller
         ]);
     }
 
-
     /**
      * Instructor dashboard - SIS focused
      * Course management is handled via LMS
