@@ -18,7 +18,7 @@ class DashboardController extends Controller
         return match ($user->user_type) {
             'student' => $this->studentDashboard($request),
             'instructor' => $this->instructorDashboard($request),
-            'admin' => $this->adminDashboard($request),
+            'admin' => $this->adminDashboard(),
             default => abort(403, 'Invalid user type'),
         };
     }
@@ -65,7 +65,7 @@ class DashboardController extends Controller
     /**
      * Admin dashboard - system management focused
      */
-    protected function adminDashboard(Request $request)
+    protected function adminDashboard()
     {
         $kpis = $this->getAdminKpis();
         $charts = $this->getAdminCharts();
