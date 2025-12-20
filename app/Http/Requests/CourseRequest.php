@@ -48,7 +48,7 @@ class CourseRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'course_code.regex' => 'Course code must be 6-10 uppercase letters and numbers (e.g., CS101, MATH201).',
+            'course_code.regex' => 'Course code must be 4-12 uppercase letters and numbers (e.g., CS101, MATH201).',
             'course_code.unique' => 'This course code already exists.',
             'program_id.required' => 'Please select a program for this course.',
             'program_id.exists' => 'The selected program does not exist.',

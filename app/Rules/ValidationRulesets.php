@@ -18,7 +18,7 @@ class ValidationRulesets
             'required',
             'string',
             'max:20',
-            'regex:/^[A-Z0-9]{6,10}$/',
+            'regex:/^[A-Z0-9]{4,12}$/',
             Rule::unique('courses', 'course_code')->ignore($ignoreId),
         ];
     }
