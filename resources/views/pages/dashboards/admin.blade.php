@@ -104,12 +104,12 @@
                         <div class="card card-flush h-xl-100">
                             <div class="card-header pt-5">
                                 <h3 class="card-title align-items-start flex-column">
-                                    <span class="card-label fw-bold text-gray-900">{{ __('Activity (Last 14 Days)') }}</span>
-                                    <span class="text-gray-500 mt-1 fw-semibold fs-6">{{ __('Submissions and quiz attempts') }}</span>
+                                    <span class="card-label fw-bold text-gray-900">{{ __('Applications by Status') }}</span>
+                                    <span class="text-gray-500 mt-1 fw-semibold fs-6">{{ __('Current application distribution') }}</span>
                                 </h3>
                             </div>
                             <div class="card-body pt-0">
-                                <div id="Admin_Activity_By_Day_Chart" style="height: 350px; min-height: 350px;"></div>
+                                <div id="Admin_Applications_By_Status_Chart" style="height: 350px; min-height: 350px;"></div>
                             </div>
                         </div>
                     </div>
@@ -210,7 +210,7 @@
 
                 const charts = @json($adminDashboardCharts);
                 renderAdminMonthlyUsersChart(charts?.monthly_user_registrations);
-                renderAdminActivityByDayChart(charts?.activity_by_day);
+                renderAdminApplicationsByStatusChart(charts?.applications_by_status);
                 renderAdminUserTypesChart(charts?.user_types);
             });
 
@@ -242,37 +242,35 @@
                 });
             }
 
-            function renderAdminActivityByDayChart(data) {
-                const el = document.getElementById('Admin_Activity_By_Day_Chart');
+            function renderAdminApplicationsByStatusChart(data) {
+                const el = document.getElementById('Admin_Applications_By_Status_Chart');
                 if (!el) return;
 
                 const labels = data?.labels || [];
-                const submissions = data?.submissions || [];
-                const attempts = data?.quiz_attempts || [];
+                const counts = data?.counts || [];
 
                 const chart = echarts.init(el);
                 chart.setOption({
                     tooltip: { trigger: 'axis' },
-                    legend: { data: ['Submissions', 'Quiz Attempts'], bottom: 0 },
                     grid: { left: 40, right: 20, top: 20, bottom: 60 },
                     xAxis: { type: 'category', data: labels, axisLabel: { rotate: 30 } },
                     yAxis: { type: 'value' },
                     series: [
                         {
-                            name: 'Submissions',
-                            type: 'line',
-                            smooth: true,
-                            data: submissions,
-                            itemStyle: { color: '#1BC5BD' },
-                            areaStyle: { opacity: 0.15 }
-                        },
-                        {
-                            name: 'Quiz Attempts',
-                            type: 'line',
-                            smooth: true,
-                            data: attempts,
-                            itemStyle: { color: '#FFA800' },
-                            areaStyle: { opacity: 0.10 }
+                            name: 'Applications',
+                            type: 'bar',
+                            data: counts,
+                            itemStyle: {
+                                color: function(params) {
+                                    const colors = {
+                                        'Pending': '#FFA800',
+                                        'Initial approved': '#009EF7',
+                                        'Approved': '#50CD89',
+                                        'Rejected': '#F1416C'
+                                    };
+                                    return colors[params.name] || '#7E8299';
+                                }
+                            }
                         }
                     ]
                 });
