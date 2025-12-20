@@ -47,35 +47,32 @@
 
     <div class="row g-5 mb-6">
         <x-stat-card
-            icon="category"
-            :label="__('Programs')"
-            :value="number_format($kpis['total_programs'] ?? 0)"
-            color="primary"
+            icon="notepad-bookmark"
+            :label="__('Pending Applications')"
+            :value="number_format($kpis['pending_applications'] ?? 0)"
+            color="warning"
             col-class="col-md-6 col-xl-3"
-            :tooltip="__('Active: ') . number_format($kpis['active_programs'] ?? 0)"
         />
         <x-stat-card
-            icon="book"
-            :label="__('Courses')"
-            :value="number_format($kpis['total_courses'] ?? 0)"
+            icon="check-circle"
+            :label="__('Approved Applications')"
+            :value="number_format($kpis['approved_applications'] ?? 0)"
+            color="success"
+            col-class="col-md-6 col-xl-3"
+        />
+        <x-stat-card
+            icon="cross-circle"
+            :label="__('Rejected Applications')"
+            :value="number_format($kpis['rejected_applications'] ?? 0)"
+            color="danger"
+            col-class="col-md-6 col-xl-3"
+        />
+        <x-stat-card
+            icon="document"
+            :label="__('Total Applications')"
+            :value="number_format($kpis['total_applications'] ?? 0)"
             color="info"
             col-class="col-md-6 col-xl-3"
-            :tooltip="__('Active: ') . number_format($kpis['active_courses'] ?? 0)"
-        />
-        <x-stat-card
-            icon="send"
-            :label="__('Submissions (7d)')"
-            :value="number_format($kpis['submissions_last_7d'] ?? 0)"
-            color="info"
-            col-class="col-md-6 col-xl-3"
-        />
-        <x-stat-card
-            icon="rocket"
-            :label="__('Quiz Attempts (7d)')"
-            :value="number_format($kpis['quiz_attempts_last_7d'] ?? 0)"
-            color="primary"
-            col-class="col-md-6 col-xl-3"
-            :tooltip="__('Pending applications: ') . number_format($kpis['pending_applications'] ?? 0)"
         />
     </div>
 
@@ -164,15 +161,15 @@
                         <div class="d-flex align-items-center">
                             <span class="symbol symbol-35px me-3">
                                 <span class="symbol-label bg-light-info">
-                                    <i class="ki-duotone ki-send fs-3 text-info">
+                                    <i class="ki-duotone ki-time fs-3 text-info">
                                         <span class="path1"></span>
                                         <span class="path2"></span>
                                     </i>
                                 </span>
                             </span>
-                            <span class="fw-semibold text-gray-700">{{ __('Submissions (7d)') }}</span>
+                            <span class="fw-semibold text-gray-700">{{ __('Initial Approved') }}</span>
                         </div>
-                        <span class="badge badge-light-info fw-bold">{{ number_format($kpis['submissions_last_7d'] ?? 0) }}</span>
+                        <span class="badge badge-light-info fw-bold">{{ number_format($kpis['initial_approved_applications'] ?? 0) }}</span>
                     </div>
 
                     <div class="separator separator-dashed"></div>
@@ -180,22 +177,20 @@
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
                             <span class="symbol symbol-35px me-3">
-                                <span class="symbol-label bg-light-primary">
-                                    <i class="ki-duotone ki-rocket fs-3 text-primary">
+                                <span class="symbol-label bg-light-success">
+                                    <i class="ki-duotone ki-check-circle fs-3 text-success">
                                         <span class="path1"></span>
                                         <span class="path2"></span>
                                     </i>
                                 </span>
                             </span>
-                            <span class="fw-semibold text-gray-700">{{ __('Quiz Attempts (7d)') }}</span>
+                            <span class="fw-semibold text-gray-700">{{ __('Approved (7d)') }}</span>
                         </div>
-                        <span class="badge badge-light-primary fw-bold">{{ number_format($kpis['quiz_attempts_last_7d'] ?? 0) }}</span>
+                        <span class="badge badge-light-success fw-bold">{{ number_format($kpis['approved_last_7d'] ?? 0) }}</span>
                     </div>
                 </div>
             </x-cards.section>
 
-            {{-- Announcements Widget --}}
-            <x-dashboard.announcements-widget />
         </div>
     </div>
 

@@ -83,12 +83,6 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::put('/notifications', [App\Http\Controllers\NotificationSettingController::class, 'update'])->name('settings.notifications.update');
     });
 
-    // Public Announcement Viewing Routes (for all authenticated users)
-    Route::prefix('announcements')->middleware('auth')->group(function () {
-        Route::get('/', [App\Http\Controllers\AnnouncementViewController::class, 'index'])->name('announcements.index');
-        Route::get('/{announcement}', [App\Http\Controllers\AnnouncementViewController::class, 'show'])->name('announcements.show');
-    });
-
     // Admin-only routes - User Management
     Route::middleware(['admin'])->name('user-management.')->group(function () {
         Route::resource('/user-management/users', UserManagementController::class);
@@ -121,14 +115,9 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
     // Programs and Intakes are managed from LMS (master system)
     // SIS fetches programs/intakes via LMS API for application form
 
-    // Admin-only routes - System Announcements
-    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::resource('announcements', \App\Http\Controllers\Admin\SystemAnnouncementController::class);
-    });
-
     // Student portal routes
     Route::middleware(['student'])->prefix('student')->name('student.')->group(function () {
-        // My Application - shows application status or link to LMS courses
+        // My Application - shows application status
         Route::get('application', [\App\Http\Controllers\Student\ProgramController::class, 'index'])->name('program.index');
 
         // My Courses - redirects to LMS with SSO
