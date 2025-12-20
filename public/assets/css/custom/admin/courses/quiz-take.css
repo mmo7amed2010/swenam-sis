@@ -1,0 +1,571 @@
+/**
+ * Quiz Take Styles - Metronic Design System
+ *
+ * Enhanced styles for the student quiz-taking interface.
+ * Following Metronic design patterns and component styles.
+ */
+
+/* ============================================
+   Question Cards
+   ============================================ */
+
+.question-card {
+    transition: all 0.3s ease;
+}
+
+.question-card:not([style*="display: block"]):not([style*="display: flex"]) {
+    display: none !important;
+}
+
+/* Show active card with animation */
+.question-card[style*="display: block"],
+.question-card[style*="display: flex"] {
+    animation: questionSlideIn 0.4s ease;
+}
+
+@keyframes questionSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Question text styling */
+.question-card .card-body .text-gray-800 {
+    line-height: 1.8;
+}
+
+.question-card .card-body .text-gray-800 img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    margin: 1rem 0;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+}
+
+.question-card .card-body .text-gray-800 code {
+    background-color: var(--bs-gray-100);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.9em;
+    color: var(--bs-primary);
+    font-weight: 600;
+}
+
+.question-card .card-body .text-gray-800 pre {
+    background-color: var(--bs-gray-100);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px dashed var(--bs-gray-300);
+}
+
+/* ============================================
+   Answer Options - Metronic Style
+   ============================================ */
+
+.answer-option {
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.answer-option:hover {
+    transform: translateX(5px);
+    border-color: var(--bs-primary) !important;
+}
+
+/* Checked state */
+.answer-option:has(input:checked) {
+    background-color: var(--bs-light-primary) !important;
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0.5rem 1.5rem rgba(var(--bs-primary-rgb), 0.15);
+}
+
+.answer-option:has(input:checked)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--bs-primary);
+    border-radius: 0.75rem 0 0 0.75rem;
+}
+
+/* Form check custom styling */
+.answer-option .form-check-input {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-width: 2px;
+    cursor: pointer;
+}
+
+.answer-option .form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* True/False specific styling */
+.answer-option:has(#q*_true):hover {
+    border-color: var(--bs-success) !important;
+}
+
+.answer-option:has(#q*_false):hover {
+    border-color: var(--bs-danger) !important;
+}
+
+.answer-option:has(input:checked#q*_true) {
+    background-color: var(--bs-light-success) !important;
+    border-color: var(--bs-success) !important;
+}
+
+.answer-option:has(input:checked#q*_false) {
+    background-color: var(--bs-light-danger) !important;
+    border-color: var(--bs-danger) !important;
+}
+
+/* ============================================
+   Question Navigation Sidebar
+   ============================================ */
+
+.question-nav-btn {
+    position: relative;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    min-height: 45px;
+}
+
+.question-nav-btn:hover {
+    transform: translateX(5px);
+}
+
+/* Active question button */
+.question-nav-btn.active {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    color: var(--bs-white) !important;
+    box-shadow: 0 0.5rem 1.5rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Answered question button */
+.question-nav-btn.answered {
+    background-color: var(--bs-light-success);
+    border-color: var(--bs-success);
+    color: var(--bs-success);
+}
+
+.question-nav-btn.answered .ki-check {
+    display: inline-block !important;
+}
+
+.question-nav-btn.answered .indicator-label {
+    margin-right: 0.5rem;
+}
+
+/* Unanswered button */
+.question-nav-btn:not(.answered):not(.active) {
+    border-color: var(--bs-gray-300);
+}
+
+/* ============================================
+   Progress Bar Enhancement
+   ============================================ */
+
+#progressBar {
+    transition: width 0.5s ease;
+    background: linear-gradient(90deg, var(--bs-primary) 0%, var(--bs-success) 100%);
+}
+
+/* Progress percentage badge animation */
+#progressPercentage {
+    transition: all 0.3s ease;
+}
+
+/* ============================================
+   Quiz Timer (Hidden but styled)
+   ============================================ */
+
+#quizTimer {
+    animation: fadeIn 0.5s ease;
+}
+
+#quizTimer.notice.warning {
+    background-color: var(--bs-light-warning) !important;
+    border-color: var(--bs-warning) !important;
+}
+
+#quizTimer.notice.warning .text-gray-900 {
+    color: var(--bs-warning) !important;
+}
+
+#quizTimer.notice.danger {
+    background-color: var(--bs-light-danger) !important;
+    border-color: var(--bs-danger) !important;
+    animation: timerPulse 1s ease-in-out infinite;
+}
+
+#quizTimer.notice.danger .text-gray-900 {
+    color: var(--bs-danger) !important;
+}
+
+@keyframes timerPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   Auto-save Indicator - Metronic Style
+   ============================================ */
+
+.autosave-indicator {
+    pointer-events: none;
+}
+
+.autosave-indicator.show {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.autosave-indicator .bg-white {
+    border: 1px solid var(--bs-gray-200);
+}
+
+.autosave-indicator.saving .bg-white {
+    background-color: var(--bs-light-warning) !important;
+}
+
+.autosave-indicator.saved .bg-white {
+    background-color: var(--bs-light-success) !important;
+}
+
+/* ============================================
+   Navigation Buttons Enhancement
+   ============================================ */
+
+.card-footer .btn {
+    min-width: 120px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.card-footer .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+}
+
+.card-footer .btn[data-prev-btn]:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.card-footer .btn-success {
+    min-width: 150px;
+}
+
+/* ============================================
+   Info Notice Styling
+   ============================================ */
+
+.notice.bg-light-info {
+    animation: slideInDown 0.4s ease;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   Sticky Sidebar
+   ============================================ */
+
+@media (min-width: 1200px) {
+    .col-xl-3 .card-flush {
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+
+    .col-xl-3 .card-flush::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .col-xl-3 .card-flush::-webkit-scrollbar-track {
+        background: var(--bs-gray-100);
+        border-radius: 10px;
+    }
+
+    .col-xl-3 .card-flush::-webkit-scrollbar-thumb {
+        background: var(--bs-gray-400);
+        border-radius: 10px;
+    }
+
+    .col-xl-3 .card-flush::-webkit-scrollbar-thumb:hover {
+        background: var(--bs-gray-500);
+    }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1199.98px) {
+    /* Stack sidebar on top on smaller screens */
+    .col-xl-3 {
+        order: 1;
+    }
+
+    .col-xl-9 {
+        order: 2;
+    }
+
+    .col-xl-3 .card-flush {
+        position: relative !important;
+        top: auto !important;
+    }
+
+    /* Compact question navigation */
+    .col-xl-3 .d-grid {
+        grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    }
+
+    .question-nav-btn {
+        min-height: 50px;
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    /* Mobile optimizations */
+    .question-card .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .question-card .card-toolbar {
+        margin-top: 1rem;
+    }
+
+    .card-footer {
+        flex-direction: column !important;
+        gap: 1rem;
+    }
+
+    .card-footer .btn {
+        width: 100%;
+    }
+
+    .card-footer .d-flex {
+        width: 100%;
+        flex-direction: column !important;
+    }
+
+    .answer-option {
+        padding: 1rem !important;
+    }
+
+    .answer-option .form-check-input {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    .autosave-indicator {
+        left: 0 !important;
+        right: 0 !important;
+        margin: 1rem !important;
+    }
+
+    /* Compact navigation grid */
+    .col-xl-3 .d-grid {
+        grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small devices */
+    .question-card .symbol {
+        width: 35px !important;
+        height: 35px !important;
+    }
+
+    .question-card .fs-5 {
+        font-size: 1rem !important;
+    }
+
+    .badge-light-warning {
+        font-size: 0.875rem !important;
+    }
+
+    .answer-option .fs-5 {
+        font-size: 0.95rem !important;
+    }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .col-xl-3,
+    .card-footer,
+    .autosave-indicator,
+    .btn {
+        display: none !important;
+    }
+
+    .col-xl-9 {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .question-card {
+        display: block !important;
+        page-break-inside: avoid;
+        margin-bottom: 2rem;
+        box-shadow: none;
+        border: 1px solid var(--bs-gray-300);
+    }
+
+    .answer-option {
+        page-break-inside: avoid;
+    }
+}
+
+/* ============================================
+   Accessibility Enhancements
+   ============================================ */
+
+.answer-option:focus-within {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+.question-nav-btn:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .answer-option {
+        border-width: 3px !important;
+    }
+
+    .question-nav-btn {
+        border-width: 3px !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================
+   Loading States
+   ============================================ */
+
+.question-card.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.question-card.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--bs-gray-300);
+    border-top-color: var(--bs-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* ============================================
+   Smooth Scroll Behavior
+   ============================================ */
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ============================================
+   Focus Trap for Modals (SweetAlert2)
+   ============================================ */
+
+.swal2-container {
+    z-index: 1060 !important;
+}
+
+/* ============================================
+   Custom Animations for User Feedback
+   ============================================ */
+
+.answer-option.just-selected {
+    animation: answerSelected 0.4s ease;
+}
+
+@keyframes answerSelected {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.question-nav-btn.just-completed {
+    animation: buttonCompleted 0.5s ease;
+}
+
+@keyframes buttonCompleted {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}

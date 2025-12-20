@@ -1,0 +1,678 @@
+/**
+ * Content Viewer Styles - Student Content Viewer Components
+ *
+ * Unified styles for lesson, quiz, and assignment viewers
+ * Following Metronic design system with student theme colors (#3b82f6, #10b981)
+ */
+
+/* ============================================
+   CSS Custom Properties
+   ============================================ */
+
+:root {
+    --cv-primary: #3b82f6;
+    --cv-primary-dark: #2563eb;
+    --cv-success: #10b981;
+    --cv-success-dark: #059669;
+    --cv-warning: #f59e0b;
+    --cv-warning-dark: #d97706;
+    --cv-danger: #ef4444;
+    --cv-danger-dark: #dc2626;
+    --cv-info: #3b82f6;
+    --cv-info-dark: #2563eb;
+    --cv-content-max: 900px;
+    --cv-transition: 0.3s ease;
+    --cv-border-radius: 0.75rem;
+}
+
+/* ============================================
+   Content Viewer Container
+   ============================================ */
+
+.lesson-viewer,
+.quiz-viewer,
+.assignment-viewer {
+    max-width: var(--cv-content-max);
+    margin: 0 auto;
+}
+
+.lesson-viewer .card-header,
+.quiz-viewer .card-header,
+.assignment-viewer .card-header {
+    background: transparent;
+}
+
+/* ============================================
+   Metadata Bar Styling
+   ============================================ */
+
+.lesson-viewer .bg-gray-100,
+.quiz-viewer .bg-gray-100,
+.assignment-viewer .bg-gray-100 {
+    transition: all var(--cv-transition);
+}
+
+.lesson-viewer .symbol,
+.quiz-viewer .symbol,
+.assignment-viewer .symbol {
+    transition: transform 0.2s ease;
+}
+
+.lesson-viewer .symbol:hover,
+.quiz-viewer .symbol:hover,
+.assignment-viewer .symbol:hover {
+    transform: scale(1.05);
+}
+
+/* ============================================
+   Badge Styling
+   ============================================ */
+
+.lesson-viewer .badge,
+.quiz-viewer .badge,
+.assignment-viewer .badge {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lesson-viewer .badge:hover,
+.quiz-viewer .badge:hover,
+.assignment-viewer .badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Completion Section - Base Styles
+   ============================================ */
+
+.completion-section {
+    transition: all var(--cv-transition);
+}
+
+.completion-section .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.completion-section .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Pre-completion State
+   ============================================ */
+
+.completion-pending {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+}
+
+.completion-pending .symbol-label {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%) !important;
+}
+
+.completion-pending .btn-primary {
+    background: linear-gradient(135deg, var(--cv-primary) 0%, var(--cv-primary-dark) 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: all var(--cv-transition);
+}
+
+.completion-pending .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.completion-pending .btn-primary:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   Success State - Card & Gradient
+   ============================================ */
+
+.completion-success-card {
+    animation: successCardPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes successCardPop {
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.02);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.completion-success-gradient {
+    background: linear-gradient(135deg, var(--cv-success) 0%, var(--cv-success-dark) 100%);
+}
+
+.completion-info-gradient {
+    background: linear-gradient(135deg, var(--cv-info) 0%, var(--cv-info-dark) 100%);
+}
+
+.completion-warning-gradient {
+    background: linear-gradient(135deg, var(--cv-warning) 0%, var(--cv-warning-dark) 100%);
+}
+
+.completion-danger-gradient {
+    background: linear-gradient(135deg, var(--cv-danger) 0%, var(--cv-danger-dark) 100%);
+}
+
+/* Progress pill inside success card */
+.completion-progress-pill {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   Animated Checkmark SVG
+   ============================================ */
+
+.completion-checkmark-wrapper {
+    width: 100px;
+    height: 100px;
+    display: inline-block;
+}
+
+.completion-checkmark {
+    width: 100%;
+    height: 100%;
+}
+
+/* Circle animation - draws the circle first */
+.checkmark-circle-fill {
+    stroke-dasharray: 283; /* 2 * PI * 45 */
+    stroke-dashoffset: 283;
+    animation: circleAnimation 0.6s ease-out forwards;
+}
+
+@keyframes circleAnimation {
+    0% {
+        stroke-dashoffset: 283;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Checkmark path animation - draws the check after circle */
+.checkmark-check {
+    stroke-dasharray: 80;
+    stroke-dashoffset: 80;
+    animation: checkAnimation 0.4s ease-out 0.5s forwards;
+}
+
+@keyframes checkAnimation {
+    0% {
+        stroke-dashoffset: 80;
+    }
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Static completed state (already completed on load) */
+.completion-static .checkmark-circle-fill,
+.completion-static .checkmark-check {
+    stroke-dashoffset: 0;
+    animation: none;
+}
+
+/* ============================================
+   Button Loading State
+   ============================================ */
+
+.btn-marking-complete {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+/* ============================================
+   Status Cards (Quiz/Assignment Specific)
+   ============================================ */
+
+/* Awaiting grading card - pulsing icon */
+.status-pending-card .symbol-label {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+}
+
+/* Call to action card hover effect */
+.status-action-card {
+    transition: border-color var(--cv-transition), background-color var(--cv-transition);
+}
+
+.status-action-card:hover {
+    border-color: var(--cv-primary) !important;
+    background-color: rgba(59, 130, 246, 0.04) !important;
+}
+
+/* ============================================
+   Result Cards (Score/Grade Display)
+   ============================================ */
+
+.lesson-viewer .bg-light-success,
+.lesson-viewer .bg-light-danger,
+.quiz-viewer .bg-light-success,
+.quiz-viewer .bg-light-danger,
+.assignment-viewer .bg-light-success,
+.assignment-viewer .bg-light-danger {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lesson-viewer .bg-light-success:hover,
+.lesson-viewer .bg-light-danger:hover,
+.quiz-viewer .bg-light-success:hover,
+.quiz-viewer .bg-light-danger:hover,
+.assignment-viewer .bg-light-success:hover,
+.assignment-viewer .bg-light-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Footer Button Styling
+   ============================================ */
+
+.lesson-viewer .card-footer .btn,
+.quiz-viewer .card-footer .btn,
+.assignment-viewer .card-footer .btn {
+    transition: all 0.2s ease;
+}
+
+.lesson-viewer .card-footer .btn:hover,
+.quiz-viewer .card-footer .btn:hover,
+.assignment-viewer .card-footer .btn:hover {
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   Content Styling for Text/HTML Lessons
+   ============================================ */
+
+.lesson-text-content {
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+
+.lesson-text-content h1,
+.lesson-text-content h2,
+.lesson-text-content h3,
+.lesson-text-content h4,
+.lesson-text-content h5,
+.lesson-text-content h6 {
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    font-weight: 600;
+    color: var(--bs-gray-900);
+}
+
+.lesson-text-content h1 { font-size: 1.75rem; }
+.lesson-text-content h2 { font-size: 1.5rem; }
+.lesson-text-content h3 { font-size: 1.25rem; }
+
+.lesson-text-content p {
+    margin-bottom: 1em;
+    color: var(--bs-gray-700);
+}
+
+.lesson-text-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--cv-border-radius);
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.lesson-text-content pre,
+.lesson-text-content code {
+    background: var(--bs-gray-100);
+    border-radius: 0.5rem;
+    font-family: 'Fira Code', 'Monaco', monospace;
+}
+
+.lesson-text-content pre {
+    padding: 1.25rem;
+    overflow-x: auto;
+    border: 1px solid var(--bs-gray-200);
+}
+
+.lesson-text-content code {
+    padding: 0.2em 0.4em;
+    font-size: 0.875em;
+    color: var(--bs-danger);
+}
+
+.lesson-text-content pre code {
+    color: inherit;
+    padding: 0;
+    background: transparent;
+}
+
+.lesson-text-content blockquote {
+    border-left: 4px solid var(--cv-primary);
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    background: rgba(59, 130, 246, 0.04);
+    border-radius: 0 0.5rem 0.5rem 0;
+    color: var(--bs-gray-700);
+}
+
+.lesson-text-content blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+.lesson-text-content ul,
+.lesson-text-content ol {
+    padding-left: 1.75rem;
+    margin-bottom: 1em;
+}
+
+.lesson-text-content li {
+    margin-bottom: 0.5em;
+    padding-left: 0.25rem;
+}
+
+.lesson-text-content a {
+    color: var(--cv-primary);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.lesson-text-content a:hover {
+    border-bottom-color: var(--cv-primary);
+}
+
+.lesson-text-content table {
+    width: 100%;
+    margin: 1.5rem 0;
+    border-collapse: collapse;
+}
+
+.lesson-text-content th,
+.lesson-text-content td {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--bs-gray-200);
+    text-align: left;
+}
+
+.lesson-text-content th {
+    background: var(--bs-gray-100);
+    font-weight: 600;
+}
+
+.lesson-text-content hr {
+    border: none;
+    border-top: 1px solid var(--bs-gray-200);
+    margin: 2rem 0;
+}
+
+/* ============================================
+   Quill Editor Content Styles
+   ============================================ */
+
+/* Text alignment - Quill classes */
+.lesson-text-content .ql-align-center,
+.lesson-text-content p.ql-align-center,
+.lesson-text-content h1.ql-align-center,
+.lesson-text-content h2.ql-align-center,
+.lesson-text-content h3.ql-align-center,
+.lesson-text-content h4.ql-align-center,
+.lesson-text-content h5.ql-align-center,
+.lesson-text-content h6.ql-align-center {
+    text-align: center !important;
+}
+
+.lesson-text-content .ql-align-right,
+.lesson-text-content p.ql-align-right {
+    text-align: right !important;
+}
+
+.lesson-text-content .ql-align-justify,
+.lesson-text-content p.ql-align-justify {
+    text-align: justify !important;
+}
+
+/* Preserve inline text-align styles */
+.lesson-text-content [style*="text-align: center"],
+.lesson-text-content [style*="text-align:center"] {
+    text-align: center !important;
+}
+
+.lesson-text-content [style*="text-align: right"],
+.lesson-text-content [style*="text-align:right"] {
+    text-align: right !important;
+}
+
+.lesson-text-content [style*="text-align: justify"],
+.lesson-text-content [style*="text-align:justify"] {
+    text-align: justify !important;
+}
+
+/* Quill indentation */
+.lesson-text-content .ql-indent-1 { padding-left: 3em; }
+.lesson-text-content .ql-indent-2 { padding-left: 6em; }
+.lesson-text-content .ql-indent-3 { padding-left: 9em; }
+.lesson-text-content .ql-indent-4 { padding-left: 12em; }
+.lesson-text-content .ql-indent-5 { padding-left: 15em; }
+.lesson-text-content .ql-indent-6 { padding-left: 18em; }
+.lesson-text-content .ql-indent-7 { padding-left: 21em; }
+.lesson-text-content .ql-indent-8 { padding-left: 24em; }
+
+/* Quill font sizes */
+.lesson-text-content .ql-size-small { font-size: 0.75em; }
+.lesson-text-content .ql-size-large { font-size: 1.5em; }
+.lesson-text-content .ql-size-huge { font-size: 2.5em; }
+
+/* Quill video embeds */
+.lesson-text-content .ql-video {
+    display: block;
+    max-width: 100%;
+    margin: 1.5rem auto;
+}
+
+/* Quill image alignment */
+.lesson-text-content img.ql-align-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.lesson-text-content img.ql-align-right {
+    display: block;
+    margin-left: auto;
+}
+
+/* ============================================
+   Responsive Adjustments
+   ============================================ */
+
+@media (max-width: 767.98px) {
+    .completion-checkmark-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+
+    .completion-section .card-body {
+        padding: 1.5rem !important;
+    }
+
+    .completion-section h3 {
+        font-size: 1.5rem;
+    }
+
+    .completion-section h4 {
+        font-size: 1.25rem;
+    }
+
+    /* Metadata bar stacking on tablet */
+    .lesson-viewer .bg-gray-100,
+    .quiz-viewer .bg-gray-100,
+    .assignment-viewer .bg-gray-100 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .lesson-viewer .bg-gray-100 > div,
+    .quiz-viewer .bg-gray-100 > div,
+    .assignment-viewer .bg-gray-100 > div {
+        margin-left: 0 !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .completion-checkmark-wrapper {
+        width: 70px;
+        height: 70px;
+    }
+
+    .completion-progress-pill {
+        padding: 0.5rem 1rem !important;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .completion-section .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    /* Footer stacking on mobile */
+    .lesson-viewer .card-footer .d-flex,
+    .quiz-viewer .card-footer .d-flex,
+    .assignment-viewer .card-footer .d-flex {
+        flex-direction: column;
+        gap: 0.75rem !important;
+    }
+
+    .lesson-viewer .card-footer .btn,
+    .quiz-viewer .card-footer .btn,
+    .assignment-viewer .card-footer .btn {
+        width: 100%;
+    }
+
+    /* Lesson nav stacking */
+    .lesson-nav {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .lesson-nav .nav-prev,
+    .lesson-nav .nav-next {
+        width: 100%;
+    }
+
+    .lesson-nav .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .completion-success-card,
+    .checkmark-circle-fill,
+    .checkmark-check,
+    .completion-section .card,
+    .status-pending-card .symbol-label,
+    .lesson-viewer .badge,
+    .quiz-viewer .badge,
+    .assignment-viewer .badge,
+    .lesson-viewer .symbol,
+    .quiz-viewer .symbol,
+    .assignment-viewer .symbol,
+    .lesson-viewer .bg-light-success,
+    .lesson-viewer .bg-light-danger,
+    .quiz-viewer .bg-light-success,
+    .quiz-viewer .bg-light-danger,
+    .assignment-viewer .bg-light-success,
+    .assignment-viewer .bg-light-danger,
+    .lesson-viewer .card-footer .btn,
+    .quiz-viewer .card-footer .btn,
+    .assignment-viewer .card-footer .btn {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .checkmark-circle-fill,
+    .checkmark-check {
+        stroke-dashoffset: 0 !important;
+    }
+}
+
+/* Focus states for keyboard navigation */
+.completion-section .btn:focus-visible,
+.lesson-viewer .card-footer .btn:focus-visible,
+.quiz-viewer .card-footer .btn:focus-visible,
+.assignment-viewer .card-footer .btn:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.5);
+    outline-offset: 3px;
+}
+
+/* ============================================
+   Dark Mode Support
+   ============================================ */
+
+[data-bs-theme="dark"] .completion-pending {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+[data-bs-theme="dark"] .status-action-card:hover {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+}
+
+[data-bs-theme="dark"] .completion-pending .symbol-label {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(16, 185, 129, 0.25) 100%) !important;
+}
+
+[data-bs-theme="dark"] .lesson-viewer .bg-gray-100,
+[data-bs-theme="dark"] .quiz-viewer .bg-gray-100,
+[data-bs-theme="dark"] .assignment-viewer .bg-gray-100 {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .completion-section,
+    .lesson-viewer .card-footer,
+    .quiz-viewer .card-footer,
+    .assignment-viewer .card-footer,
+    .lesson-viewer button,
+    .quiz-viewer button,
+    .assignment-viewer button {
+        display: none !important;
+    }
+
+    .lesson-viewer,
+    .quiz-viewer,
+    .assignment-viewer {
+        max-width: 100%;
+        box-shadow: none;
+    }
+}

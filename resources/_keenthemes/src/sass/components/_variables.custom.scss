@@ -1,0 +1,16 @@
+//
+// To make future updates easier consider overriding the global variables from _variables.bootstrap.scss and _variables.custom.scss for current demo in this file.
+// Note that this file is included first and variables defined in _variables.bootstrap.scss and _variables.custom.scss
+// are not accessible in this file but you can override any global variable as shown below:
+//
+
+// Override z-index values from 105 to 200
+// Layout z-index overrides
+$app-sidebar-fixed-z-index: 200 !default;
+$app-sidebar-sticky-z-index: 200 !default;
+$app-sidebar-panel-fixed-z-index-mobile: 200 !default;
+$app-layout-builder-toggle-z-index: 200 !default;
+
+// Component z-index overrides
+$scrolltop-z-index: 200 !default;
+

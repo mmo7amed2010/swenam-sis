@@ -1,0 +1,425 @@
+/**
+ * Quiz Take Styles - Metronic Design System
+ *
+ * Minimal custom CSS leveraging Metronic's utility classes
+ * Following Metronic v8+ design patterns and conventions
+ */
+
+/* ============================================
+   Question Cards - Display Control
+   ============================================ */
+
+.question-card {
+    display: none;
+    animation: questionFadeIn 0.3s ease forwards;
+}
+
+.question-card[style*="display: block"],
+.question-card[style*="display: flex"] {
+    display: block !important;
+}
+
+@keyframes questionFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   Question Navigation Grid - User Friendly
+   ============================================ */
+
+.question-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 0.75rem;
+}
+
+.question-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.5rem;
+    background: var(--bs-white);
+    border: 2px solid var(--bs-gray-300);
+    border-radius: 0.625rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.question-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    border-color: var(--bs-primary);
+}
+
+/* Question Circle */
+.question-circle {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bs-gray-200);
+    transition: all 0.2s ease;
+}
+
+.question-number {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--bs-gray-700);
+    transition: color 0.2s ease;
+}
+
+.check-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition: all 0.2s ease;
+    color: var(--bs-white);
+    font-size: 1.25rem;
+}
+
+/* Status Dot */
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--bs-gray-400);
+    transition: all 0.2s ease;
+}
+
+/* Current Question State */
+.question-item.current {
+    border-color: var(--bs-primary);
+    border-width: 3px;
+    background: linear-gradient(135deg, rgba(201, 169, 89, 0.1) 0%, rgba(201, 169, 89, 0.05) 100%);
+}
+
+.question-item.current .question-circle {
+    background: var(--bs-primary);
+    box-shadow: 0 0 0 4px rgba(201, 169, 89, 0.2);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.question-item.current .question-number {
+    color: var(--bs-white);
+}
+
+.question-item.current .status-dot {
+    background: var(--bs-primary);
+    box-shadow: 0 0 8px var(--bs-primary);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 4px rgba(201, 169, 89, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(201, 169, 89, 0.3);
+    }
+}
+
+@keyframes questionComplete {
+    0% {
+        transform: scale(1) translateY(0);
+    }
+    50% {
+        transform: scale(1.15) translateY(-5px);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Answered Question State */
+.question-item.answered:not(.current) {
+    border-color: var(--bs-success);
+    background: var(--bs-light-success);
+}
+
+.question-item.answered .question-circle {
+    background: var(--bs-success);
+}
+
+.question-item.answered .question-number {
+    opacity: 0;
+}
+
+.question-item.answered .check-icon {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+.question-item.answered .status-dot {
+    background: var(--bs-success);
+}
+
+/* Unanswered Question State */
+.question-item.unanswered:not(.current) .status-dot {
+    background: var(--bs-gray-400);
+}
+
+/* Hover Effects */
+.question-item.answered:hover {
+    border-color: var(--bs-success);
+}
+
+.question-item.unanswered:hover {
+    border-color: var(--bs-warning);
+}
+
+/* Legend Dots */
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   Answer Options - Enhanced States
+   ============================================ */
+
+.answer-option {
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.answer-option:hover {
+    transform: translateX(4px);
+}
+
+.answer-option:has(input:checked) {
+    background-color: var(--bs-light-primary) !important;
+    border-color: var(--bs-primary) !important;
+}
+
+.answer-option:has(input:checked)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--bs-primary);
+    border-radius: 0.475rem 0 0 0.475rem;
+}
+
+/* True/False specific variants */
+.answer-option:has(input:checked[value="true"]) {
+    background-color: var(--bs-light-success) !important;
+    border-color: var(--bs-success) !important;
+}
+
+.answer-option:has(input:checked[value="false"]) {
+    background-color: var(--bs-light-danger) !important;
+    border-color: var(--bs-danger) !important;
+}
+
+/* ============================================
+   Progress Bar Animation
+   ============================================ */
+
+#progressBar {
+    transition: width 0.5s ease;
+}
+
+/* ============================================
+   Timer States
+   ============================================ */
+
+#quizTimer.warning {
+    background-color: var(--bs-warning-light) !important;
+    border-color: var(--bs-warning) !important;
+}
+
+#quizTimer.danger {
+    background-color: var(--bs-danger-light) !important;
+    border-color: var(--bs-danger) !important;
+    animation: timerPulse 1s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+/* ============================================
+   Auto-save Indicator
+   ============================================ */
+
+.autosave-indicator {
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.autosave-indicator.show {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* ============================================
+   Form Check Enhancements
+   ============================================ */
+
+.form-check-input {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 2px;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* ============================================
+   Responsive - Mobile First
+   ============================================ */
+
+@media (max-width: 1199.98px) {
+    /* Larger grid items on tablets */
+    .question-grid {
+        grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    }
+
+    .question-circle {
+        width: 45px;
+        height: 45px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    /* More columns on medium devices */
+    .question-grid {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}
+
+@media (max-width: 767.98px) {
+    /* Compact grid on mobile */
+    .question-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 0.5rem;
+    }
+
+    .question-item {
+        padding: 0.5rem;
+    }
+
+    .question-circle {
+        width: 36px;
+        height: 36px;
+    }
+
+    .question-number {
+        font-size: 0.875rem;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+    }
+
+    /* Stack layout on mobile */
+    .question-card .card-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    .question-card .card-footer {
+        flex-direction: column !important;
+        gap: 1rem;
+    }
+
+    .question-card .card-footer .btn {
+        width: 100%;
+    }
+
+    .answer-option {
+        padding: 1rem !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Very compact on small phones */
+    .question-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    .question-circle {
+        width: 32px;
+        height: 32px;
+    }
+
+    .question-number {
+        font-size: 0.75rem;
+    }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+.answer-option:focus-within {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+.question-nav-btn:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .answer-option,
+    .question-nav-btn {
+        border-width: 3px !important;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+    .question-nav-btn,
+    .card-footer,
+    .autosave-indicator {
+        display: none !important;
+    }
+
+    .question-card {
+        display: block !important;
+        page-break-inside: avoid;
+    }
+}
+
