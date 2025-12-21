@@ -41,10 +41,10 @@ class Announcement extends Model
     /**
      * Get the course this announcement belongs to (null for system announcements).
      */
-    public function course(): BelongsTo
-    {
-        return $this->belongsTo(Course::class);
-    }
+    // public function course(): BelongsTo
+    // {
+    //     return $this->belongsTo(Course::class);
+    // }
 
     /**
      * Get the user who created this announcement.

@@ -54,13 +54,13 @@ class CourseChangeLog extends Model
         'created_at' => 'datetime',
     ];
 
-    /**
-     * Get the course that this change log belongs to.
-     */
-    public function course()
-    {
-        return $this->belongsTo(Course::class);
-    }
+    // /**
+    //  * Get the course that this change log belongs to.
+    //  */
+    // public function course()
+    // {
+    //     return $this->belongsTo(Course::class);
+    // }
 
     /**
      * Get the user who made the change.

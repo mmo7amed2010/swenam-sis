@@ -21,9 +21,9 @@ class UsersSeeder extends Seeder
         User::create([
             'name' => 'owner',
             'email_verified_at' => now(),
-            'email' => 'owner@intrazero.com',
+            'email' => 'owner@lms.com',
             'user_type' => 'admin',
-            'password' => Hash::make('Owner123'),
+            'password' => Hash::make('admin'),
         ]);
 
         $this->command->info('Admin user created.');

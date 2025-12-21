@@ -1,0 +1,23 @@
+[0;1;32m●[0m supervisor.service - Supervisor process control system for UNIX
+     Loaded: loaded (]8;;file://swenam-lms/usr/lib/systemd/system/supervisor.service/usr/lib/systemd/system/supervisor.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Sat 2025-12-20 20:20:31 UTC; 3s ago
+       Docs: ]8;;http://supervisord.orghttp://supervisord.org]8;;
+   Main PID: 272447 (supervisord)
+      Tasks: 3 (limit: 19147)
+     Memory: 98.0M (peak: 98.8M)
+        CPU: 548ms
+     CGroup: /system.slice/supervisor.service
+             ├─[0;38;5;245m272447 /usr/bin/python3 /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf[0m
+             ├─[0;38;5;245m272451 /usr/bin/php /var/www/lms/artisan queue:work --sleep=3 --tries=3 --timeout=90[0m
+             └─[0;38;5;245m272452 /usr/bin/php /var/www/swenam-sis/artisan queue:work --sleep=3 --tries=3 --timeout=90[0m
+
+Dec 20 20:20:31 swenam-lms supervisord[272447]: 2025-12-20 20:20:31,743 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+Dec 20 20:20:31 swenam-lms supervisord[272447]: 2025-12-20 20:20:31,744 INFO Included extra file "/etc/supervisor/conf.d/lms-queue.conf" during parsing
+Dec 20 20:20:31 swenam-lms supervisord[272447]: 2025-12-20 20:20:31,744 INFO Included extra file "/etc/supervisor/conf.d/sis-queue.conf" during parsing
+Dec 20 20:20:31 swenam-lms supervisord[272447]: 2025-12-20 20:20:31,746 INFO RPC interface 'supervisor' initialized
+Dec 20 20:20:31 swenam-lms supervisord[272447]: 2025-12-20 20:20:31,746 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+Dec 20 20:20:31 swenam-lms supervisord[272447]: 2025-12-20 20:20:31,746 INFO supervisord started with pid 272447
+Dec 20 20:20:32 swenam-lms supervisord[272447]: 2025-12-20 20:20:32,749 INFO spawned: 'lms-queue_00' with pid 272451
+Dec 20 20:20:32 swenam-lms supervisord[272447]: 2025-12-20 20:20:32,750 INFO spawned: 'sis-queue_00' with pid 272452
+Dec 20 20:20:33 swenam-lms supervisord[272447]: 2025-12-20 20:20:33,752 INFO success: lms-queue_00 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+Dec 20 20:20:33 swenam-lms supervisord[272447]: 2025-12-20 20:20:33,752 INFO success: sis-queue_00 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
