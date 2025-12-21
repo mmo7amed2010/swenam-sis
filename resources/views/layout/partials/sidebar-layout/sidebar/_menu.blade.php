@@ -104,18 +104,6 @@
                     <!--end:Menu link-->
                 </div>
                 <!--end:Menu item-->
-
-                <!--begin:Menu item - My Courses-->
-                <div class="menu-item">
-                    <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('instructor.courses.*') || request()->routeIs('instructor.programs.*') ? 'active' : '' }}"
-                        href="{{ route('instructor.courses.index') }}">
-                        <span class="menu-icon">{!! getIcon('book-open', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('My Courses') }}</span>
-                    </a>
-                    <!--end:Menu link-->
-                </div>
-                <!--end:Menu item-->
             @endif
 
             {{-- Admin Menu Items --}}
@@ -194,18 +182,6 @@
                         href="{{ route('admin.applications.index') }}">
                         <span class="menu-icon">{!! getIcon('document', 'fs-2') !!}</span>
                         <span class="menu-title">{{ __('Applications') }}</span>
-                    </a>
-                    <!--end:Menu link-->
-                </div>
-                <!--end:Menu item-->
-
-                <!--begin:Menu item - System Announcements-->
-                <div class="menu-item">
-                    <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}"
-                        href="{{ route('admin.announcements.index') }}">
-                        <span class="menu-icon">{!! getIcon('notification-bing', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Announcements') }}</span>
                     </a>
                     <!--end:Menu link-->
                 </div>
