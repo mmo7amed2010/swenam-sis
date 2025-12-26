@@ -84,7 +84,7 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
     });
 
     // Admin-only routes - User Management
-    Route::middleware(['admin'])->name('user-management.')->group(function () {
+    Route::middleware(['admin', 'super.admin'])->name('user-management.')->group(function () {
         Route::resource('/user-management/users', UserManagementController::class);
     });
 

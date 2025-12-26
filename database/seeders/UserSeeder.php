@@ -24,6 +24,7 @@ class UserSeeder extends Seeder
             'user_type' => 'admin',
             'password' => Hash::make('Password123'),
             'email_verified_at' => now(),
+            'is_super_admin' => true,
         ]);
 
         $this->command->info('Created 3 test users: student@example.com, instructor@example.com, admin@example.com');
