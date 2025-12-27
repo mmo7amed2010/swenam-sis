@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\ExistsInLms;
 use App\Rules\ValidationRulesets;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -36,7 +37,7 @@ class StudentRequest extends FormRequest
             'email' => ValidationRulesets::userEmail($userId),
             'phone' => ['nullable', 'string', 'max:20'],
             'date_of_birth' => ['nullable', 'date'],
-            'program_id' => ['required', 'exists:programs,id'],
+            'program_id' => ['required', 'integer', new ExistsInLms('programs')],
         ];
 
         // Password rules differ for create vs update

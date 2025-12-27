@@ -62,7 +62,7 @@
                     <select name="program_id" class="form-select form-select-sm w-175px">
                         <option value="">{{ __('All Programs') }}</option>
                         @foreach($programs as $program)
-                            <option value="{{ $program->id }}">{{ $program->name }}</option>
+                            <option value="{{ $program['id'] }}">{{ $program['name'] }}</option>
                         @endforeach
                     </select>
                 </x-slot:filters>

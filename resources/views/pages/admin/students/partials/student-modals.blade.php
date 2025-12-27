@@ -95,10 +95,7 @@
         <select name="program_id" class="form-select form-select-solid" required>
             <option value="">{{ __('Select a program...') }}</option>
             @foreach ($programs as $program)
-                <option value="{{ $program->id }}">
-                    {{ $program->name }}
-                    @if($program->code) ({{ $program->code }}) @endif
-                </option>
+                <option value="{{ $program['id'] }}">{{ $program['name'] }}</option>
             @endforeach
         </select>
         <div class="form-text">{{ __('Select the program the student will be enrolled in.') }}</div>
@@ -203,10 +200,7 @@
         <select name="program_id" class="form-select form-select-solid" required data-student-field="program_id">
             <option value="">{{ __('Select a program...') }}</option>
             @foreach ($programs as $program)
-                <option value="{{ $program->id }}">
-                    {{ $program->name }}
-                    @if($program->code) ({{ $program->code }}) @endif
-                </option>
+                <option value="{{ $program['id'] }}">{{ $program['name'] }}</option>
             @endforeach
         </select>
     </div>
