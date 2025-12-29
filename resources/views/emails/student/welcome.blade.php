@@ -29,7 +29,7 @@ Login to LMS
 3. Explore your student dashboard
 4. Access your enrolled courses
 
-If you have any questions, please contact support@swenamcollege.ca.
+If you have any questions, please contact enrolment@swenamcollege.com .
 
 Welcome aboard!
 

@@ -37,7 +37,7 @@ Login to Student Portal
 
 **Note:** Course access will be enabled after your application is approved.
 
-If you have any questions, please contact support@swenamcollege.ca.
+If you have any questions, please contact enrolment@swenamcollege.com.
 
 Best regards,<br>
 {{ config('app.name') }} Admissions Team

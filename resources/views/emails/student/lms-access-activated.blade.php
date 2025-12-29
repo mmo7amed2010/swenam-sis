@@ -29,7 +29,7 @@ Login to Access Courses
 
 If you have any questions or need assistance, please contact:
 
-- **Email:** support@swenamcollege.ca
+- **Email:** enrolment@swenamcollege.com
 
 Welcome aboard!
 
