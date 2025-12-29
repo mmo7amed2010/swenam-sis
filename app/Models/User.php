@@ -24,6 +24,7 @@ class User extends Authenticatable
         'user_type',
         'password',
         'program_id',
+        'intake_id',
         'failed_login_attempts',
         'locked_until',
         'password_change_required',
@@ -58,6 +59,7 @@ class User extends Authenticatable
         'password_change_required' => 'boolean',
         'is_super_admin' => 'boolean',
         'bypass_application' => 'boolean',
+        'intake_id' => 'integer',
     ];
 
     public function getProfilePhotoUrlAttribute()

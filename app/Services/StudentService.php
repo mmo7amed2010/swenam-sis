@@ -42,6 +42,7 @@ class StudentService
                 'password' => Hash::make($data['password']),
                 'user_type' => 'student',
                 'program_id' => $data['program_id'],
+                'intake_id' => $data['intake_id'] ?? null,
                 'bypass_application' => $data['bypass_application'] ?? false,
             ]);
 
@@ -111,7 +112,7 @@ class StudentService
             'date_of_birth' => $data['date_of_birth'] ?? null,
         ]);
 
-        // Update user record (name, first_name, last_name, email, password, program_id, bypass_application)
+        // Update user record (name, first_name, last_name, email, password, program_id, intake_id, bypass_application)
         if ($student->user) {
             $userData = [
                 'name' => trim($data['first_name'].' '.$data['last_name']),
@@ -119,6 +120,7 @@ class StudentService
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'program_id' => $newProgramId,
+                'intake_id' => $data['intake_id'] ?? null,
                 'bypass_application' => $isNowBypassed,
             ];
 
