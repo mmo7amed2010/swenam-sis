@@ -54,6 +54,7 @@ class UserManagementController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'user_type' => $user->user_type,
+                    'is_super_admin' => $user->is_super_admin ?? false,
                     'profile_photo_url' => $user->profile_photo_url,
                     'last_login_at' => $user->last_login_at?->diffForHumans() ?? 'Never',
                     'created_at' => $user->created_at->format('Y-m-d H:i:s'),
@@ -134,6 +135,7 @@ class UserManagementController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'is_super_admin' => $user->is_super_admin ?? false,
                     'profile_photo_url' => $user->profile_photo_url,
                 ],
             ]);
@@ -153,6 +155,7 @@ class UserManagementController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'is_super_admin' => $user->is_super_admin ?? false,
                     'profile_photo_url' => $user->profile_photo_url,
                 ],
             ]);

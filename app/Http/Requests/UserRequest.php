@@ -31,7 +31,7 @@ class UserRequest extends FormRequest
             'email' => ValidationRulesets::userEmail($userId),
             'avatar' => ['nullable', 'image', 'max:2048'],
             'avatar_remove' => ['nullable'],
-
+            'is_super_admin' => ['nullable', 'boolean'],
         ];
 
         // Password rules differ for create vs update

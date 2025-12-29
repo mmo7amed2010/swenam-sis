@@ -39,9 +39,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // Fill form fields
         const nameInput = editModal.querySelector('[data-admin-field="name"]');
         const emailInput = editModal.querySelector('[data-admin-field="email"]');
+        const isSuperAdminInput = editModal.querySelector('[data-admin-field="is_super_admin"]');
 
         if (nameInput) nameInput.value = data.name || '';
         if (emailInput) emailInput.value = data.email || '';
+        if (isSuperAdminInput) {
+            isSuperAdminInput.checked = data.is_super_admin === true || data.is_super_admin === 1 || data.is_super_admin === '1';
+        }
 
         // Clear password fields
         const passwordInput = editModal.querySelector('input[name="password"]');
@@ -91,7 +95,8 @@ document.addEventListener('DOMContentLoaded', function() {
             id: button.dataset.adminId,
             name: button.dataset.adminName,
             email: button.dataset.adminEmail,
-            profile_photo_url: button.dataset.adminAvatar
+            profile_photo_url: button.dataset.adminAvatar,
+            is_super_admin: button.dataset.adminIsSuperAdmin === '1' || button.dataset.adminIsSuperAdmin === 'true'
         };
         setEditModalData(data);
         if (editModal) {
@@ -225,7 +230,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             data-admin-id="${row.id}"
                             data-admin-name="${escapeAttr(row.name)}"
                             data-admin-email="${escapeAttr(row.email)}"
-                            data-admin-avatar="${escapeAttr(row.profile_photo_url || '')}"`;
+                            data-admin-avatar="${escapeAttr(row.profile_photo_url || '')}"
+                            data-admin-is-super-admin="${row.is_super_admin ? '1' : '0'}"`;
 
                         const deleteItem = row.can_delete
                             ? `<li>

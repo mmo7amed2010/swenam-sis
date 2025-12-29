@@ -34,6 +34,7 @@ class AdminService
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
                 'user_type' => 'admin',
+                'is_super_admin' => isset($data['is_super_admin']) && ($data['is_super_admin'] === true || $data['is_super_admin'] === 1 || $data['is_super_admin'] === '1'),
             ]);
 
             // Handle avatar upload
@@ -78,6 +79,10 @@ class AdminService
         if (! empty($data['password'])) {
             $updateData['password'] = Hash::make($data['password']);
         }
+
+        // Update is_super_admin - checkbox sends '1' when checked, nothing when unchecked
+        // So if it exists in data, it's checked; otherwise it's unchecked
+        $updateData['is_super_admin'] = isset($data['is_super_admin']) && ($data['is_super_admin'] === true || $data['is_super_admin'] === 1 || $data['is_super_admin'] === '1');
 
         // Handle avatar upload
         if (isset($data['avatar']) && $data['avatar']) {

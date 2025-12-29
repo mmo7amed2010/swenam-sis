@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
 use App\Models\Student;
+use App\Services\LmsApiService;
 use App\Services\StudentService;
 use App\Traits\HandlesDataTableRequests;
 use Illuminate\Http\Request;
@@ -36,7 +37,8 @@ class StudentController extends Controller
     ];
 
     public function __construct(
-        private StudentService $studentService
+        private StudentService $studentService,
+        private LmsApiService $lmsApiService
     ) {}
 
     /**
@@ -82,7 +84,7 @@ class StudentController extends Controller
 
         // Regular page load - return view with counts and programs
         $stats = $this->studentService->getStatistics();
-        $programs = $this->studentService->getActivePrograms();
+        $programs = $this->lmsApiService->getPrograms();
 
         return view('pages.admin.students.index', [
             'totalStudents' => $stats['total'],

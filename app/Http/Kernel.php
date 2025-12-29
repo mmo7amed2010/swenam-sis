@@ -71,5 +71,6 @@ class Kernel extends HttpKernel
         'student' => \App\Http\Middleware\EnsureUserIsStudent::class,
         'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         'instructor' => \App\Http\Middleware\EnsureUserIsInstructor::class,
+        'super.admin' => \App\Http\Middleware\EnsureUserIsSuperAdmin::class,
     ];
 }

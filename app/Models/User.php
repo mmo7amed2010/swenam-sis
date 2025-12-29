@@ -32,6 +32,7 @@ class User extends Authenticatable
         'profile_photo_path',
         'lms_user_id',
         'email_verified_at',
+        'is_super_admin',
     ];
 
     /**
@@ -54,6 +55,7 @@ class User extends Authenticatable
         'last_login_at' => 'datetime',
         'locked_until' => 'datetime',
         'password_change_required' => 'boolean',
+        'is_super_admin' => 'boolean',
     ];
 
     public function getProfilePhotoUrlAttribute()
@@ -145,6 +147,14 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->user_type === 'admin';
+    }
+
+    /**
+     * Check if user is a super admin (admin with super admin privileges)
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->user_type === 'admin' && $this->is_super_admin === true;
     }
 
     /**

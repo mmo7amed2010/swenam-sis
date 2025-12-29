@@ -84,6 +84,18 @@
         </div>
     </div>
 
+    <div class="mb-5">
+        <div class="form-check form-check-custom form-check-solid">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="is_super_admin"
+                   value="1"
+                   id="createIsSuperAdmin" />
+            <label class="form-check-label" for="createIsSuperAdmin">
+                {{ __('Super Admin') }}
+            </label>
+        </div>
+    </div>
 
 </x-modals.ajax-form>
 
@@ -158,6 +170,19 @@
         </div>
     </div>
 
+    <div class="mb-5">
+        <div class="form-check form-check-custom form-check-solid">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="is_super_admin"
+                   value="1"
+                   id="editIsSuperAdmin"
+                   data-admin-field="is_super_admin" />
+            <label class="form-check-label" for="editIsSuperAdmin">
+                {{ __('Super Admin') }}
+            </label>
+        </div>
+    </div>
 
     <input type="hidden" data-update-url-template="{{ $updateUrlTemplate }}">
 </x-modals.ajax-form>
