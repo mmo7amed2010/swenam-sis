@@ -31,8 +31,7 @@ Visit Our Website
 </x-mail::button>
 
 If you have any questions about your application, please contact our admissions office at:
-**Email:** admissions@lmscollege.edu
-**Phone:** +1 (555) 123-4567
+**Email:** enrolment@swenamcollege.com
 
 Thank you for choosing LMS College!
 

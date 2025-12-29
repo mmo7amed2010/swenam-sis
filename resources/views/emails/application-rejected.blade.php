@@ -39,9 +39,7 @@ Browse All Programs
 If you would like to discuss your application or receive feedback that might help strengthen a future application, please contact our admissions office:
 
 **Admissions Office:**
-- **Email:** admissions@lmscollege.edu
-- **Phone:** +1 (555) 123-4567
-- **Hours:** Monday - Friday, 9:00 AM - 5:00 PM
+- **Email:** enrolment@swenamcollege.com
 
 We appreciate your interest in LMS College and wish you the best in your educational pursuits.
 
