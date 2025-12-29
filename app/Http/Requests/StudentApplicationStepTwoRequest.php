@@ -22,7 +22,7 @@ class StudentApplicationStepTwoRequest extends FormRequest
         return [
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email', 'unique:student_applications,email'],
             'email_confirmation' => ['required', 'same:email'],
             'phone' => ['required', 'string', 'max:50'],
             'date_of_birth' => ['required', 'date', 'before:'.now()->subYears(16)->format('Y-m-d')],
