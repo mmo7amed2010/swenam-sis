@@ -63,8 +63,8 @@
             <!--begin::Wrapper-->
             <div class="mb-1">
                 <!--begin::Input wrapper-->
+                <label class="form-label fw-bold text-gray-900 fs-6 mb-3">{{ __('New Password') }}</label>
                 <div class="position-relative mb-3">
-                    <label class="form-label fw-bold text-gray-900 fs-6">{{ __('New Password') }}</label>
                     <input class="form-control bg-transparent @error('password') is-invalid @enderror" 
                            type="password" 
                            placeholder="{{ __('New Password') }}" 
