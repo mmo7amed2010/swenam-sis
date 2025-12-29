@@ -30,7 +30,6 @@ Login to Access Courses
 If you have any questions or need assistance, please contact:
 
 - **Email:** support@swenamcollege.ca
-- **Phone:** +1 (555) 123-4567
 
 Welcome aboard!
 

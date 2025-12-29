@@ -43,8 +43,6 @@ If you have any questions or encounter any issues accessing your account, please
 
 **Student Support:**
 - **Email:** support@lmscollege.edu
-- **Phone:** +1 (555) 123-4567
-- **Hours:** Monday - Friday, 9:00 AM - 5:00 PM
 
 We look forward to supporting you on your educational journey at LMS College!
 
