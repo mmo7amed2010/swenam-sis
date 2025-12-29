@@ -37,7 +37,7 @@
                 <!--begin:Menu item - My Courses -->
                 <div class="menu-item">
                     <!--begin:Menu link-->
-                    @if(auth()->user()->hasLmsAccount())
+                    @if(auth()->user()->isApplicationApproved() && auth()->user()->hasLmsAccount())
                         <a class="menu-link" href="{{ route('student.my-courses.redirect') }}" target="_blank">
                             <span class="menu-icon">{!! getIcon('book-open', 'fs-2') !!}</span>
                             <span class="menu-title">{{ __('My Courses') }}</span>
@@ -65,7 +65,7 @@
                 <!--begin:Menu item - My Grades -->
                 <div class="menu-item">
                     <!--begin:Menu link-->
-                    @if(auth()->user()->hasLmsAccount())
+                    @if(auth()->user()->isApplicationApproved() && auth()->user()->hasLmsAccount())
                         <a class="menu-link" href="{{ route('student.my-grades.redirect') }}" target="_blank">
                             <span class="menu-icon">{!! getIcon('chart-simple', 'fs-2') !!}</span>
                             <span class="menu-title">{{ __('My Grades') }}</span>

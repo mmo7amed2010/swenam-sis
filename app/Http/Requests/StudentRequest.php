@@ -31,6 +31,12 @@ class StudentRequest extends FormRequest
             $userId = $studentModel?->user_id;
         }
 
+        // Check if student already has LMS account (intake not needed in that case)
+        $hasLmsAccount = false;
+        if ($isUpdate && $studentModel) {
+            $hasLmsAccount = (bool) $studentModel->user?->lms_user_id;
+        }
+
         $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
@@ -38,6 +44,11 @@ class StudentRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:20'],
             'date_of_birth' => ['nullable', 'date'],
             'program_id' => ['required', 'integer', new ExistsInLms('programs')],
+            'bypass_application' => ['nullable', 'boolean'],
+            // intake_id is required only when bypass is enabled AND no LMS account exists
+            'intake_id' => $hasLmsAccount
+                ? ['nullable', 'integer', new ExistsInLms('intakes')]
+                : ['required_if:bypass_application,1,true', 'nullable', 'integer', new ExistsInLms('intakes')],
         ];
 
         // Password rules differ for create vs update
@@ -70,6 +81,7 @@ class StudentRequest extends FormRequest
             'program_id.exists' => 'The selected program is invalid.',
             'phone.max' => 'Phone number cannot exceed 20 characters.',
             'date_of_birth.date' => 'Please provide a valid date of birth.',
+            'intake_id.required_if' => 'Please select an intake when bypass application is enabled.',
         ];
     }
 }

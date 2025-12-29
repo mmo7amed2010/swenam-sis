@@ -35,7 +35,68 @@
                         </div>
                     @endif
 
-                    @if($application)
+                    @if(!empty($isBypassStudent) && empty($application))
+                        {{-- Bypass Student without Application - Show Approved State --}}
+                        <div class="row mb-7">
+                            <div class="col-lg-6">
+                                @if($program)
+                                    <div class="d-flex align-items-center mb-5">
+                                        <div class="symbol symbol-45px me-4">
+                                            <span class="symbol-label bg-light-info">
+                                                <i class="ki-duotone ki-route fs-2 text-info">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                    <span class="path3"></span>
+                                                    <span class="path4"></span>
+                                                </i>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="fs-7 text-muted">{{ __('Program') }}</div>
+                                            <div class="fw-bold text-gray-800 fs-5">{{ $program->name }}</div>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="d-flex align-items-center mb-5">
+                                    <div class="symbol symbol-45px me-4">
+                                        <span class="symbol-label bg-light-success">
+                                            <i class="ki-duotone ki-check-circle fs-2 text-success">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                            </i>
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <div class="fs-7 text-muted">{{ __('Status') }}</div>
+                                        <div class="fw-bold fs-5">
+                                            <span class="text-success">{{ __('Active') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Access Granted Message --}}
+                        <div class="notice d-flex bg-light-success rounded border-success border border-dashed p-6 mb-5">
+                            <i class="ki-duotone ki-shield-tick fs-2tx text-success me-4">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                            <div class="d-flex flex-stack flex-grow-1 flex-wrap flex-md-nowrap">
+                                <div class="fw-semibold">
+                                    <h4 class="text-gray-900 fw-bold">{{ __('Program Access Granted!') }}</h4>
+                                    <div class="fs-6 text-gray-700">
+                                        {{ __('You have been granted access to your courses. Click the button to start learning.') }}
+                                    </div>
+                                </div>
+                                <a href="{{ route('student.my-courses.redirect') }}" class="btn btn-success px-6 align-self-center text-nowrap ms-4" target="_blank">
+                                    {{ __('Go to My Courses') }}
+                                </a>
+                            </div>
+                        </div>
+                    @elseif($application)
                         {{-- Application Details --}}
                         <div class="row mb-7">
                             <div class="col-lg-6">

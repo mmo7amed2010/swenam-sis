@@ -90,7 +90,7 @@
         </div>
     </div>
 
-    <div class="mb-2">
+    <div class="mb-5">
         <label class="required form-label">{{ __('Program') }}</label>
         <select name="program_id" class="form-select form-select-solid" required>
             <option value="">{{ __('Select a program...') }}</option>
@@ -99,6 +99,27 @@
             @endforeach
         </select>
         <div class="form-text">{{ __('Select the program the student will be enrolled in.') }}</div>
+    </div>
+
+    <div class="mb-5">
+        <div class="form-check form-switch form-check-custom form-check-solid">
+            <input class="form-check-input" type="checkbox" name="bypass_application" value="1" id="createBypassApplication" />
+            <label class="form-check-label fw-semibold" for="createBypassApplication">
+                {{ __('Bypass Application') }}
+            </label>
+        </div>
+        <div class="form-text text-muted">{{ __('Allow student to access LMS without an approved application. An LMS account will be created automatically.') }}</div>
+    </div>
+
+    <div class="mb-2 d-none" id="createIntakeSection">
+        <label class="required form-label">{{ __('Intake') }}</label>
+        <select name="intake_id" class="form-select form-select-solid" id="createIntakeSelect">
+            <option value="">{{ __('Select an intake...') }}</option>
+            @foreach ($intakes ?? [] as $intake)
+                <option value="{{ $intake['id'] }}">{{ $intake['name'] }}</option>
+            @endforeach
+        </select>
+        <div class="form-text">{{ __('Select the intake for LMS enrollment. Required when bypassing application.') }}</div>
     </div>
 </x-modals.ajax-form>
 
@@ -195,7 +216,7 @@
         </div>
     </div>
 
-    <div class="mb-2">
+    <div class="mb-5">
         <label class="required form-label">{{ __('Program') }}</label>
         <select name="program_id" class="form-select form-select-solid" required data-student-field="program_id">
             <option value="">{{ __('Select a program...') }}</option>
@@ -203,6 +224,27 @@
                 <option value="{{ $program['id'] }}">{{ $program['name'] }}</option>
             @endforeach
         </select>
+    </div>
+
+    <div class="mb-5">
+        <div class="form-check form-switch form-check-custom form-check-solid">
+            <input class="form-check-input" type="checkbox" name="bypass_application" value="1" id="editBypassApplication" data-student-field="bypass_application" />
+            <label class="form-check-label fw-semibold" for="editBypassApplication">
+                {{ __('Bypass Application') }}
+            </label>
+        </div>
+        <div class="form-text text-muted">{{ __('Allow student to access LMS without an approved application. An LMS account will be created automatically.') }}</div>
+    </div>
+
+    <div class="mb-2 d-none" id="editIntakeSection">
+        <label class="required form-label">{{ __('Intake') }}</label>
+        <select name="intake_id" class="form-select form-select-solid" id="editIntakeSelect" data-student-field="intake_id">
+            <option value="">{{ __('Select an intake...') }}</option>
+            @foreach ($intakes ?? [] as $intake)
+                <option value="{{ $intake['id'] }}">{{ $intake['name'] }}</option>
+            @endforeach
+        </select>
+        <div class="form-text">{{ __('Select the intake for LMS enrollment. Required when bypassing application.') }}</div>
     </div>
 
     <input type="hidden" data-update-url-template="{{ $updateUrlTemplate }}">

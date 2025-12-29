@@ -36,10 +36,13 @@ class StudentService
             // Create user account with program assignment
             $user = User::create([
                 'name' => trim($data['first_name'].' '.$data['last_name']),
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'password' => Hash::make($data['password']),
                 'user_type' => 'student',
                 'program_id' => $data['program_id'],
+                'bypass_application' => $data['bypass_application'] ?? false,
             ]);
 
             // Create student record
@@ -55,6 +58,11 @@ class StudentService
             ]);
 
             DB::commit();
+
+            // If bypass is enabled, create LMS account immediately
+            if ($data['bypass_application'] ?? false) {
+                $this->createLmsAccountForBypassStudent($user, $student, $data['program_id'], $data['intake_id'] ?? null);
+            }
 
             // Clear cached counts
             $this->clearCountCache();
@@ -85,6 +93,9 @@ class StudentService
         $oldProgramId = $student->user?->program_id;
         $newProgramId = $data['program_id'] ?? null;
 
+        // Track bypass status
+        $isNowBypassed = $data['bypass_application'] ?? false;
+
         // Update password only if provided
         $userPassword = null;
         if (! empty($data['password'])) {
@@ -100,12 +111,15 @@ class StudentService
             'date_of_birth' => $data['date_of_birth'] ?? null,
         ]);
 
-        // Update user record (name, email, password, program_id)
+        // Update user record (name, first_name, last_name, email, password, program_id, bypass_application)
         if ($student->user) {
             $userData = [
                 'name' => trim($data['first_name'].' '.$data['last_name']),
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
                 'email' => $data['email'],
                 'program_id' => $newProgramId,
+                'bypass_application' => $isNowBypassed,
             ];
 
             if ($userPassword) {
@@ -113,6 +127,12 @@ class StudentService
             }
 
             $student->user->update($userData);
+
+            // If bypass is enabled and no LMS account exists, create one
+            // This handles both newly enabled bypass AND retry if previous creation failed
+            if ($isNowBypassed && ! $student->user->lms_user_id && ! empty($data['intake_id'])) {
+                $this->createLmsAccountForBypassStudent($student->user, $student, $newProgramId, $data['intake_id']);
+            }
         }
 
         // Log program change if applicable
@@ -279,9 +299,9 @@ class StudentService
      */
     public function getNewThisMonthCount(int $cacheDuration = 300): int
     {
-            return Student::whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->count();
+        return Student::whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->count();
     }
 
     /**
@@ -289,9 +309,7 @@ class StudentService
      *
      * Call this after creating/updating/deleting students.
      */
-    public function clearCountCache(): void
-    {
-    }
+    public function clearCountCache(): void {}
 
     /**
      * Get all active programs for selection.
@@ -327,5 +345,52 @@ class StudentService
             'without_applications' => $this->getWithoutApplicationsCount(0),
             'new_this_month' => $this->getNewThisMonthCount(0),
         ];
+    }
+
+    /**
+     * Create LMS account for a bypass student.
+     * This is used when bypass_application is enabled and the student needs LMS access.
+     *
+     * @param  User  $user  The user to create LMS account for
+     * @param  Student  $student  The student record
+     * @param  int  $programId  The program ID
+     * @param  int|null  $intakeId  The intake ID
+     */
+    private function createLmsAccountForBypassStudent(User $user, Student $student, int $programId, ?int $intakeId = null): void
+    {
+        try {
+            $lmsApiService = app(LmsApiService::class);
+
+            $result = $lmsApiService->createStudent([
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'phone' => $student->phone,
+                'date_of_birth' => $student->date_of_birth?->format('Y-m-d'),
+                'program_id' => $programId,
+                'intake_id' => $intakeId,
+            ]);
+
+            if ($result['success'] && $result['user_id']) {
+                $user->update(['lms_user_id' => $result['user_id']]);
+
+                Log::info('LMS account created for bypass student', [
+                    'sis_user_id' => $user->id,
+                    'lms_user_id' => $result['user_id'],
+                    'student_number' => $student->student_number,
+                ]);
+            } else {
+                Log::error('Failed to create LMS account for bypass student', [
+                    'sis_user_id' => $user->id,
+                    'error' => $result['error'] ?? 'Unknown error',
+                    'lms_response_user_id' => $result['user_id'] ?? null,
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('LMS API error during bypass student account creation', [
+                'sis_user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

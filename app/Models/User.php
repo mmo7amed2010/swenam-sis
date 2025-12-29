@@ -33,6 +33,7 @@ class User extends Authenticatable
         'lms_user_id',
         'email_verified_at',
         'is_super_admin',
+        'bypass_application',
     ];
 
     /**
@@ -56,12 +57,13 @@ class User extends Authenticatable
         'locked_until' => 'datetime',
         'password_change_required' => 'boolean',
         'is_super_admin' => 'boolean',
+        'bypass_application' => 'boolean',
     ];
 
     public function getProfilePhotoUrlAttribute()
     {
         if ($this->profile_photo_path) {
-            return asset('storage/' . $this->profile_photo_path);
+            return asset('storage/'.$this->profile_photo_path);
         }
 
         return $this->profile_photo_path;
@@ -101,15 +103,12 @@ class User extends Authenticatable
 
     /**
      * Check if user wants email for a specific notification type.
-     *
-     * @param string $type
-     * @return bool
      */
     public function wantsNotificationEmail(string $type): bool
     {
         $settings = $this->notificationSettings()->first();
 
-        if (!$settings) {
+        if (! $settings) {
             // Create default settings if they don't exist
             $settings = NotificationSetting::getOrCreateForUser($this->id);
         }
@@ -160,6 +159,7 @@ class User extends Authenticatable
     /**
      * Check if student's application is fully approved.
      * Returns false for non-students.
+     * Returns true if bypass_application is enabled.
      */
     public function isApplicationApproved(): bool
     {
@@ -167,15 +167,24 @@ class User extends Authenticatable
             return false;
         }
 
+        if ($this->bypass_application) {
+            return true;
+        }
+
         return $this->student?->studentApplication?->isApproved() ?? false;
     }
 
     /**
      * Check if student has pending application (not yet approved).
+     * Returns false if bypass_application is enabled.
      */
     public function hasApplicationPending(): bool
     {
         if (! $this->isStudent()) {
+            return false;
+        }
+
+        if ($this->bypass_application) {
             return false;
         }
 

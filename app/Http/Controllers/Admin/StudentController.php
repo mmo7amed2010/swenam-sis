@@ -65,6 +65,8 @@ class StudentController extends Controller
                     'profile_photo_url' => $student->user?->profile_photo_url,
                     'program_id' => $student->user?->program_id,
                     'program_name' => $student->user?->program?->name,
+                    'bypass_application' => $student->user?->bypass_application ?? false,
+                    'has_lms_account' => (bool) $student->user?->lms_user_id,
                     'application_reference' => $student->studentApplication?->reference_number,
                     'application_url' => $student->studentApplication
                         ? route('admin.applications.show', $student->studentApplication)
@@ -85,6 +87,7 @@ class StudentController extends Controller
         // Regular page load - return view with counts and programs
         $stats = $this->studentService->getStatistics();
         $programs = $this->lmsApiService->getPrograms();
+        $intakes = $this->lmsApiService->getIntakes();
 
         return view('pages.admin.students.index', [
             'totalStudents' => $stats['total'],
@@ -92,6 +95,7 @@ class StudentController extends Controller
             'withoutApplications' => $stats['without_applications'],
             'newThisMonth' => $stats['new_this_month'],
             'programs' => $programs,
+            'intakes' => $intakes,
         ]);
     }
 
@@ -197,6 +201,7 @@ class StudentController extends Controller
                     'date_of_birth' => $student->date_of_birth?->format('Y-m-d'),
                     'student_number' => $student->student_number,
                     'program_id' => $student->user?->program_id,
+                    'bypass_application' => $student->user?->bypass_application ?? false,
                 ],
             ]);
         }

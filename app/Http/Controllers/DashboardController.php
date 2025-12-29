@@ -33,10 +33,11 @@ class DashboardController extends Controller
         $student = $user->student;
         $application = $student?->studentApplication;
 
-        // Check if application is pending (not yet approved)
-        $isPendingApproval = $application && ! $application->isApproved();
+        // Check if application is pending (not yet approved) - unless bypassed
+        $isPendingApproval = ! $user->bypass_application && $application && ! $application->isApproved();
 
         // Check if student has LMS account (courses are accessed via LMS, not SIS)
+        // Bypass students will have LMS account created, so hasLmsAccount() should return true
         $hasLmsAccess = $user->hasLmsAccount();
 
         return view('pages/dashboards.student', [
@@ -46,6 +47,7 @@ class DashboardController extends Controller
             'application' => $application,
             'isPendingApproval' => $isPendingApproval,
             'hasLmsAccess' => $hasLmsAccess,
+            'isBypassStudent' => $user->bypass_application,
         ]);
     }
 

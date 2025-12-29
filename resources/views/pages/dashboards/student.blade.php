@@ -105,8 +105,8 @@
         </div>
     @endif
 
-    {{-- Approved Student - Course Access Card --}}
-    @if(empty($isPendingApproval) && !empty($hasLmsAccess))
+    {{-- Approved Student / Bypass Student - Course Access Card --}}
+    @if(auth()->user()->isApplicationApproved() && auth()->user()->hasLmsAccount())
         <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
             <div class="col-xl-12">
                 <div class="card bg-light-success border-0">
@@ -121,7 +121,11 @@
                             <div class="flex-grow-1">
                                 <h3 class="mb-1 text-gray-900">{{ __('Your Courses Are Ready!') }}</h3>
                                 <p class="text-gray-700 mb-0">
-                                    {{ __('Your application has been approved and your courses are now available.') }}
+                                    @if(!empty($isBypassStudent) && empty($application))
+                                        {{ __('Your courses are now available. Click the button to access your learning materials.') }}
+                                    @else
+                                        {{ __('Your application has been approved and your courses are now available.') }}
+                                    @endif
                                 </p>
                                 @if($program)
                                     <div class="mt-2">
@@ -132,7 +136,7 @@
                                 @endif
                             </div>
                             <div class="ms-5">
-                                <a href="{{ route('student.program.index') }}" class="btn btn-success">
+                                <a href="{{ route('student.my-courses.redirect') }}" class="btn btn-success" target="_blank">
                                     <i class="ki-duotone ki-arrow-right fs-4 me-1">
                                         <span class="path1"></span>
                                         <span class="path2"></span>
@@ -245,7 +249,7 @@
                             </i>
                             {{ __('My Application') }}
                         </a>
-                        @if(!empty($hasLmsAccess))
+                        @if(auth()->user()->isApplicationApproved() && auth()->user()->hasLmsAccount())
                             <a href="{{ route('student.my-courses.redirect') }}" class="btn btn-flex btn-light-success w-100 py-4" target="_blank">
                                 <i class="ki-duotone ki-book-open fs-2 me-2">
                                     <span class="path1"></span>

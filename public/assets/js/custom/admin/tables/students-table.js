@@ -66,6 +66,34 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide program warning
         const warning = document.getElementById('programChangeWarning');
         if (warning) warning.classList.add('d-none');
+
+        // Set bypass_application checkbox and handle intake section
+        const bypassCheckbox = document.getElementById('editBypassApplication');
+        const intakeSection = document.getElementById('editIntakeSection');
+        const intakeSelect = document.getElementById('editIntakeSelect');
+
+        // Store has_lms_account on the modal for later use
+        if (editModal) {
+            editModal.dataset.hasLmsAccount = data.has_lms_account ? 'true' : 'false';
+        }
+
+        if (bypassCheckbox) {
+            bypassCheckbox.checked = !!data.bypass_application;
+
+            // Show intake section only if bypass is enabled AND no LMS account exists
+            // If LMS account already exists, no need to select intake again
+            if (intakeSection && intakeSelect) {
+                const needsIntake = data.bypass_application && !data.has_lms_account;
+                if (needsIntake) {
+                    intakeSection.classList.remove('d-none');
+                    intakeSelect.setAttribute('required', 'required');
+                } else {
+                    intakeSection.classList.add('d-none');
+                    intakeSelect.removeAttribute('required');
+                    intakeSelect.value = '';
+                }
+            }
+        }
     };
 
     // Set delete modal data
@@ -94,7 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
             email: button.dataset.studentEmail,
             phone: button.dataset.studentPhone,
             date_of_birth: button.dataset.studentDob,
-            program_id: button.dataset.studentProgramId
+            program_id: button.dataset.studentProgramId,
+            bypass_application: button.dataset.studentBypassApplication === 'true' || button.dataset.studentBypassApplication === '1',
+            has_lms_account: button.dataset.studentHasLmsAccount === 'true' || button.dataset.studentHasLmsAccount === '1'
         };
         setEditModalData(data);
         if (editModal) {
@@ -140,6 +170,82 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     };
+
+    // Handle bypass checkbox toggle for intake section visibility (create modal)
+    const setupCreateBypassToggle = () => {
+        const modal = document.getElementById('studentCreateModal');
+        const bypassCheckbox = document.getElementById('createBypassApplication');
+        const intakeSection = document.getElementById('createIntakeSection');
+        const intakeSelect = document.getElementById('createIntakeSelect');
+
+        if (bypassCheckbox && intakeSection && intakeSelect) {
+            const toggleIntake = () => {
+                if (bypassCheckbox.checked) {
+                    intakeSection.classList.remove('d-none');
+                    intakeSelect.setAttribute('required', 'required');
+                } else {
+                    intakeSection.classList.add('d-none');
+                    intakeSelect.removeAttribute('required');
+                    intakeSelect.value = '';
+                }
+            };
+
+            bypassCheckbox.addEventListener('change', toggleIntake);
+
+            // Reset on modal hidden
+            if (modal) {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    bypassCheckbox.checked = false;
+                    intakeSection.classList.add('d-none');
+                    intakeSelect.removeAttribute('required');
+                    intakeSelect.value = '';
+                });
+            }
+        }
+    };
+
+    // Handle bypass checkbox toggle for intake section visibility (edit modal)
+    // Only show intake if no LMS account exists
+    const setupEditBypassToggle = () => {
+        const modal = document.getElementById('studentEditModal');
+        const bypassCheckbox = document.getElementById('editBypassApplication');
+        const intakeSection = document.getElementById('editIntakeSection');
+        const intakeSelect = document.getElementById('editIntakeSelect');
+
+        if (bypassCheckbox && intakeSection && intakeSelect) {
+            const toggleIntake = () => {
+                // Check if student already has LMS account (stored on modal dataset)
+                const hasLmsAccount = modal && modal.dataset.hasLmsAccount === 'true';
+
+                // Only show intake if bypass is checked AND no LMS account exists
+                if (bypassCheckbox.checked && !hasLmsAccount) {
+                    intakeSection.classList.remove('d-none');
+                    intakeSelect.setAttribute('required', 'required');
+                } else {
+                    intakeSection.classList.add('d-none');
+                    intakeSelect.removeAttribute('required');
+                    intakeSelect.value = '';
+                }
+            };
+
+            bypassCheckbox.addEventListener('change', toggleIntake);
+
+            // Reset on modal hidden
+            if (modal) {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    bypassCheckbox.checked = false;
+                    intakeSection.classList.add('d-none');
+                    intakeSelect.removeAttribute('required');
+                    intakeSelect.value = '';
+                    delete modal.dataset.hasLmsAccount;
+                });
+            }
+        }
+    };
+
+    // Setup bypass toggles
+    setupCreateBypassToggle();
+    setupEditBypassToggle();
 
     // Handle password field show/hide confirmation
     if (editModal) {
@@ -262,7 +368,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             data-student-email="${escapeAttr(row.email)}"
                             data-student-phone="${escapeAttr(row.phone || '')}"
                             data-student-dob="${escapeAttr(row.date_of_birth || '')}"
-                            data-student-program-id="${row.program_id || ''}"`;
+                            data-student-program-id="${row.program_id || ''}"
+                            data-student-bypass-application="${row.bypass_application ? 'true' : 'false'}"
+                            data-student-has-lms-account="${row.has_lms_account ? 'true' : 'false'}"`;
 
                         const deleteItem = row.can_delete
                             ? `<li>

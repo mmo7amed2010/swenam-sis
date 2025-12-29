@@ -20,13 +20,16 @@ class ProgramController extends Controller
         $application = $student?->studentApplication;
 
         // Check if application is approved and LMS account exists
-        $isApproved = $application?->isApproved() && $user->hasLmsAccount();
+        // Also treat bypass students with LMS accounts as approved
+        $isApproved = ($user->bypass_application || $application?->isApproved()) && $user->hasLmsAccount();
 
         return view('pages.student.program.index', [
             'user' => $user,
             'student' => $student,
             'application' => $application,
             'isApproved' => $isApproved,
+            'isBypassStudent' => $user->bypass_application,
+            'program' => $user->program,
         ]);
     }
 }
