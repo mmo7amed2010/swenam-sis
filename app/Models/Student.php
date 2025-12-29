@@ -55,13 +55,26 @@ class Student extends Model
 
     /**
      * Generate a unique student number.
+     * Gets the last number from database and increments.
      */
     public static function generateStudentNumber(): string
     {
         $year = date('Y');
-        $count = self::whereYear('created_at', $year)->count() + 1;
+        $prefix = "STU-{$year}-";
 
-        return sprintf('STU-%s-%05d', $year, $count);
+        // Get the last student number for this year
+        $lastStudent = self::where('student_number', 'like', $prefix . '%')
+            ->orderByRaw('CAST(SUBSTRING(student_number, -5) AS UNSIGNED) DESC')
+            ->first();
+
+        if ($lastStudent) {
+            $lastNumber = (int) substr($lastStudent->student_number, -5);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        return sprintf('STU-%s-%05d', $year, $newNumber);
     }
 
     /**
