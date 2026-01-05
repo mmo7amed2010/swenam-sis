@@ -35,6 +35,7 @@ class User extends Authenticatable
         'email_verified_at',
         'is_super_admin',
         'bypass_application',
+        'is_suspended',
     ];
 
     /**
@@ -59,6 +60,7 @@ class User extends Authenticatable
         'password_change_required' => 'boolean',
         'is_super_admin' => 'boolean',
         'bypass_application' => 'boolean',
+        'is_suspended' => 'boolean',
         'intake_id' => 'integer',
     ];
 
@@ -156,6 +158,14 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         return $this->user_type === 'admin' && $this->is_super_admin === true;
+    }
+
+    /**
+     * Check if user account is suspended
+     */
+    public function isSuspended(): bool
+    {
+        return $this->is_suspended === true;
     }
 
     /**

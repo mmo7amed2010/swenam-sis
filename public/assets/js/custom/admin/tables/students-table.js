@@ -330,6 +330,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 {
+                    data: 'is_suspended',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center',
+                    render: function(data, type, row) {
+                        const suspendedLabel = tableElement.dataset.textSuspended || 'Suspended';
+                        const activeLabel = tableElement.dataset.textActive || 'Active';
+                        if (row.is_suspended) {
+                            return `<span class="badge badge-light-danger">${escapeAttr(suspendedLabel)}</span>`;
+                        }
+                        return `<span class="badge badge-light-success">${escapeAttr(activeLabel)}</span>`;
+                    }
+                },
+                {
                     data: 'application_reference',
                     orderable: false,
                     searchable: false,
@@ -360,6 +374,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         const editLabel = tableElement.dataset.textEdit || 'Edit';
                         const deleteLabel = tableElement.dataset.textDelete || 'Delete';
                         const viewLabel = tableElement.dataset.textView || 'View Details';
+                        const suspendLabel = tableElement.dataset.textSuspend || 'Suspend';
+                        const unsuspendLabel = tableElement.dataset.textUnsuspend || 'Reactivate';
 
                         const editAttrs = `data-student-edit-trigger
                             data-student-id="${row.id}"
@@ -371,6 +387,29 @@ document.addEventListener('DOMContentLoaded', function() {
                             data-student-program-id="${row.program_id || ''}"
                             data-student-bypass-application="${row.bypass_application ? 'true' : 'false'}"
                             data-student-has-lms-account="${row.has_lms_account ? 'true' : 'false'}"`;
+
+                        // Suspend/Unsuspend action
+                        const suspendItem = row.is_suspended
+                            ? `<li>
+                                    <a class="dropdown-item d-flex align-items-center py-2 text-success" href="#"
+                                       data-student-unsuspend-trigger
+                                       data-student-id="${row.id}"
+                                       data-student-name="${escapeAttr(row.name)}"
+                                       data-unsuspend-url="${row.unsuspend_url}">
+                                        <i class="ki-outline ki-shield-tick fs-5 me-2"></i>
+                                        ${escapeAttr(unsuspendLabel)}
+                                    </a>
+                               </li>`
+                            : `<li>
+                                    <a class="dropdown-item d-flex align-items-center py-2 text-warning" href="#"
+                                       data-student-suspend-trigger
+                                       data-student-id="${row.id}"
+                                       data-student-name="${escapeAttr(row.name)}"
+                                       data-suspend-url="${row.suspend_url}">
+                                        <i class="ki-outline ki-shield-cross fs-5 me-2"></i>
+                                        ${escapeAttr(suspendLabel)}
+                                    </a>
+                               </li>`;
 
                         const deleteItem = row.can_delete
                             ? `<li>
@@ -409,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
+                                    ${suspendItem}
                                     ${deleteItem}
                                 </ul>
                             </div>
@@ -418,14 +458,119 @@ document.addEventListener('DOMContentLoaded', function() {
             ],
             filters: {
                 application_status: 'select[name="application_status"]',
-                program_id: 'select[name="program_id"]'
+                program_id: 'select[name="program_id"]',
+                suspension_status: 'select[name="suspension_status"]'
             },
-            order: [[3, 'desc']],
+            order: [[4, 'desc']],
             translations: translations
         });
 
         window.studentsTable = tableInstance;
     }
+
+    // Handle suspend action
+    const handleSuspend = async (button) => {
+        const url = button.dataset.suspendUrl;
+        const name = button.dataset.studentName;
+        const confirmMsg = tableElement.dataset.textConfirmSuspend || 'Are you sure you want to suspend this student? They will not be able to login.';
+
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Show success message
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+                // Refresh table
+                if (tableInstance && typeof tableInstance.reload === 'function') {
+                    tableInstance.reload(true);
+                }
+                updateCounters(data);
+            } else {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                } else {
+                    alert(data.message);
+                }
+            }
+        } catch (error) {
+            console.error('Suspend error:', error);
+            alert('An error occurred while suspending the student.');
+        }
+    };
+
+    // Handle unsuspend action
+    const handleUnsuspend = async (button) => {
+        const url = button.dataset.unsuspendUrl;
+        const name = button.dataset.studentName;
+        const confirmMsg = tableElement.dataset.textConfirmUnsuspend || 'Are you sure you want to reactivate this student?';
+
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Show success message
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+                // Refresh table
+                if (tableInstance && typeof tableInstance.reload === 'function') {
+                    tableInstance.reload(true);
+                }
+                updateCounters(data);
+            } else {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message
+                    });
+                } else {
+                    alert(data.message);
+                }
+            }
+        } catch (error) {
+            console.error('Unsuspend error:', error);
+            alert('An error occurred while reactivating the student.');
+        }
+    };
 
     // Delegate edit clicks
     document.addEventListener('click', function(e) {
@@ -439,6 +584,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (deleteTrigger) {
             e.preventDefault();
             showDeleteModal(deleteTrigger);
+        }
+
+        const suspendTrigger = e.target.closest('[data-student-suspend-trigger]');
+        if (suspendTrigger) {
+            e.preventDefault();
+            handleSuspend(suspendTrigger);
+        }
+
+        const unsuspendTrigger = e.target.closest('[data-student-unsuspend-trigger]');
+        if (unsuspendTrigger) {
+            e.preventDefault();
+            handleUnsuspend(unsuspendTrigger);
         }
     });
 

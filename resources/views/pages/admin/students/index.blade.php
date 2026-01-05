@@ -65,6 +65,11 @@
                             <option value="{{ $program['id'] }}">{{ $program['name'] }}</option>
                         @endforeach
                     </select>
+                    <select name="suspension_status" class="form-select form-select-sm w-175px">
+                        <option value="">{{ __('All Statuses') }}</option>
+                        <option value="active">{{ __('Active') }}</option>
+                        <option value="suspended">{{ __('Suspended') }}</option>
+                    </select>
                 </x-slot:filters>
 
                 <x-slot:actions>
@@ -95,11 +100,18 @@
                        data-text-no-records="{{ __('No students found') }}"
                        data-text-view="{{ __('View Details') }}"
                        data-text-edit="{{ __('Edit') }}"
-                       data-text-delete="{{ __('Delete') }}">
+                       data-text-delete="{{ __('Delete') }}"
+                       data-text-suspend="{{ __('Suspend') }}"
+                       data-text-unsuspend="{{ __('Reactivate') }}"
+                       data-text-suspended="{{ __('Suspended') }}"
+                       data-text-active="{{ __('Active') }}"
+                       data-text-confirm-suspend="{{ __('Are you sure you want to suspend this student? They will not be able to login.') }}"
+                       data-text-confirm-unsuspend="{{ __('Are you sure you want to reactivate this student?') }}">
                     <thead>
                         <tr class="fw-bold text-muted bg-light">
                             <th class="ps-4 min-w-200px">{{ __('Student') }}</th>
                             <th class="min-w-200px">{{ __('Email / Program') }}</th>
+                            <th class="text-center min-w-100px">{{ __('Status') }}</th>
                             <th class="text-center min-w-150px">{{ __('Application') }}</th>
                             <th class="text-center min-w-120px">{{ __('Created Date') }}</th>
                             <th class="text-end pe-4 min-w-150px">{{ __('Actions') }}</th>

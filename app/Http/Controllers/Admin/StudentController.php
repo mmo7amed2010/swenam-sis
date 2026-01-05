@@ -25,6 +25,7 @@ class StudentController extends Controller
     protected array $filters = [
         'application_status' => 'applyApplicationStatusFilter',
         'program_id' => 'applyProgramFilter',
+        'suspension_status' => 'applySuspensionStatusFilter',
     ];
 
     /**
@@ -77,6 +78,9 @@ class StudentController extends Controller
                     'edit_url' => route('admin.students.edit', $student),
                     'delete_url' => route('admin.students.destroy', $student),
                     'can_delete' => $this->studentService->canDelete($student),
+                    'is_suspended' => $student->user?->is_suspended ?? false,
+                    'suspend_url' => route('admin.students.suspend', $student),
+                    'unsuspend_url' => route('admin.students.unsuspend', $student),
                 ],
                 searchableColumns: $this->searchableColumns,
                 filters: $this->filters,
@@ -121,6 +125,24 @@ class StudentController extends Controller
         return $query->whereHas('user', function ($q) use ($value) {
             $q->where('program_id', $value);
         });
+    }
+
+    /**
+     * Apply suspension status filter.
+     */
+    protected function applySuspensionStatusFilter($query, $value)
+    {
+        if ($value === 'suspended') {
+            return $query->whereHas('user', function ($q) {
+                $q->where('is_suspended', true);
+            });
+        } elseif ($value === 'active') {
+            return $query->whereHas('user', function ($q) {
+                $q->where('is_suspended', false);
+            });
+        }
+
+        return $query;
     }
 
     /**
@@ -279,5 +301,93 @@ class StudentController extends Controller
 
         return redirect()->route('admin.students.index')
             ->with('success', 'Student deleted successfully!');
+    }
+
+    /**
+     * Suspend a student's account.
+     */
+    public function suspend(Request $request, Student $student)
+    {
+        $user = $student->user;
+
+        if (! $user) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Student has no associated user account.'),
+                ], 422);
+            }
+
+            return redirect()->route('admin.students.index')
+                ->with('error', 'Student has no associated user account.');
+        }
+
+        $user->update(['is_suspended' => true]);
+
+        \Illuminate\Support\Facades\Log::info('Student suspended', [
+            'student_id' => $student->id,
+            'user_id' => $user->id,
+            'suspended_by' => auth()->id(),
+        ]);
+
+        $counts = $this->studentService->getCounts();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('Student suspended successfully!'),
+                'total_students' => $counts['total'],
+                'with_applications' => $counts['with_applications'],
+                'without_applications' => $counts['without_applications'],
+                'new_this_month' => $counts['new_this_month'],
+            ]);
+        }
+
+        return redirect()->route('admin.students.index')
+            ->with('success', 'Student suspended successfully!');
+    }
+
+    /**
+     * Unsuspend (reactivate) a student's account.
+     */
+    public function unsuspend(Request $request, Student $student)
+    {
+        $user = $student->user;
+
+        if (! $user) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Student has no associated user account.'),
+                ], 422);
+            }
+
+            return redirect()->route('admin.students.index')
+                ->with('error', 'Student has no associated user account.');
+        }
+
+        $user->update(['is_suspended' => false]);
+
+        \Illuminate\Support\Facades\Log::info('Student unsuspended', [
+            'student_id' => $student->id,
+            'user_id' => $user->id,
+            'unsuspended_by' => auth()->id(),
+        ]);
+
+        $counts = $this->studentService->getCounts();
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('Student reactivated successfully!'),
+                'total_students' => $counts['total'],
+                'with_applications' => $counts['with_applications'],
+                'without_applications' => $counts['without_applications'],
+                'new_this_month' => $counts['new_this_month'],
+            ]);
+        }
+
+        return redirect()->route('admin.students.index')
+            ->with('success', 'Student reactivated successfully!');
     }
 }

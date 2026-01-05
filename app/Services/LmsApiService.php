@@ -138,6 +138,7 @@ class LmsApiService
 
             if ($response->successful()) {
                 Log::info('Student created in LMS', [
+                    'data' => $response->json(),
                     'email' => $data['email'] ?? null,
                     'lms_user_id' => $response->json('user_id'),
                 ]);
@@ -178,6 +179,15 @@ class LmsApiService
      */
     public function generateSsoToken(User $user, string $redirectTo = '/dashboard'): ?array
     {
+        // Block suspended users from SSO
+        if ($user->isSuspended()) {
+            Log::warning('Cannot generate SSO token: user account is suspended', [
+                'user_id' => $user->id,
+            ]);
+
+            return null;
+        }
+
         if (! $user->lms_user_id) {
             Log::warning('Cannot generate SSO token: user has no LMS account', [
                 'user_id' => $user->id,

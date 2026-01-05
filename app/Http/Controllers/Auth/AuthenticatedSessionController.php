@@ -88,6 +88,17 @@ class AuthenticatedSessionController extends Controller
 
             $user = $request->user();
 
+            // Check if user account is suspended
+            if ($user->isSuspended()) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $this->logLoginAttempt($request, 'failed', $user->id, 'Account suspended');
+
+                throw ValidationException::withMessages([
+                    'email' => __('Your account has been suspended. Please contact the administrator.'),
+                ]);
+            }
+
             // Configure role-based session timeout
             $this->configureSessionTimeout($request, $user);
 

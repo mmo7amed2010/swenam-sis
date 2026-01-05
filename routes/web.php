@@ -110,6 +110,8 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
     // Admin-only routes - Student Management (SIS is master for students)
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::resource('students', StudentController::class);
+        Route::post('students/{student}/suspend', [StudentController::class, 'suspend'])->name('students.suspend');
+        Route::post('students/{student}/unsuspend', [StudentController::class, 'unsuspend'])->name('students.unsuspend');
     });
 
     // Programs and Intakes are managed from LMS (master system)
