@@ -10,13 +10,13 @@
             data-kt-menu="true" data-kt-menu-expand="false">
             {{-- Student Menu Items (visible only for students) --}}
             @if(auth()->user()->isStudent())
-                <!--begin:Menu item - Student Dashboard-->
+                <!--begin:Menu item - Student Home-->
                 <div class="menu-item">
                     <!--begin:Menu link-->
                     <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                         href="{{ route('dashboard') }}">
                         <span class="menu-icon">{!! getIcon('element-11', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Dashboard') }}</span>
+                        <span class="menu-title">{{ __('Home') }}</span>
                     </a>
                     <!--end:Menu link-->
                 </div>
@@ -39,17 +39,7 @@
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Announcements-->
-                <div class="menu-item">
-                    <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}"
-                        href="{{ route('announcements.index') }}">
-                        <span class="menu-icon">{!! getIcon('megaphone', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Announcements') }}</span>
-                    </a>
-                    <!--end:Menu link-->
-                </div>
-                <!--end:Menu item-->
+
 
                 <!--begin:Menu item - My Application -->
                 <div class="menu-item">
@@ -122,13 +112,13 @@
 
             {{-- Instructor Menu Items (visible only for instructors) --}}
             @if(auth()->user()->isInstructor())
-                <!--begin:Menu item - Instructor Dashboard-->
+                <!--begin:Menu item - Instructor Home-->
                 <div class="menu-item">
                     <!--begin:Menu link-->
                     <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                         href="{{ route('dashboard') }}">
                         <span class="menu-icon">{!! getIcon('element-11', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Dashboard') }}</span>
+                        <span class="menu-title">{{ __('Home') }}</span>
                     </a>
                     <!--end:Menu link-->
                 </div>
@@ -151,17 +141,7 @@
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Announcements-->
-                <div class="menu-item">
-                    <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}"
-                        href="{{ route('announcements.index') }}">
-                        <span class="menu-icon">{!! getIcon('megaphone', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Announcements') }}</span>
-                    </a>
-                    <!--end:Menu link-->
-                </div>
-                <!--end:Menu item-->
+
             @endif
 
             {{-- Admin Menu Items --}}
@@ -172,7 +152,7 @@
                     <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                         href="{{ route('dashboard') }}">
                         <span class="menu-icon">{!! getIcon('element-11', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Dashboards') }}</span>
+                        <span class="menu-title">{{ __('Home') }}</span>
                     </a>
                     <!--end:Menu link-->
                 </div>
