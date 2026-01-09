@@ -5,7 +5,7 @@
 		<!--begin::Copyright-->
 		<div class="text-gray-900 order-2 order-md-1">
 			<span class="text-muted fw-semibold me-1">{{ date('Y') }}&copy;</span>
-			<a href="https://swenamcollege.ca" target="_blank" class="text-gray-800 text-hover-primary">Swenam</a>
+			<a href="https://swenamcollege.ca" target="_blank" class="text-gray-800 text-hover-primary">@SEIT</a>
 		</div>
 		<!--end::Copyright-->
 		<!--begin::Menu-->

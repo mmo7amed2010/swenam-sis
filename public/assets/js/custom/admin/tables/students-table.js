@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </a>
                                </li>`
                             : `<li>
-                                    <span class="dropdown-item d-flex align-items-center py-2 text-muted" data-bs-toggle="tooltip" title="Cannot delete - has progress data">
+                                    <span class="dropdown-item d-flex align-items-center py-2 text-muted" data-bs-toggle="tooltip" title="Cannot delete - has data progress">
                                         <i class="ki-outline ki-trash fs-5 me-2 text-gray-400"></i>
                                         ${escapeAttr(deleteLabel)}
                                         <i class="ki-outline ki-lock fs-7 ms-auto text-gray-400"></i>

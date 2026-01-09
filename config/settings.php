@@ -33,7 +33,7 @@ return [
     // Theme Assets
 
     'KT_THEME_ASSETS' => [
-        'favicon' => 'assets/media/logos/favicon.ico',
+        'favicon' => 'assets/media/logos/S LOGO College 3 Transparent .png',
         'fonts' => [
             'https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700',
         ],

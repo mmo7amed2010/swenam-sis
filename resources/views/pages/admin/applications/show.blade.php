@@ -428,16 +428,6 @@
                                 This application cannot be re-approved
                             @endif
                         </p>
-
-                        @if($application->status === 'approved' && $application->createdUser)
-                            <div class="mt-5 pt-5 border-top">
-                                <a href="{{ route('user-management.users.show', $application->createdUser) }}"
-                                   class="btn btn-light w-100 d-flex align-items-center justify-content-center gap-2">
-                                    {!! getIcon('profile-user', 'fs-4') !!}
-                                    View Student Account
-                                </a>
-                            </div>
-                        @endif
                     </div>
                 </div>
 
@@ -457,7 +447,7 @@
                 title="Quick Info"
                 icon="information-2"
                 :items="[
-                    ['label' => 'Days Since Submission', 'value' => $application->created_at->diffInDays(now()) . ' days', 'badge' => 'info'],
+                    ['label' => 'Days Since Submission', 'value' => floor($application->created_at->diffInDays(now())) . ' days', 'badge' => 'info'],
                     ['label' => 'Documents Uploaded', 'value' => $docCount . ' / 4', 'badge' => $docCount >= 3 ? 'success' : 'warning'],
                     ['label' => 'Work Experience', 'value' => $application->has_work_experience ? 'Yes' : 'No', 'badge' => $application->has_work_experience ? 'success' : 'secondary'],
                     ['label' => 'Agency Referral', 'value' => $application->has_referral ? 'Yes' : 'No', 'badge' => $application->has_referral ? 'primary' : 'secondary'],

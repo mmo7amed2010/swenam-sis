@@ -12,12 +12,25 @@
             <!--end::Title-->
 
             <!--begin::Subtitle-->
-            <div class="text-gray-500 fw-semibold fs-6">
+            <!-- <div class="text-gray-500 fw-semibold fs-6">
                 {{ __('Sign in to your account') }}
-            </div>
+            </div> -->
             <!--end::Subtitle--->
         </div>
         <!--begin::Heading-->
+
+        <!--begin::Success Message-->
+        @if(session('success'))
+            <div class="alert alert-success d-flex align-items-center mb-10">
+                <i class="ki-outline ki-shield-tick fs-2hx text-success me-4"></i>
+                <div class="d-flex flex-column">
+                    <h4 class="mb-1 text-success">{{ __('Success!') }}</h4>
+                    <span>{{ session('success') }}</span>
+                </div>
+            </div>
+        @endif
+        <!--end::Success Message-->
+
 
         <!--begin::Input group--->
         <div class="fv-row mb-8">
@@ -32,7 +45,16 @@
         <!--end::Input group--->
         <div class="fv-row mb-3">
             <!--begin::Password-->
-            <input type="password" placeholder="{{ __('Password') }}" name="password" autocomplete="off" class="form-control bg-transparent @error('password') is-invalid @enderror"/>
+            <div class="position-relative">
+                <input type="password" placeholder="{{ __('Password') }}" name="password" id="password" autocomplete="off" class="form-control bg-transparent @error('password') is-invalid @enderror"/>
+                <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" id="togglePassword" style="cursor: pointer;">
+                    <i class="ki-duotone ki-eye fs-2" id="eyeIcon">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                    </i>
+                </span>
+            </div>
             @error('password')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -73,5 +95,30 @@
      
     </form>
     <!--end::Form-->
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            togglePassword.addEventListener('click', function() {
+                // Toggle the type attribute
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Toggle the icon
+                if (type === 'password') {
+                    eyeIcon.className = 'ki-duotone ki-eye fs-2';
+                    eyeIcon.innerHTML = '<span class="path1"></span><span class="path2"></span><span class="path3"></span>';
+                } else {
+                    eyeIcon.className = 'ki-duotone ki-eye-slash fs-2';
+                    eyeIcon.innerHTML = '<span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>';
+                }
+            });
+        });
+    </script>
+    @endpush
 
 </x-auth-layout>

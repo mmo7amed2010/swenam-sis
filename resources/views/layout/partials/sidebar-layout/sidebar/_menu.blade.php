@@ -22,6 +22,35 @@
                 </div>
                 <!--end:Menu item-->
 
+                <!--begin:Menu item - Notifications-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
+                        href="{{ route('notifications.index') }}">
+                        <span class="menu-icon">{!! getIcon('notification-bing', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Notifications') }}</span>
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="menu-badge">
+                                <span class="badge badge-sm badge-circle badge-danger">{{ auth()->user()->unreadNotifications->count() }}</span>
+                            </span>
+                        @endif
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Announcements-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}"
+                        href="{{ route('announcements.index') }}">
+                        <span class="menu-icon">{!! getIcon('megaphone', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Announcements') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
                 <!--begin:Menu item - My Application -->
                 <div class="menu-item">
                     <!--begin:Menu link-->
@@ -104,6 +133,35 @@
                     <!--end:Menu link-->
                 </div>
                 <!--end:Menu item-->
+
+                <!--begin:Menu item - Notifications-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
+                        href="{{ route('notifications.index') }}">
+                        <span class="menu-icon">{!! getIcon('notification-bing', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Notifications') }}</span>
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="menu-badge">
+                                <span class="badge badge-sm badge-circle badge-danger">{{ auth()->user()->unreadNotifications->count() }}</span>
+                            </span>
+                        @endif
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Announcements-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}"
+                        href="{{ route('announcements.index') }}">
+                        <span class="menu-icon">{!! getIcon('megaphone', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Announcements') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
             @endif
 
             {{-- Admin Menu Items --}}
@@ -115,6 +173,23 @@
                         href="{{ route('dashboard') }}">
                         <span class="menu-icon">{!! getIcon('element-11', 'fs-2') !!}</span>
                         <span class="menu-title">{{ __('Dashboards') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Notifications-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
+                        href="{{ route('notifications.index') }}">
+                        <span class="menu-icon">{!! getIcon('notification-bing', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Notifications') }}</span>
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="menu-badge">
+                                <span class="badge badge-sm badge-circle badge-danger">{{ auth()->user()->unreadNotifications->count() }}</span>
+                            </span>
+                        @endif
                     </a>
                     <!--end:Menu link-->
                 </div>
@@ -185,6 +260,18 @@
                         href="{{ route('admin.applications.index') }}">
                         <span class="menu-icon">{!! getIcon('document', 'fs-2') !!}</span>
                         <span class="menu-title">{{ __('Applications') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - System Announcements (Admin)-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}"
+                        href="{{ route('admin.announcements.index') }}">
+    <span class="menu-icon">{!! getIcon('notification-bing', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Announcements') }}</span>
                     </a>
                     <!--end:Menu link-->
                 </div>

@@ -125,13 +125,15 @@ var KTAuthResetPassword = function () {
                                 customClass: {
                                     confirmButton: "btn btn-primary"
                                 }
+                            }).then(function (result) {
+                                // Redirect to login page when user clicks OK
+                                if (result.isConfirmed) {
+                                    const redirectUrl = form.getAttribute('data-kt-redirect-url');
+                                    if (redirectUrl) {
+                                        location.href = redirectUrl;
+                                    }
+                                }
                             });
-
-                            const redirectUrl = form.getAttribute('data-kt-redirect-url');
-
-                            if (redirectUrl) {
-                                location.href = redirectUrl;
-                            }
                         } else {
                             // Show error popup. For more info check the plugin's official documentation: https://sweetalert2.github.io/
                             Swal.fire({

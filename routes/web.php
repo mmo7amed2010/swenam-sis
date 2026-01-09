@@ -77,6 +77,12 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::get('/api/unread-count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('unread-count');
     });
 
+    // Announcement routes (all authenticated users)
+    Route::prefix('announcements')->middleware('auth')->group(function () {
+        Route::get('/', [App\Http\Controllers\AnnouncementViewController::class, 'index'])->name('announcements.index');
+        Route::get('/{announcement}', [App\Http\Controllers\AnnouncementViewController::class, 'show'])->name('announcements.show');
+    });
+
     // Notification Settings Routes
     Route::prefix('settings')->middleware('auth')->group(function () {
         Route::get('/notifications', [App\Http\Controllers\NotificationSettingController::class, 'edit'])->name('settings.notifications');
@@ -105,6 +111,9 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('applications/{application}/approve', [ApplicationReviewController::class, 'approve'])->name('applications.approve');
         Route::post('applications/{application}/reject', [ApplicationReviewController::class, 'reject'])->name('applications.reject');
         Route::get('applications/{application}/document/{documentType}', [ApplicationReviewController::class, 'downloadDocument'])->name('applications.download');
+        
+        // System Announcements
+        Route::resource('announcements', App\Http\Controllers\Admin\SystemAnnouncementController::class);
     });
 
     // Admin-only routes - Student Management (SIS is master for students)
