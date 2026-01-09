@@ -1076,5 +1076,8 @@
     "Documents": "المستندات",
     "Attendance Summary": "ملخص الحضور",
     "Official Grades": "الدرجات الرسمية",
-    "Schedule / Timetable": "الجدول الدراسي"
+    "Schedule / Timetable": "الجدول الدراسي",
+    "Admin Home": "الرئيسية للإدارة",
+    "Student Home": "الرئيسية للطالب",
+    "Instructor Home": "الرئيسية للمدرس"
 }

@@ -1,7 +1,7 @@
 <x-default-layout>
 
     @section('title')
-        {{ __('Student Dashboard') }}
+        {{ __('Student Home') }}
     @endsection
 
     @section('breadcrumbs')
