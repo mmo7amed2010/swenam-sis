@@ -1,7 +1,7 @@
 <x-default-layout>
 
     @section('title')
-        {{ __('Admin Dashboard') }}
+        {{ __('Admin Home') }}
     @endsection
 
     @section('breadcrumbs')
