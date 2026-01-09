@@ -10,13 +10,13 @@
             data-kt-menu="true" data-kt-menu-expand="false">
             {{-- Student Menu Items (visible only for students) --}}
             @if(auth()->user()->isStudent())
-                <!--begin:Menu item - Student Dashboard-->
+                <!--begin:Menu item - Student Home-->
                 <div class="menu-item">
                     <!--begin:Menu link-->
                     <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                         href="{{ route('dashboard') }}">
                         <span class="menu-icon">{!! getIcon('element-11', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Dashboard') }}</span>
+                        <span class="menu-title">{{ __('Home') }}</span>
                     </a>
                     <!--end:Menu link-->
                 </div>
@@ -39,17 +39,7 @@
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Announcements-->
-                <div class="menu-item">
-                    <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}"
-                        href="{{ route('announcements.index') }}">
-                        <span class="menu-icon">{!! getIcon('megaphone', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Announcements') }}</span>
-                    </a>
-                    <!--end:Menu link-->
-                </div>
-                <!--end:Menu item-->
+
 
                 <!--begin:Menu item - My Application -->
                 <div class="menu-item">
@@ -118,17 +108,194 @@
                     <!--end:Menu link-->
                 </div>
                 <!--end:Menu item-->
+
+                <!--begin:Menu item - My Profile-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('student.profile.*') ? 'active' : '' }}"
+                        href="#" onclick="alert('Profile page coming soon!'); return false;">
+                        <span class="menu-icon">{!! getIcon('profile-circle', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('My Profile') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Support / Help Center-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
+                    <!--begin:Menu link-->
+                    <span class="menu-link">
+                        <span class="menu-icon">{!! getIcon('question-2', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Support / Help Center') }}</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+                    <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                        <!--begin:Menu item - Swenam College FAQs-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            <a class="menu-link" href="https://swenamcollege.ca/college-policies/" target="_blank">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">{{ __('Swenam College FAQs') }}</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-primary badge-circle">
+                                        {!! getIcon('entrance-left', 'fs-7') !!}
+                                    </span>
+                                </span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+
+                        <!--begin:Menu item - Contact Us-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            <a class="menu-link" href="https://swenamcollege.ca/contact-us/" target="_blank">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">{{ __('Contact Us') }}</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-primary badge-circle">
+                                        {!! getIcon('entrance-left', 'fs-7') !!}
+                                    </span>
+                                </span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+
+                        <!--begin:Menu item - Campus Directory (Greyed Out)-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot bg-secondary"></span>
+                                </span>
+                                <span class="menu-title text-muted">{{ __('Campus Directory') }}</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-secondary badge-circle">
+                                        {!! getIcon('lock', 'fs-7') !!}
+                                    </span>
+                                </span>
+                            </span>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                    </div>
+                    <!--end:Menu sub-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Course Registration (Greyed Out)-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
+                        <span class="menu-icon">{!! getIcon('calendar-add', 'fs-2 text-muted') !!}</span>
+                        <span class="menu-title text-muted">{{ __('Course Registration') }}</span>
+                        <span class="menu-badge">
+                            <span class="badge badge-light-secondary badge-circle">
+                                {!! getIcon('lock', 'fs-7') !!}
+                            </span>
+                        </span>
+                    </span>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Financials (Greyed Out)-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
+                        <span class="menu-icon">{!! getIcon('dollar', 'fs-2 text-muted') !!}</span>
+                        <span class="menu-title text-muted">{{ __('Financials') }}</span>
+                        <span class="menu-badge">
+                            <span class="badge badge-light-secondary badge-circle">
+                                {!! getIcon('lock', 'fs-7') !!}
+                            </span>
+                        </span>
+                    </span>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Documents (Greyed Out)-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
+                        <span class="menu-icon">{!! getIcon('folder', 'fs-2 text-muted') !!}</span>
+                        <span class="menu-title text-muted">{{ __('Documents') }}</span>
+                        <span class="menu-badge">
+                            <span class="badge badge-light-secondary badge-circle">
+                                {!! getIcon('lock', 'fs-7') !!}
+                            </span>
+                        </span>
+                    </span>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Attendance Summary (Greyed Out)-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
+                        <span class="menu-icon">{!! getIcon('calendar-tick', 'fs-2 text-muted') !!}</span>
+                        <span class="menu-title text-muted">{{ __('Attendance Summary') }}</span>
+                        <span class="menu-badge">
+                            <span class="badge badge-light-secondary badge-circle">
+                                {!! getIcon('lock', 'fs-7') !!}
+                            </span>
+                        </span>
+                    </span>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Official Grades (Greyed Out)-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
+                        <span class="menu-icon">{!! getIcon('medal-star', 'fs-2 text-muted') !!}</span>
+                        <span class="menu-title text-muted">{{ __('Official Grades') }}</span>
+                        <span class="menu-badge">
+                            <span class="badge badge-light-secondary badge-circle">
+                                {!! getIcon('lock', 'fs-7') !!}
+                            </span>
+                        </span>
+                    </span>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Schedule / Timetable (Greyed Out)-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
+                        <span class="menu-icon">{!! getIcon('calendar-2', 'fs-2 text-muted') !!}</span>
+                        <span class="menu-title text-muted">{{ __('Schedule / Timetable') }}</span>
+                        <span class="menu-badge">
+                            <span class="badge badge-light-secondary badge-circle">
+                                {!! getIcon('lock', 'fs-7') !!}
+                            </span>
+                        </span>
+                    </span>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
             @endif
 
             {{-- Instructor Menu Items (visible only for instructors) --}}
             @if(auth()->user()->isInstructor())
-                <!--begin:Menu item - Instructor Dashboard-->
+                <!--begin:Menu item - Instructor Home-->
                 <div class="menu-item">
                     <!--begin:Menu link-->
                     <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                         href="{{ route('dashboard') }}">
                         <span class="menu-icon">{!! getIcon('element-11', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Dashboard') }}</span>
+                        <span class="menu-title">{{ __('Home') }}</span>
                     </a>
                     <!--end:Menu link-->
                 </div>
@@ -151,17 +318,7 @@
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Announcements-->
-                <div class="menu-item">
-                    <!--begin:Menu link-->
-                    <a class="menu-link {{ request()->routeIs('announcements.*') ? 'active' : '' }}"
-                        href="{{ route('announcements.index') }}">
-                        <span class="menu-icon">{!! getIcon('megaphone', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Announcements') }}</span>
-                    </a>
-                    <!--end:Menu link-->
-                </div>
-                <!--end:Menu item-->
+
             @endif
 
             {{-- Admin Menu Items --}}
@@ -172,7 +329,7 @@
                     <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
                         href="{{ route('dashboard') }}">
                         <span class="menu-icon">{!! getIcon('element-11', 'fs-2') !!}</span>
-                        <span class="menu-title">{{ __('Dashboards') }}</span>
+                        <span class="menu-title">{{ __('Home') }}</span>
                     </a>
                     <!--end:Menu link-->
                 </div>

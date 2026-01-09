@@ -11,10 +11,10 @@ Breadcrumbs::for('home', function (BreadcrumbTrail $trail) {
     $trail->push(__('Home'), route('dashboard'));
 });
 
-// Home > Dashboard
+// Home > Home
 Breadcrumbs::for('dashboard', function (BreadcrumbTrail $trail) {
     $trail->parent('home');
-    $trail->push(__('Dashboard'), route('dashboard'));
+    $trail->push(__('Home'), route('dashboard'));
 });
 
 // Home > Dashboard > User Management

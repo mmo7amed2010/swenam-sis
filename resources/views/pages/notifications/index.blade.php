@@ -184,7 +184,7 @@
                     </p>
                     <a href="{{ route('dashboard') }}" class="btn btn-primary">
                         {!! getIcon('home', 'fs-6 me-1') !!}
-                        Back to Dashboard
+                        Back to Home
                     </a>
                 </div>
             </div>
