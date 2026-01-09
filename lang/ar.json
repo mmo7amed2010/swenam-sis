@@ -1065,5 +1065,16 @@
     "Failed to reorder items. Please refresh the page.": "فشل في إعادة ترتيب العناصر. يرجى تحديث الصفحة.",
     "Failed to remove the item. Please try again.": "تعذر إزالة العنصر. حاول مرة أخرى.",
     "Failed to update item. Please try again.": "تعذر تحديث العنصر. حاول مرة أخرى.",
-    "This assignment will be attached to module: :module": "سيتم إرفاق هذا الواجب بالوحدة: :module"
+    "This assignment will be attached to module: :module": "سيتم إرفاق هذا الواجب بالوحدة: :module",
+    "My Profile": "ملفي الشخصي",
+    "Support / Help Center": "الدعم / مركز المساعدة",
+    "Swenam College FAQs": "الأسئلة الشائعة لكلية سوينام",
+    "Campus Directory": "دليل الحرم الجامعي",
+    "Coming Soon": "قريباً",
+    "Course Registration": "تسجيل المقررات",
+    "Financials": "الشؤون المالية",
+    "Documents": "المستندات",
+    "Attendance Summary": "ملخص الحضور",
+    "Official Grades": "الدرجات الرسمية",
+    "Schedule / Timetable": "الجدول الدراسي"
 }
