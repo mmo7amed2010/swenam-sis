@@ -105,3 +105,47 @@ Breadcrumbs::for('settings.notifications', function (BreadcrumbTrail $trail) {
     $trail->parent('dashboard');
     $trail->push(__('Notification Settings'), route('settings.notifications'));
 });
+
+// ============================================
+// Announcements Breadcrumbs
+// ============================================
+
+// Home > Announcements
+Breadcrumbs::for('announcements.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(__('Announcements'), route('announcements.index'));
+});
+
+// Home > Announcements > [Announcement]
+Breadcrumbs::for('announcements.show', function (BreadcrumbTrail $trail, $announcement) {
+    $trail->parent('announcements.index');
+    $trail->push($announcement->title, route('announcements.show', $announcement));
+});
+
+// ============================================
+// Admin Announcements Breadcrumbs
+// ============================================
+
+// Home > Dashboard > Announcements
+Breadcrumbs::for('admin.announcements.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(__('System Announcements'), route('admin.announcements.index'));
+});
+
+// Home > Dashboard > Announcements > Create
+Breadcrumbs::for('admin.announcements.create', function (BreadcrumbTrail $trail) {
+    $trail->parent('admin.announcements.index');
+    $trail->push(__('Create Announcement'), route('admin.announcements.create'));
+});
+
+// Home > Dashboard > Announcements > [Announcement]
+Breadcrumbs::for('admin.announcements.show', function (BreadcrumbTrail $trail, $announcement) {
+    $trail->parent('admin.announcements.index');
+    $trail->push($announcement->title, route('admin.announcements.show', $announcement));
+});
+
+// Home > Dashboard > Announcements > [Announcement] > Edit
+Breadcrumbs::for('admin.announcements.edit', function (BreadcrumbTrail $trail, $announcement) {
+    $trail->parent('admin.announcements.show', $announcement);
+    $trail->push(__('Edit'), route('admin.announcements.edit', $announcement));
+});

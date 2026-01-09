@@ -33,8 +33,8 @@
                 <!--begin::Content-->
                 <div class="d-flex flex-column flex-center py-7 py-lg-15 px-5 px-md-15 w-100 position-relative z-index-1">
                     <!--begin::Logo-->
-                    <a href="{{ route('home') }}" class="mb-12">
-                        <img alt="{{ __('Logo') }}" src="{{ image('logos/swenamcollege_logo.png') }}" class="h-60px h-lg-75px"/>
+                    <a href="{{ route('home') }}">
+                        <img alt="{{ __('Logo') }}" src="{{ image('logos/S LOGO College 3 Transparent .png') }}" class="h-125px h-lg-200px" style="max-width: 100%;"/>
                     </a>
                     <!--end::Logo-->
 

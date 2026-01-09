@@ -39,7 +39,7 @@ class PasswordResetLinkController extends Controller
         );
 
         return $status == Password::RESET_LINK_SENT
-                    ? back()->with('status', __($status))
+                    ? redirect()->route('login')->with('success', __('We have emailed your password reset link!'))
                     : back()->withInput($request->only('email'))
                         ->withErrors(['email' => __($status)]);
     }
