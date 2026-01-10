@@ -165,15 +165,43 @@ class StudentService
      *
      * @param  Student  $student  Student to delete
      * @return bool Success status
+     *
+     * @throws \Exception If LMS deletion fails (when student has LMS account)
      */
     public function deleteStudent(Student $student): bool
     {
+        $user = $student->user;
+        $lmsUserId = $user?->lms_user_id;
+
+        // If student has an LMS account, delete it first
+        if ($lmsUserId) {
+            $lmsApiService = app(LmsApiService::class);
+            $result = $lmsApiService->deleteStudent($lmsUserId);
+
+            if (! $result['success']) {
+                Log::error('Failed to delete student in LMS, preventing SIS deletion', [
+                    'student_id' => $student->id,
+                    'user_id' => $student->user_id,
+                    'lms_user_id' => $lmsUserId,
+                    'error' => $result['error'] ?? 'Unknown error',
+                ]);
+
+                throw new \Exception('Failed to delete student in LMS: '.($result['error'] ?? 'Unknown error'));
+            }
+
+            Log::info('Student deleted in LMS, proceeding with SIS deletion', [
+                'student_id' => $student->id,
+                'lms_user_id' => $lmsUserId,
+            ]);
+        }
+
         // Clear cached counts
         $this->clearCountCache();
 
         Log::warning('Student deleted', [
             'student_id' => $student->id,
             'user_id' => $student->user_id,
+            'lms_user_id' => $lmsUserId,
             'deleted_by' => auth()->id(),
             'email' => $student->email,
         ]);
@@ -183,7 +211,8 @@ class StudentService
 
     /**
      * Check if a student can be deleted.
-     * Students with approved applications or LMS accounts cannot be deleted.
+     * Students with approved applications cannot be deleted.
+     * Note: Students with LMS accounts can now be deleted (deletion will be synced to LMS).
      *
      * @param  Student  $student  Student to check
      * @return bool True if can be deleted
@@ -196,17 +225,14 @@ class StudentService
             return true; // Student has no user, can be deleted
         }
 
-        // Check if student has an LMS account (meaning they're active in LMS)
-        if ($user->lms_user_id) {
-            return false;
-        }
-
         // Check if student has an approved application
         $application = $student->studentApplication;
         if ($application && $application->status === 'approved') {
             return false;
         }
 
+        // Note: Students with LMS accounts can now be deleted
+        // The deletion will be synced to LMS in deleteStudent() method
         return true;
     }
 

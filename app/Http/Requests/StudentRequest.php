@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\EmailNotInLms;
 use App\Rules\ExistsInLms;
 use App\Rules\ValidationRulesets;
 use Illuminate\Foundation\Http\FormRequest;
@@ -33,14 +34,21 @@ class StudentRequest extends FormRequest
 
         // Check if student already has LMS account (intake not needed in that case)
         $hasLmsAccount = false;
+        $lmsUserId = null;
         if ($isUpdate && $studentModel) {
             $hasLmsAccount = (bool) $studentModel->user?->lms_user_id;
+            $lmsUserId = $studentModel->user?->lms_user_id;
         }
+
+        // Build email validation rules - combine SIS uniqueness check with LMS check
+        $emailRules = ValidationRulesets::userEmail($userId);
+        // Add LMS email validation - pass lms_user_id on update to allow same email
+        $emailRules[] = new EmailNotInLms($lmsUserId);
 
         $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'email' => ValidationRulesets::userEmail($userId),
+            'email' => $emailRules,
             'phone' => ['nullable', 'string', 'max:20'],
             'date_of_birth' => ['nullable', 'date'],
             'program_id' => ['required', 'integer', new ExistsInLms('programs')],
@@ -73,7 +81,7 @@ class StudentRequest extends FormRequest
             'last_name.required' => 'Last name is required.',
             'email.required' => 'Email is required.',
             'email.email' => 'Please provide a valid email address.',
-            'email.unique' => 'This email is already registered.',
+            'email.unique' => 'This email is already registered in SIS.',
             'password.required' => 'Password is required.',
             'password.min' => 'Password must be at least 8 characters.',
             'password.confirmed' => 'Password confirmation does not match.',

@@ -277,12 +277,12 @@ class StudentController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => __('Cannot delete student with an approved application or active LMS account.'),
+                    'message' => __('Cannot delete student with an approved application.'),
                 ], 422);
             }
 
             return redirect()->route('admin.students.index')
-                ->with('error', 'Cannot delete student with an approved application or active LMS account.');
+                ->with('error', 'Cannot delete student with an approved application.');
         }
 
         $this->studentService->deleteStudent($student);

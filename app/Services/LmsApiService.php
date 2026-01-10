@@ -245,4 +245,98 @@ class LmsApiService
             'redirect_to' => $redirectTo,
         ]);
     }
+
+    /**
+     * Check if an email exists in LMS.
+     *
+     * @param  string  $email  Email address to check
+     * @return array Returns ['exists' => bool, 'user_id' => int|null]
+     */
+    public function checkEmailExists(string $email): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'X-API-Key' => $this->apiKey,
+            ])->get($this->apiUrl.'/api/v1/students/check-email', [
+                'email' => $email,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return [
+                    'exists' => $data['exists'] ?? false,
+                    'user_id' => $data['user_id'] ?? null,
+                ];
+            }
+
+            Log::warning('Failed to check email in LMS', [
+                'status' => $response->status(),
+                'error' => $response->json('error'),
+                'email' => $email,
+            ]);
+
+            // Fail open - if API fails, allow the operation but log warning
+            return [
+                'exists' => false,
+                'user_id' => null,
+            ];
+        } catch (\Exception $e) {
+            Log::warning('LMS API error checking email', [
+                'error' => $e->getMessage(),
+                'email' => $email,
+            ]);
+
+            // Fail open - if API fails, allow the operation but log warning
+            return [
+                'exists' => false,
+                'user_id' => null,
+            ];
+        }
+    }
+
+    /**
+     * Delete a student account from LMS.
+     *
+     * @param  int  $lmsUserId  The LMS user ID to delete
+     * @return array Returns ['success' => bool, 'error' => string|null]
+     */
+    public function deleteStudent(int $lmsUserId): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'X-API-Key' => $this->apiKey,
+            ])->delete($this->apiUrl.'/api/v1/students/'.$lmsUserId);
+
+            if ($response->successful()) {
+                Log::info('Student deleted in LMS', [
+                    'lms_user_id' => $lmsUserId,
+                ]);
+
+                return [
+                    'success' => true,
+                ];
+            }
+
+            Log::error('Failed to delete student in LMS', [
+                'status' => $response->status(),
+                'error' => $response->json('error'),
+                'lms_user_id' => $lmsUserId,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $response->json('error', 'Failed to delete student account'),
+            ];
+        } catch (\Exception $e) {
+            Log::error('LMS API error deleting student', [
+                'error' => $e->getMessage(),
+                'lms_user_id' => $lmsUserId,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
 }
