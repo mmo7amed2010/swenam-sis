@@ -137,6 +137,10 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
 
         // My Grades - redirects to LMS grades with SSO
         Route::get('my-grades/redirect', [\App\Http\Controllers\Student\MyCoursesController::class, 'redirectToGrades'])->name('my-grades.redirect');
+
+        // My Profile
+        Route::get('profile', [\App\Http\Controllers\Student\ProfileController::class, 'show'])->name('profile.show');
+        Route::put('profile', [\App\Http\Controllers\Student\ProfileController::class, 'update'])->name('profile.update');
     });
 });
 

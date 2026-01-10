@@ -263,6 +263,7 @@ class LmsApiService
 
             if ($response->successful()) {
                 $data = $response->json();
+
                 return [
                     'exists' => $data['exists'] ?? false,
                     'user_id' => $data['user_id'] ?? null,
@@ -290,6 +291,55 @@ class LmsApiService
             return [
                 'exists' => false,
                 'user_id' => null,
+            ];
+        }
+    }
+
+    /**
+     * Update a student's name in LMS.
+     *
+     * @param  int  $lmsUserId  The LMS user ID to update
+     * @param  array  $data  The data to update (first_name, last_name)
+     * @return array Returns ['success' => bool, 'error' => string|null]
+     */
+    public function updateStudent(int $lmsUserId, array $data): array
+    {
+        try {
+            $response = Http::withHeaders([
+                'X-API-Key' => $this->apiKey,
+            ])->put($this->apiUrl.'/api/v1/students/'.$lmsUserId, $data);
+
+            if ($response->successful()) {
+                Log::info('Student updated in LMS', [
+                    'lms_user_id' => $lmsUserId,
+                    'updated_fields' => array_keys($data),
+                ]);
+
+                return [
+                    'success' => true,
+                ];
+            }
+
+            Log::error('Failed to update student in LMS', [
+                'status' => $response->status(),
+                'error' => $response->json('error'),
+                'lms_user_id' => $lmsUserId,
+                'data' => $data,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $response->json('error', 'Failed to update student profile'),
+            ];
+        } catch (\Exception $e) {
+            Log::error('LMS API error updating student', [
+                'error' => $e->getMessage(),
+                'lms_user_id' => $lmsUserId,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
             ];
         }
     }

@@ -113,7 +113,7 @@
                 <div class="menu-item">
                     <!--begin:Menu link-->
                     <a class="menu-link {{ request()->routeIs('student.profile.*') ? 'active' : '' }}"
-                        href="#" onclick="alert('Profile page coming soon!'); return false;">
+                        href="{{ route('student.profile.show') }}">
                         <span class="menu-icon">{!! getIcon('profile-circle', 'fs-2') !!}</span>
                         <span class="menu-title">{{ __('My Profile') }}</span>
                     </a>

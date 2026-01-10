@@ -27,6 +27,10 @@ class Student extends Model
         'date_of_birth',
         'address',
         'enrollment_status',
+        'emergency_first_name',
+        'emergency_last_name',
+        'emergency_phone',
+        'emergency_address',
     ];
 
     /**
@@ -35,6 +39,7 @@ class Student extends Model
     protected $casts = [
         'date_of_birth' => 'date',
         'address' => 'array',
+        'emergency_address' => 'array',
     ];
 
     /**
@@ -63,7 +68,7 @@ class Student extends Model
         $prefix = "STU-{$year}-";
 
         // Get the last student number for this year
-        $lastStudent = self::where('student_number', 'like', $prefix . '%')
+        $lastStudent = self::where('student_number', 'like', $prefix.'%')
             ->orderByRaw('CAST(SUBSTRING(student_number, -5) AS UNSIGNED) DESC')
             ->first();
 

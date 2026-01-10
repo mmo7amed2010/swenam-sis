@@ -242,6 +242,13 @@
                 </div>
                 <div class="card-body pt-5">
                     <div class="d-flex flex-column gap-4">
+                        <a href="{{ route('student.profile.show') }}" class="btn btn-flex btn-light-info w-100 py-4">
+                            <i class="ki-duotone ki-user fs-2 me-2">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                            {{ __('My Profile') }}
+                        </a>
                         <a href="{{ route('student.program.index') }}" class="btn btn-flex btn-light-primary w-100 py-4">
                             <i class="ki-duotone ki-document fs-2 me-2">
                                 <span class="path1"></span>
