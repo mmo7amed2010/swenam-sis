@@ -190,12 +190,13 @@
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Course Registration (Greyed Out)-->
-                <div class="menu-item">
+                <!--begin:Menu item - Course Registration (Greyed Out with Sub-items)-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                     <!--begin:Menu link-->
                     <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
                         <span class="menu-icon">{!! getIcon('calendar-add', 'fs-2 text-muted') !!}</span>
                         <span class="menu-title text-muted">{{ __('Course Registration') }}</span>
+                        <span class="menu-arrow"></span>
                         <span class="menu-badge">
                             <span class="badge badge-light-secondary badge-circle">
                                 {!! getIcon('lock', 'fs-7') !!}
@@ -203,15 +204,81 @@
                         </span>
                     </span>
                     <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title text-muted">{{ __('Register for courses') }}</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-secondary badge-circle">
+                                        {!! getIcon('lock', 'fs-7') !!}
+                                    </span>
+                                </span>
+                            </span>
+                        </div>
+                        <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title text-muted">{{ __('Add/Drop courses') }}</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-secondary badge-circle">
+                                        {!! getIcon('lock', 'fs-7') !!}
+                                    </span>
+                                </span>
+                            </span>
+                        </div>
+                        <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title text-muted">{{ __('Request repeats') }}</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-secondary badge-circle">
+                                        {!! getIcon('lock', 'fs-7') !!}
+                                    </span>
+                                </span>
+                            </span>
+                        </div>
+                        <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title text-muted">{{ __('View available sections') }}</span>
+                                <span class="menu-badge">
+                                    <span class="badge badge-light-secondary badge-circle">
+                                        {!! getIcon('lock', 'fs-7') !!}
+                                    </span>
+                                </span>
+                            </span>
+                        </div>
+                        <!--end:Menu item-->
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Financials (Greyed Out)-->
-                <div class="menu-item">
+
+                <!--begin:Menu item - Financials (Greyed Out with Sub-items)-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                     <!--begin:Menu link-->
                     <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
                         <span class="menu-icon">{!! getIcon('dollar', 'fs-2 text-muted') !!}</span>
                         <span class="menu-title text-muted">{{ __('Financials') }}</span>
+                        <span class="menu-arrow"></span>
                         <span class="menu-badge">
                             <span class="badge badge-light-secondary badge-circle">
                                 {!! getIcon('lock', 'fs-7') !!}
@@ -219,15 +286,50 @@
                         </span>
                     </span>
                     <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Tuition fees') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Payment history') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Financial aid status') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Online payments') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <!--end:Menu item-->
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Documents (Greyed Out)-->
-                <div class="menu-item">
+                <!--begin:Menu item - Documents (Greyed Out with Sub-items)-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                     <!--begin:Menu link-->
                     <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
                         <span class="menu-icon">{!! getIcon('folder', 'fs-2 text-muted') !!}</span>
                         <span class="menu-title text-muted">{{ __('Documents') }}</span>
+                        <span class="menu-arrow"></span>
                         <span class="menu-badge">
                             <span class="badge badge-light-secondary badge-circle">
                                 {!! getIcon('lock', 'fs-7') !!}
@@ -235,15 +337,55 @@
                         </span>
                     </span>
                     <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Enrollment letters') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Payment receipts') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('ID card') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Transcript requests') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Study permit support letters') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Attendance Summary (Greyed Out)-->
-                <div class="menu-item">
+                <!--begin:Menu item - Attendance Summary (Greyed Out with Sub-items)-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                     <!--begin:Menu link-->
                     <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
                         <span class="menu-icon">{!! getIcon('calendar-tick', 'fs-2 text-muted') !!}</span>
                         <span class="menu-title text-muted">{{ __('Attendance Summary') }}</span>
+                        <span class="menu-arrow"></span>
                         <span class="menu-badge">
                             <span class="badge badge-light-secondary badge-circle">
                                 {!! getIcon('lock', 'fs-7') !!}
@@ -251,15 +393,34 @@
                         </span>
                     </span>
                     <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Attendance per course') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Reports') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Official Grades (Greyed Out)-->
-                <div class="menu-item">
+                <!--begin:Menu item - Official Grades (Greyed Out with Sub-items)-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                     <!--begin:Menu link-->
                     <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
                         <span class="menu-icon">{!! getIcon('medal-star', 'fs-2 text-muted') !!}</span>
                         <span class="menu-title text-muted">{{ __('Official Grades') }}</span>
+                        <span class="menu-arrow"></span>
                         <span class="menu-badge">
                             <span class="badge badge-light-secondary badge-circle">
                                 {!! getIcon('lock', 'fs-7') !!}
@@ -267,15 +428,41 @@
                         </span>
                     </span>
                     <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Official term grades') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('GPA calculation') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Transcript previews') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
 
-                <!--begin:Menu item - Schedule / Timetable (Greyed Out)-->
-                <div class="menu-item">
+                <!--begin:Menu item - Schedule / Timetable (Greyed Out with Sub-items)-->
+                <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                     <!--begin:Menu link-->
                     <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Coming Soon') }}">
                         <span class="menu-icon">{!! getIcon('calendar-2', 'fs-2 text-muted') !!}</span>
                         <span class="menu-title text-muted">{{ __('Schedule / Timetable') }}</span>
+                        <span class="menu-arrow"></span>
                         <span class="menu-badge">
                             <span class="badge badge-light-secondary badge-circle">
                                 {!! getIcon('lock', 'fs-7') !!}
@@ -283,6 +470,31 @@
                         </span>
                     </span>
                     <!--end:Menu link-->
+                    <!--begin:Menu sub-->
+                    <div class="menu-sub menu-sub-accordion">
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Weekly class schedule') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Room numbers') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-link disabled" data-bs-toggle="tooltip" title="{{ __('Coming Soon') }}">
+                                <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                <span class="menu-title text-muted">{{ __('Online meeting links') }}</span>
+                                <span class="menu-badge"><span class="badge badge-light-secondary badge-circle">{!! getIcon('lock', 'fs-7') !!}</span></span>
+                            </span>
+                        </div>
+                    </div>
+                    <!--end:Menu sub-->
                 </div>
                 <!--end:Menu item-->
             @endif
