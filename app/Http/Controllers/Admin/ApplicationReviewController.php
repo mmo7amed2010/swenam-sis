@@ -161,7 +161,7 @@ class ApplicationReviewController extends Controller
      */
     public function downloadDocument(StudentApplication $application, string $documentType)
     {
-        $validDocumentTypes = ['degree_certificate', 'transcripts', 'cv', 'english_test'];
+        $validDocumentTypes = ['government_id', 'degree_certificate', 'transcripts', 'cv', 'english_test'];
 
         if (! in_array($documentType, $validDocumentTypes)) {
             abort(404, 'Invalid document type');

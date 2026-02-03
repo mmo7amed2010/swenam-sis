@@ -63,6 +63,7 @@ class StudentApplication extends Model
         'transcripts_path',
         'cv_path',
         'english_test_path',
+        'government_id_path',
 
         // Review/Approval
         'reviewed_by',

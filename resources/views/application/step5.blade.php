@@ -39,6 +39,22 @@
             </h3>
 
             <div class="row g-6">
+                {{-- Government-Issued Photo ID --}}
+                <div class="col-12">
+                    <label class="form-label required fs-6 fw-semibold mb-3">
+                        <i class="ki-outline ki-verify fs-5 text-primary me-2"></i>
+                        Government-Issued Photo ID
+                    </label>
+                    <input type="file" name="government_id" id="government_id" class="form-control form-control-lg @error('government_id') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <div class="form-text mt-2">
+                        <i class="ki-outline ki-information-5 fs-6 text-muted me-1"></i>
+                        Upload a clear photo of your passport, official national ID
+                    </div>
+                    @error('government_id')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 {{-- Degree Certificate --}}
                 <div class="col-12">
                     <label class="form-label required fs-6 fw-semibold mb-3">

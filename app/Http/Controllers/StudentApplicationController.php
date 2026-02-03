@@ -182,6 +182,14 @@ class StudentApplicationController extends Controller
         $applicationData['status'] = 'pending';
 
         // Upload documents
+        if ($request->hasFile('government_id')) {
+            $applicationData['government_id_path'] = $this->documentService->upload(
+                $request->file('government_id'),
+                $referenceNumber,
+                'government_id'
+            );
+        }
+
         if ($request->hasFile('degree_certificate')) {
             $applicationData['degree_certificate_path'] = $this->documentService->upload(
                 $request->file('degree_certificate'),

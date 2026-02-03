@@ -20,6 +20,7 @@ class StudentApplicationStepFiveRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'government_id' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png'],
             'degree_certificate' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,docx'],
             'transcripts' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,docx'],
             'cv' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,docx'],
@@ -33,6 +34,10 @@ class StudentApplicationStepFiveRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'government_id.required' => 'Please upload your government-issued photo ID.',
+            'government_id.max' => 'Government ID file size must not exceed 10MB.',
+            'government_id.mimes' => 'Government ID must be a PDF, JPG, or PNG file.',
+
             'degree_certificate.required' => 'Please upload your degree certificate or latest educational credentials.',
             'degree_certificate.max' => 'Degree certificate file size must not exceed 10MB.',
             'degree_certificate.mimes' => 'Degree certificate must be a PDF, JPG, PNG, or DOCX file.',

@@ -17,6 +17,7 @@
         $config = $statusConfig[$application->status] ?? $statusConfig['pending'];
 
         $docCount = collect([
+            $application->government_id_path,
             $application->degree_certificate_path,
             $application->transcripts_path,
             $application->cv_path,
@@ -223,6 +224,7 @@
                     <x-cards.section title="Uploaded Documents">
                         @php
                             $documents = [
+                                ['key' => 'government_id', 'path' => $application->government_id_path, 'label' => 'Government-Issued Photo ID', 'icon' => 'verify', 'desc' => 'Passport, official national ID'],
                                 ['key' => 'degree_certificate', 'path' => $application->degree_certificate_path, 'label' => 'Degree Certificate', 'icon' => 'award', 'desc' => 'Academic degree or diploma'],
                                 ['key' => 'transcripts', 'path' => $application->transcripts_path, 'label' => 'Academic Transcripts', 'icon' => 'document', 'desc' => 'Official academic records'],
                                 ['key' => 'cv', 'path' => $application->cv_path, 'label' => 'Curriculum Vitae', 'icon' => 'profile-user', 'desc' => 'Resume or CV document'],
@@ -448,7 +450,7 @@
                 icon="information-2"
                 :items="[
                     ['label' => 'Days Since Submission', 'value' => floor($application->created_at->diffInDays(now())) . ' days', 'badge' => 'info'],
-                    ['label' => 'Documents Uploaded', 'value' => $docCount . ' / 4', 'badge' => $docCount >= 3 ? 'success' : 'warning'],
+                    ['label' => 'Documents Uploaded', 'value' => $docCount . ' / 5', 'badge' => $docCount >= 4 ? 'success' : 'warning'],
                     ['label' => 'Work Experience', 'value' => $application->has_work_experience ? 'Yes' : 'No', 'badge' => $application->has_work_experience ? 'success' : 'secondary'],
                     ['label' => 'Agency Referral', 'value' => $application->has_referral ? 'Yes' : 'No', 'badge' => $application->has_referral ? 'primary' : 'secondary'],
                 ]"
