@@ -30,25 +30,36 @@ class ApplicationReviewController extends Controller
             $query = StudentApplication::query()
                 ->with(['reviewer']);
 
+            // Pre-fetch programs ONCE per request (fresh API call, no caching)
+            // This eliminates N+1 API calls when accessing program_name
+            $lmsApiService = app(\App\Services\LmsApiService::class);
+            $programs = collect($lmsApiService->getPrograms());
+            $programsMap = $programs->keyBy('id'); // O(1) lookup
+
             return $this->dataTableResponse(
                 query: $query,
                 request: $request,
-                transformer: fn ($application) => [
-                    'id' => $application->id,
-                    'reference_number' => $application->reference_number,
-                    'full_name' => $application->full_name,
-                    'first_name' => $application->first_name,
-                    'last_name' => $application->last_name,
-                    'email' => $application->email,
-                    'phone' => $application->phone,
-                    'program_name' => $application->program_name ?? 'N/A',
-                    'program_id' => $application->program_id,
-                    'status' => $application->status,
-                    'created_at' => $application->created_at->format('M d, Y H:i'),
-                    'created_at_human' => $application->created_at->diffForHumans(),
-                    'reviewer_name' => $application->reviewer?->name,
-                    'show_url' => route('admin.applications.show', $application),
-                ],
+                transformer: function ($application) use ($programsMap) {
+                    // Use pre-fetched data instead of triggering accessor
+                    $program = $programsMap->get($application->program_id);
+                    
+                    return [
+                        'id' => $application->id,
+                        'reference_number' => $application->reference_number,
+                        'full_name' => $application->full_name,
+                        'first_name' => $application->first_name,
+                        'last_name' => $application->last_name,
+                        'email' => $application->email,
+                        'phone' => $application->phone,
+                        'program_name' => $program['name'] ?? 'N/A', // Direct lookup, no API call
+                        'program_id' => $application->program_id,
+                        'status' => $application->status,
+                        'created_at' => $application->created_at->format('M d, Y H:i'),
+                        'created_at_human' => $application->created_at->diffForHumans(),
+                        'reviewer_name' => $application->reviewer?->name,
+                        'show_url' => route('admin.applications.show', $application),
+                    ];
+                },
                 searchableColumns: ['reference_number', 'first_name', 'last_name', 'email', 'phone'],
                 filters: [
                     'status' => fn ($q, $val) => $val !== 'all' ? $q->where('status', $val) : $q,
