@@ -352,6 +352,29 @@
                         </x-cards.section>
 
                         {{-- Payment Details (if self-funded) --}}
+                        @if($application->isSelfFunded() && $application->payment_amount)
+                            <x-cards.section title="Payment Information" class="mb-5">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="wallet" label="Payment Amount" color="warning">
+                                            <span class="fw-bolder fs-4">${{ number_format($application->payment_amount, 2) }}</span>
+                                        </x-detail.field>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="verify" label="Payment Status" color="warning">
+                                            @if($application->isPaymentApproved() || $application->isApproved())
+                                                <span class="badge badge-light-success">Approved</span>
+                                            @elseif($application->isPaymentUploaded())
+                                                <span class="badge badge-light-info">Receipt Uploaded - Awaiting Review</span>
+                                            @elseif($application->isPaymentPending())
+                                                <span class="badge badge-light-warning">Awaiting Payment</span>
+                                            @endif
+                                        </x-detail.field>
+                                    </div>
+                                </div>
+                            </x-cards.section>
+                        @endif
+
                         @if($application->isSelfFunded() && $application->payment_receipt_path)
                             <x-cards.section title="Payment Receipt">
                                 <div class="row g-4 mb-4">
@@ -474,19 +497,19 @@
                     </div>
                 </div>
             @elseif($application->isInitialApproved())
-                {{-- Action Card for Initial Approved: Send Contract --}}
+                {{-- Action Card for Initial Approved: Send Contract or Final Approve --}}
                 <div class="card border-0 shadow-sm mb-5">
                     <div class="card-header border-0 bg-light-info py-5">
                         <h3 class="card-title fw-bold text-gray-800">
                             {!! getIcon('shield-tick', 'fs-4 me-2 text-info') !!}
-                            Next Step: Send Contract
+                            Next Step
                         </h3>
                     </div>
                     <div class="card-body p-6">
                         <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4 mb-5">
                             {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
                             <div class="text-gray-700 fs-7">
-                                This application has been initially approved. Send an enrollment contract to proceed.
+                                This application has been initially approved. You can send an enrollment contract or directly approve the application.
                             </div>
                         </div>
 
@@ -496,6 +519,14 @@
                                 {!! getIcon('send', 'fs-3') !!}
                                 <span>Send Contract</span>
                             </a>
+
+                            <button type="button"
+                                    class="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#approveModal">
+                                {!! getIcon('check-circle', 'fs-3') !!}
+                                <span>Final Approve (Skip Contract)</span>
+                            </button>
 
                             <button type="button"
                                     class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2"
@@ -596,6 +627,14 @@
                         </h3>
                     </div>
                     <div class="card-body p-6">
+                        @if($application->payment_amount)
+                            <div class="d-flex align-items-center bg-light-warning rounded p-4 mb-4">
+                                <div>
+                                    <div class="text-gray-500 fs-8">Payment Amount</div>
+                                    <div class="fw-bolder text-gray-800 fs-2">${{ number_format($application->payment_amount, 2) }}</div>
+                                </div>
+                            </div>
+                        @endif
                         <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4 mb-5">
                             {!! getIcon('time', 'fs-2x text-warning me-3 flex-shrink-0') !!}
                             <div class="text-gray-700 fs-7">
@@ -623,6 +662,14 @@
                         </h3>
                     </div>
                     <div class="card-body p-6">
+                        @if($application->payment_amount)
+                            <div class="d-flex align-items-center bg-light-warning rounded p-4 mb-4">
+                                <div>
+                                    <div class="text-gray-500 fs-8">Payment Amount</div>
+                                    <div class="fw-bolder text-gray-800 fs-2">${{ number_format($application->payment_amount, 2) }}</div>
+                                </div>
+                            </div>
+                        @endif
                         <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4 mb-5">
                             {!! getIcon('time', 'fs-2x text-warning me-3 flex-shrink-0') !!}
                             <div class="text-gray-700 fs-7">
@@ -650,6 +697,14 @@
                         </h3>
                     </div>
                     <div class="card-body p-6">
+                        @if($application->payment_amount)
+                            <div class="d-flex align-items-center bg-light-info rounded p-4 mb-4">
+                                <div>
+                                    <div class="text-gray-500 fs-8">Expected Payment Amount</div>
+                                    <div class="fw-bolder text-gray-800 fs-2">${{ number_format($application->payment_amount, 2) }}</div>
+                                </div>
+                            </div>
+                        @endif
                         <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4 mb-5">
                             {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
                             <div class="text-gray-700 fs-7">
@@ -1024,6 +1079,20 @@
                             </div>
                         </div>
 
+                        @if($application->isSelfFunded())
+                            <div class="mb-5">
+                                <label class="form-label text-gray-700 fw-semibold required">Payment Amount</label>
+                                <div class="input-group input-group-solid">
+                                    <span class="input-group-text fw-bold">$</span>
+                                    <input type="number" name="payment_amount" class="form-control form-control-solid @error('payment_amount') is-invalid @enderror" placeholder="0.00" step="0.01" min="0.01" required />
+                                </div>
+                                @error('payment_amount')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text text-gray-500 fs-8">Enter the amount the student needs to pay to complete enrollment.</div>
+                            </div>
+                        @endif
+
                         <div class="mb-5">
                             <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
                             <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any notes...">{{ $application->admin_notes }}</textarea>
@@ -1055,7 +1124,7 @@
                         </div>
                         <div>
                             <h2 class="fw-bolder text-gray-800 mb-1">Reject Contract</h2>
-                            <p class="text-gray-600 fs-7 mb-0">Student will need to re-upload their signed contract</p>
+                            <p class="text-gray-600 fs-7 mb-0">Choose how to handle the rejected contract</p>
                         </div>
                     </div>
                     <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
@@ -1066,6 +1135,32 @@
                 <form action="{{ route('admin.applications.contract.reject', $application) }}" method="POST">
                     @csrf
                     <div class="modal-body py-8">
+                        {{-- Action Selection --}}
+                        <div class="mb-6">
+                            <label class="form-label text-gray-700 fw-semibold required">Rejection Action</label>
+                            <div class="d-flex flex-column gap-3">
+                                <label class="d-flex align-items-start bg-gray-100 rounded p-4 cursor-pointer border border-2 border-transparent" id="rejectOnlyLabel">
+                                    <input type="radio" name="reject_action" value="reject_only" class="form-check-input mt-1 me-3" checked id="rejectOnlyRadio">
+                                    <div>
+                                        <div class="fw-bold text-gray-800 fs-6">Reject Only</div>
+                                        <div class="text-gray-600 fs-7">Student will re-upload their signed contract using the existing PDF.</div>
+                                    </div>
+                                </label>
+                                <label class="d-flex align-items-start bg-gray-100 rounded p-4 cursor-pointer border border-2 border-transparent" id="regenerateLabel">
+                                    <input type="radio" name="reject_action" value="reject_and_regenerate" class="form-check-input mt-1 me-3" id="regenerateRadio">
+                                    <div>
+                                        <div class="fw-bold text-gray-800 fs-6">
+                                            {!! getIcon('arrows-circle', 'fs-6 me-1 text-primary') !!}
+                                            Reject & Regenerate Contract
+                                        </div>
+                                        <div class="text-gray-600 fs-7">Generate a new contract PDF from the latest template and re-send to the student. Use this when the template has been updated.</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="separator separator-dashed mb-6"></div>
+
                         <div class="mb-5">
                             <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
                             <textarea name="rejection_reason" class="form-control form-control-solid" rows="4" placeholder="Explain why the signed contract is being rejected..." required minlength="10"></textarea>
@@ -1074,16 +1169,24 @@
                             <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
                             <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
                         </div>
-                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
+
+                        {{-- Dynamic notice --}}
+                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4" id="rejectOnlyNotice">
                             {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
                             <div class="text-gray-700 fs-7">
-                                The student will be able to re-upload their signed contract.
+                                The student will be able to re-upload their signed contract using the existing contract PDF.
+                            </div>
+                        </div>
+                        <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-4 d-none" id="regenerateNotice">
+                            {!! getIcon('arrows-circle', 'fs-2x text-primary me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                A <strong>new contract PDF</strong> will be generated from the latest template and emailed to the student. They must download, sign, and upload the new version.
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer border-0 pt-0">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-warning">
+                        <button type="submit" class="btn btn-warning" id="rejectContractBtn">
                             {!! getIcon('cross', 'fs-4 me-2') !!}
                             Reject Contract
                         </button>
@@ -1256,6 +1359,44 @@
                 }
             }, 300);
         }
+    </script>
+    <script>
+        // Reject Contract modal: toggle between reject-only and regenerate
+        document.addEventListener('DOMContentLoaded', function() {
+            const rejectOnlyRadio = document.getElementById('rejectOnlyRadio');
+            const regenerateRadio = document.getElementById('regenerateRadio');
+            const rejectOnlyNotice = document.getElementById('rejectOnlyNotice');
+            const regenerateNotice = document.getElementById('regenerateNotice');
+            const rejectOnlyLabel = document.getElementById('rejectOnlyLabel');
+            const regenerateLabel = document.getElementById('regenerateLabel');
+            const rejectBtn = document.getElementById('rejectContractBtn');
+
+            if (!rejectOnlyRadio || !regenerateRadio) return;
+
+            function updateRejectUI() {
+                if (regenerateRadio.checked) {
+                    rejectOnlyNotice.classList.add('d-none');
+                    regenerateNotice.classList.remove('d-none');
+                    rejectOnlyLabel.classList.remove('border-primary');
+                    regenerateLabel.classList.add('border-primary');
+                    rejectBtn.innerHTML = '{!! getIcon("arrows-circle", "fs-4 me-2") !!} Reject & Regenerate';
+                    rejectBtn.classList.remove('btn-warning');
+                    rejectBtn.classList.add('btn-primary');
+                } else {
+                    rejectOnlyNotice.classList.remove('d-none');
+                    regenerateNotice.classList.add('d-none');
+                    rejectOnlyLabel.classList.add('border-primary');
+                    regenerateLabel.classList.remove('border-primary');
+                    rejectBtn.innerHTML = '{!! getIcon("cross", "fs-4 me-2") !!} Reject Contract';
+                    rejectBtn.classList.remove('btn-primary');
+                    rejectBtn.classList.add('btn-warning');
+                }
+            }
+
+            rejectOnlyRadio.addEventListener('change', updateRejectUI);
+            regenerateRadio.addEventListener('change', updateRejectUI);
+            updateRejectUI();
+        });
     </script>
     @endpush
 </x-default-layout>

@@ -371,6 +371,12 @@
                                         <div class="fs-6 text-gray-700">
                                             {{ __('Your contract has been approved. Please submit your payment receipt to complete enrollment.') }}
                                         </div>
+                                        @if($application->payment_amount)
+                                            <div class="mt-3 fs-5">
+                                                <strong>{{ __('Amount Due:') }}</strong>
+                                                <span class="text-danger fw-bolder fs-3">${{ number_format($application->payment_amount, 2) }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>

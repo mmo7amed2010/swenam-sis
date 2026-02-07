@@ -98,8 +98,8 @@
         @endif
 
         {{-- Filter Controls --}}
-        @if (isset($filtersSlot))
-            {{ $filtersSlot }}
+        @if ($filters instanceof \Illuminate\View\ComponentSlot)
+            {{ $filters }}
         @elseif ($filters)
             @foreach ($filters as $filterName => $filterOptions)
                 <select name="{{ $filterName }}"

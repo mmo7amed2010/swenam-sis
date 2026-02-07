@@ -148,7 +148,25 @@ class ContractController extends Controller
     public function rejectContract(RejectContractRequest $request, StudentApplication $application)
     {
         try {
-            $this->contractService->rejectContract($application, $request->validated());
+            $data = $request->validated();
+
+            if ($data['reject_action'] === 'reject_and_regenerate') {
+                // Get previous contract data before rejecting
+                $previousContract = $application->latestContract;
+                $previousTemplateId = $previousContract?->contract_template_id;
+                $previousAdminFields = $previousContract?->admin_field_values ?? [];
+
+                $this->contractService->rejectContractForRegeneration($application, $data);
+
+                // Redirect to contract create page with previous values pre-filled
+                return redirect()
+                    ->route('admin.applications.contract.create', $application)
+                    ->with('success', 'Contract rejected. Please review and issue a new contract.')
+                    ->with('prefill_template_id', $previousTemplateId)
+                    ->with('prefill_admin_fields', $previousAdminFields);
+            }
+
+            $this->contractService->rejectContract($application, $data);
 
             return back()->with('success', 'Contract rejected. Student has been notified to re-upload.');
         } catch (\Exception $e) {
