@@ -72,8 +72,8 @@ class ApplicationReviewService
             throw new \Exception('Cannot approve a rejected application. Student must reapply.');
         }
 
-        if (! $application->isInitialApproved()) {
-            throw new \Exception('Only initially approved applications can be finally approved.');
+        if (! $application->canBeFinallyApproved()) {
+            throw new \Exception('Application cannot be finally approved at this stage.');
         }
 
         // Verify student account already exists (created on submission)
@@ -123,7 +123,7 @@ class ApplicationReviewService
         }
 
         if (! $application->canBeRejected()) {
-            throw new \Exception('Only pending or initially approved applications can be rejected.');
+            throw new \Exception('This application cannot be rejected at its current status.');
         }
 
         $oldStatus = $application->status;

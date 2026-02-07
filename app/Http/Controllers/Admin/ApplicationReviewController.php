@@ -56,6 +56,7 @@ class ApplicationReviewController extends Controller
                         'status' => $application->status,
                         'created_at' => $application->created_at->format('M d, Y H:i'),
                         'created_at_human' => $application->created_at->diffForHumans(),
+                        'funding_type' => $application->funding_type,
                         'reviewer_name' => $application->reviewer?->name,
                         'show_url' => route('admin.applications.show', $application),
                     ];
@@ -101,7 +102,7 @@ class ApplicationReviewController extends Controller
      */
     public function show(StudentApplication $application)
     {
-        $application->load('reviewer', 'createdUser');
+        $application->load('reviewer', 'createdUser', 'latestContract', 'latestContract.template');
 
         return view('pages.admin.applications.show', compact('application'));
     }

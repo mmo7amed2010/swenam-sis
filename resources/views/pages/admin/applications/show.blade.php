@@ -11,6 +11,12 @@
         $statusConfig = [
             'pending' => ['badge' => 'warning', 'icon' => 'time', 'label' => 'Pending Review'],
             'initial_approved' => ['badge' => 'info', 'icon' => 'shield-tick', 'label' => 'Initial Approved'],
+            'contract_sent' => ['badge' => 'primary', 'icon' => 'send', 'label' => 'Contract Sent'],
+            'contract_uploaded' => ['badge' => 'info', 'icon' => 'document', 'label' => 'Contract Uploaded'],
+            'contract_approved' => ['badge' => 'success', 'icon' => 'verify', 'label' => 'Contract Approved'],
+            'payment_pending' => ['badge' => 'warning', 'icon' => 'wallet', 'label' => 'Payment Pending'],
+            'payment_uploaded' => ['badge' => 'info', 'icon' => 'wallet', 'label' => 'Payment Uploaded'],
+            'payment_approved' => ['badge' => 'success', 'icon' => 'wallet', 'label' => 'Payment Approved'],
             'approved' => ['badge' => 'success', 'icon' => 'check-circle', 'label' => 'Approved'],
             'rejected' => ['badge' => 'danger', 'icon' => 'cross-circle', 'label' => 'Rejected'],
         ];
@@ -72,6 +78,14 @@
                         <span class="badge badge-sm badge-circle badge-secondary">{{ $docCount }}</span>
                     </a>
                 </li>
+                @if($application->latestContract)
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link d-flex align-items-center gap-2" data-bs-toggle="tab" href="#tab_contract" role="tab">
+                            {!! getIcon('document', 'fs-5') !!}
+                            Contract & Payment
+                        </a>
+                    </li>
+                @endif
                 @if($application->reviewed_at || $application->initial_approved_at)
                     <li class="nav-item" role="presentation">
                         <a class="nav-link d-flex align-items-center gap-2" data-bs-toggle="tab" href="#tab_review" role="tab">
@@ -101,6 +115,17 @@
                                         {{ $application->referral_agency_name }}
                                     @else
                                         <span class="text-gray-500">None</span>
+                                    @endif
+                                </x-detail.info-card>
+                            </div>
+                            <div class="col-md-4">
+                                <x-detail.info-card icon="wallet" label="Funding Type" color="primary">
+                                    @if($application->isSelfFunded())
+                                        <span class="badge badge-light-warning">Self-Funded</span>
+                                    @elseif($application->isGovernmentFunded())
+                                        <span class="badge badge-light-success">Government-Funded</span>
+                                    @else
+                                        <span class="text-gray-500">N/A</span>
                                     @endif
                                 </x-detail.info-card>
                             </div>
@@ -283,6 +308,77 @@
                     </x-cards.section>
                 </div>
 
+                {{-- Contract & Payment Tab --}}
+                @if($application->latestContract)
+                    <div class="tab-pane fade" id="tab_contract" role="tabpanel">
+                        {{-- Contract Details --}}
+                        <x-cards.section title="Contract Details" class="mb-5">
+                            @php $contract = $application->latestContract; @endphp
+                            <div class="row g-4 mb-4">
+                                <div class="col-md-6">
+                                    <x-detail.field icon="document" label="Template Used" :value="$contract->template?->name ?? 'N/A'" color="primary" />
+                                </div>
+                                <div class="col-md-6">
+                                    <x-detail.field icon="calendar" label="Issued Date" :value="$contract->issued_at ? $contract->issued_at->format('F d, Y \a\t h:i A') : 'N/A'" color="primary" />
+                                </div>
+                                <div class="col-md-6">
+                                    <x-detail.field icon="profile-user" label="Issued By" :value="$contract->issuer?->name ?? 'N/A'" color="primary" />
+                                </div>
+                                <div class="col-md-6">
+                                    <x-detail.field icon="verify" label="Signed" color="primary">
+                                        @if($contract->isSigned())
+                                            <span class="badge badge-light-success">Yes - {{ $contract->signed_at?->format('M d, Y') }}</span>
+                                        @else
+                                            <span class="badge badge-light-warning">Pending</span>
+                                        @endif
+                                    </x-detail.field>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3">
+                                @if($contract->generated_pdf_path)
+                                    <a href="{{ route('admin.contracts.download-generated', $contract) }}" class="btn btn-sm btn-light-primary">
+                                        {!! getIcon('down', 'fs-5 me-1') !!}
+                                        Download Generated Contract
+                                    </a>
+                                @endif
+                                @if($contract->signed_pdf_path)
+                                    <a href="{{ route('admin.contracts.download-signed', $contract) }}" class="btn btn-sm btn-light-success">
+                                        {!! getIcon('down', 'fs-5 me-1') !!}
+                                        Download Signed Contract
+                                    </a>
+                                @endif
+                            </div>
+                        </x-cards.section>
+
+                        {{-- Payment Details (if self-funded) --}}
+                        @if($application->isSelfFunded() && $application->payment_receipt_path)
+                            <x-cards.section title="Payment Receipt">
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Uploaded At" :value="$application->payment_uploaded_at ? $application->payment_uploaded_at->format('F d, Y \a\t h:i A') : 'N/A'" color="warning" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="verify" label="Payment Status" color="warning">
+                                            @if($application->isPaymentApproved() || $application->isApproved())
+                                                <span class="badge badge-light-success">Approved</span>
+                                            @elseif($application->isPaymentUploaded())
+                                                <span class="badge badge-light-info">Awaiting Review</span>
+                                            @else
+                                                <span class="badge badge-light-warning">Pending</span>
+                                            @endif
+                                        </x-detail.field>
+                                    </div>
+                                </div>
+                                <a href="{{ route('admin.applications.payment.download', $application) }}" class="btn btn-sm btn-light-warning">
+                                    {!! getIcon('down', 'fs-5 me-1') !!}
+                                    Download Payment Receipt
+                                </a>
+                            </x-cards.section>
+                        @endif
+                    </div>
+                @endif
+
                 {{-- Review Details Tab --}}
                 @if($application->reviewed_at || $application->initial_approved_at)
                     <div class="tab-pane fade" id="tab_review" role="tabpanel">
@@ -378,29 +474,211 @@
                     </div>
                 </div>
             @elseif($application->isInitialApproved())
-                {{-- Action Card for Initial Approved --}}
+                {{-- Action Card for Initial Approved: Send Contract --}}
                 <div class="card border-0 shadow-sm mb-5">
                     <div class="card-header border-0 bg-light-info py-5">
                         <h3 class="card-title fw-bold text-gray-800">
                             {!! getIcon('shield-tick', 'fs-4 me-2 text-info') !!}
-                            Complete Review
+                            Next Step: Send Contract
                         </h3>
                     </div>
                     <div class="card-body p-6">
                         <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4 mb-5">
                             {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
                             <div class="text-gray-700 fs-7">
-                                This application has been initially approved. Complete the enrollment process or reject if needed.
+                                This application has been initially approved. Send an enrollment contract to proceed.
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <a href="{{ route('admin.applications.contract.create', $application) }}"
+                               class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2">
+                                {!! getIcon('send', 'fs-3') !!}
+                                <span>Send Contract</span>
+                            </a>
+
+                            <button type="button"
+                                    class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectModal">
+                                {!! getIcon('cross-circle', 'fs-3') !!}
+                                <span>Reject Application</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @elseif($application->isContractSent())
+                {{-- Contract Sent: Waiting for student --}}
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-header border-0 bg-light-primary py-5">
+                        <h3 class="card-title fw-bold text-gray-800">
+                            {!! getIcon('send', 'fs-4 me-2 text-primary') !!}
+                            Contract Sent
+                        </h3>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4 mb-5">
+                            {!! getIcon('time', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                Waiting for the student to upload their signed contract.
                             </div>
                         </div>
 
                         <div class="d-grid gap-3">
                             <button type="button"
+                                    class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectModal">
+                                {!! getIcon('cross-circle', 'fs-3') !!}
+                                <span>Reject Application</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @elseif($application->isContractUploaded())
+                {{-- Contract Uploaded: Approve/Reject --}}
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-header border-0 bg-light-info py-5">
+                        <h3 class="card-title fw-bold text-gray-800">
+                            {!! getIcon('document', 'fs-4 me-2 text-info') !!}
+                            Review Signed Contract
+                        </h3>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4 mb-5">
+                            {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                The student has uploaded their signed contract. Review and approve or reject.
+                            </div>
+                        </div>
+
+                        @if($application->latestContract?->signed_pdf_path)
+                            <a href="{{ route('admin.contracts.download-signed', $application->latestContract) }}" class="btn btn-light-primary w-100 mb-4">
+                                {!! getIcon('down', 'fs-5 me-1') !!}
+                                Download Signed Contract
+                            </a>
+                        @endif
+
+                        <div class="d-grid gap-3">
+                            <button type="button"
                                     class="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2"
                                     data-bs-toggle="modal"
-                                    data-bs-target="#approveModal">
+                                    data-bs-target="#approveContractModal">
                                 {!! getIcon('check-circle', 'fs-3') !!}
-                                <span>Final Approve & Create Account</span>
+                                <span>Approve Contract</span>
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-warning btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectContractModal">
+                                {!! getIcon('cross-circle', 'fs-3') !!}
+                                <span>Reject Contract</span>
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectModal">
+                                {!! getIcon('cross-circle', 'fs-3') !!}
+                                <span>Reject Application</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @elseif($application->isContractApproved() && $application->isSelfFunded())
+                {{-- Contract Approved (Self-Funded): Waiting for payment --}}
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-header border-0 bg-light-warning py-5">
+                        <h3 class="card-title fw-bold text-gray-800">
+                            {!! getIcon('wallet', 'fs-4 me-2 text-warning') !!}
+                            Awaiting Payment
+                        </h3>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4 mb-5">
+                            {!! getIcon('time', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                Contract approved. Waiting for student to upload payment receipt.
+                            </div>
+                        </div>
+                        <div class="d-grid gap-3">
+                            <button type="button"
+                                    class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectModal">
+                                {!! getIcon('cross-circle', 'fs-3') !!}
+                                <span>Reject Application</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @elseif($application->isPaymentPending())
+                {{-- Payment Pending: Waiting for student --}}
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-header border-0 bg-light-warning py-5">
+                        <h3 class="card-title fw-bold text-gray-800">
+                            {!! getIcon('wallet', 'fs-4 me-2 text-warning') !!}
+                            Awaiting Payment
+                        </h3>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4 mb-5">
+                            {!! getIcon('time', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                Waiting for the student to upload their payment receipt.
+                            </div>
+                        </div>
+                        <div class="d-grid gap-3">
+                            <button type="button"
+                                    class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectModal">
+                                {!! getIcon('cross-circle', 'fs-3') !!}
+                                <span>Reject Application</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @elseif($application->isPaymentUploaded())
+                {{-- Payment Uploaded: Approve/Reject --}}
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-header border-0 bg-light-info py-5">
+                        <h3 class="card-title fw-bold text-gray-800">
+                            {!! getIcon('wallet', 'fs-4 me-2 text-info') !!}
+                            Review Payment
+                        </h3>
+                    </div>
+                    <div class="card-body p-6">
+                        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4 mb-5">
+                            {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                The student has uploaded their payment receipt. Review and approve or reject.
+                            </div>
+                        </div>
+
+                        @if($application->payment_receipt_path)
+                            <a href="{{ route('admin.applications.payment.download', $application) }}" class="btn btn-light-warning w-100 mb-4">
+                                {!! getIcon('down', 'fs-5 me-1') !!}
+                                Download Payment Receipt
+                            </a>
+                        @endif
+
+                        <div class="d-grid gap-3">
+                            <button type="button"
+                                    class="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#approvePaymentModal">
+                                {!! getIcon('check-circle', 'fs-3') !!}
+                                <span>Approve Payment</span>
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-warning btn-lg d-flex align-items-center justify-content-center gap-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rejectPaymentModal">
+                                {!! getIcon('cross-circle', 'fs-3') !!}
+                                <span>Reject Payment</span>
                             </button>
 
                             <button type="button"
@@ -414,7 +692,7 @@
                     </div>
                 </div>
             @else
-                {{-- Status Card for Reviewed --}}
+                {{-- Status Card for Reviewed (Approved/Rejected/Payment Approved) --}}
                 <div class="card border-0 shadow-sm mb-5">
                     <div class="card-body text-center p-8">
                         <div class="symbol symbol-80px mb-5">
@@ -426,8 +704,10 @@
                         <p class="text-gray-600 fs-7 mb-0">
                             @if($application->status === 'approved')
                                 Student account has been created successfully
+                            @elseif($application->status === 'rejected')
+                                This application has been rejected
                             @else
-                                This application cannot be re-approved
+                                Processing...
                             @endif
                         </p>
                     </div>
@@ -695,6 +975,234 @@
                 <div class="modal-body p-0" id="previewBody" style="min-height: 600px;">
                     <!-- Dynamic content loaded here -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Approve Contract Modal --}}
+    <div class="modal fade" id="approveContractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light-success border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-50px me-4">
+                            <span class="symbol-label bg-success">
+                                {!! getIcon('check', 'fs-2x text-white') !!}
+                            </span>
+                        </div>
+                        <div>
+                            <h2 class="fw-bolder text-gray-800 mb-1">Approve Contract</h2>
+                            <p class="text-gray-600 fs-7 mb-0">Approve {{ $application->full_name }}'s signed contract</p>
+                        </div>
+                    </div>
+                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                        {!! getIcon('cross', 'fs-1') !!}
+                    </div>
+                </div>
+
+                <form action="{{ route('admin.applications.contract.approve', $application) }}" method="POST">
+                    @csrf
+                    <div class="modal-body py-8">
+                        <div class="mb-6">
+                            <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
+                            <div class="d-flex flex-column gap-3">
+                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
+                                    <span class="text-gray-700 fs-7">Mark the contract as <strong>Approved</strong></span>
+                                </div>
+                                @if($application->isGovernmentFunded())
+                                    <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                        {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
+                                        <span class="text-gray-700 fs-7">Auto-approve the application and <strong>create student account</strong></span>
+                                    </div>
+                                @else
+                                    <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                        {!! getIcon('information-5', 'fs-4 text-warning me-3') !!}
+                                        <span class="text-gray-700 fs-7">Move to <strong>Payment Pending</strong> (self-funded student)</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any notes...">{{ $application->admin_notes }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">
+                            {!! getIcon('check', 'fs-4 me-2') !!}
+                            Approve Contract
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Reject Contract Modal --}}
+    <div class="modal fade" id="rejectContractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light-warning border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-50px me-4">
+                            <span class="symbol-label bg-warning">
+                                {!! getIcon('cross', 'fs-2x text-white') !!}
+                            </span>
+                        </div>
+                        <div>
+                            <h2 class="fw-bolder text-gray-800 mb-1">Reject Contract</h2>
+                            <p class="text-gray-600 fs-7 mb-0">Student will need to re-upload their signed contract</p>
+                        </div>
+                    </div>
+                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                        {!! getIcon('cross', 'fs-1') !!}
+                    </div>
+                </div>
+
+                <form action="{{ route('admin.applications.contract.reject', $application) }}" method="POST">
+                    @csrf
+                    <div class="modal-body py-8">
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
+                            <textarea name="rejection_reason" class="form-control form-control-solid" rows="4" placeholder="Explain why the signed contract is being rejected..." required minlength="10"></textarea>
+                        </div>
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
+                        </div>
+                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
+                            {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                The student will be able to re-upload their signed contract.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning">
+                            {!! getIcon('cross', 'fs-4 me-2') !!}
+                            Reject Contract
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Approve Payment Modal --}}
+    <div class="modal fade" id="approvePaymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light-success border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-50px me-4">
+                            <span class="symbol-label bg-success">
+                                {!! getIcon('check', 'fs-2x text-white') !!}
+                            </span>
+                        </div>
+                        <div>
+                            <h2 class="fw-bolder text-gray-800 mb-1">Approve Payment</h2>
+                            <p class="text-gray-600 fs-7 mb-0">Approve {{ $application->full_name }}'s payment receipt</p>
+                        </div>
+                    </div>
+                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                        {!! getIcon('cross', 'fs-1') !!}
+                    </div>
+                </div>
+
+                <form action="{{ route('admin.applications.payment.approve', $application) }}" method="POST">
+                    @csrf
+                    <div class="modal-body py-8">
+                        <div class="mb-6">
+                            <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
+                            <div class="d-flex flex-column gap-3">
+                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
+                                    <span class="text-gray-700 fs-7">Mark the payment as <strong>Approved</strong></span>
+                                </div>
+                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
+                                    <span class="text-gray-700 fs-7"><strong>Approve the application</strong> and create student LMS account</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any notes...">{{ $application->admin_notes }}</textarea>
+                        </div>
+
+                        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4">
+                            {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                <strong>Note:</strong> This action cannot be undone. The student will be fully enrolled.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">
+                            {!! getIcon('check', 'fs-4 me-2') !!}
+                            Approve Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Reject Payment Modal --}}
+    <div class="modal fade" id="rejectPaymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light-warning border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-50px me-4">
+                            <span class="symbol-label bg-warning">
+                                {!! getIcon('cross', 'fs-2x text-white') !!}
+                            </span>
+                        </div>
+                        <div>
+                            <h2 class="fw-bolder text-gray-800 mb-1">Reject Payment</h2>
+                            <p class="text-gray-600 fs-7 mb-0">Student will need to re-upload their payment receipt</p>
+                        </div>
+                    </div>
+                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                        {!! getIcon('cross', 'fs-1') !!}
+                    </div>
+                </div>
+
+                <form action="{{ route('admin.applications.payment.reject', $application) }}" method="POST">
+                    @csrf
+                    <div class="modal-body py-8">
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
+                            <textarea name="rejection_reason" class="form-control form-control-solid" rows="4" placeholder="Explain why the payment receipt is being rejected..." required minlength="10"></textarea>
+                        </div>
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
+                        </div>
+                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
+                            {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                The student will be able to re-upload their payment receipt.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning">
+                            {!! getIcon('cross', 'fs-4 me-2') !!}
+                            Reject Payment
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

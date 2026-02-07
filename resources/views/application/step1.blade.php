@@ -108,6 +108,37 @@
             </div>
         </div>
 
+        {{-- Funding Type --}}
+        <div class="mb-8">
+            <label class="form-label required fs-6 fw-semibold mb-3">
+                <i class="ki-outline ki-wallet fs-5 text-primary me-2"></i>
+                Funding Type
+            </label>
+            <div class="d-flex gap-6">
+                <label class="form-check form-check-custom form-check-solid form-check-lg">
+                    <input type="radio"
+                           name="funding_type"
+                           value="self_funded"
+                           class="form-check-input @error('funding_type') is-invalid @enderror"
+                           {{ old('funding_type', $data['funding_type'] ?? '') === 'self_funded' ? 'checked' : '' }}
+                           required />
+                    <span class="form-check-label fw-semibold text-gray-700">Self-Funded</span>
+                </label>
+                <label class="form-check form-check-custom form-check-solid form-check-lg">
+                    <input type="radio"
+                           name="funding_type"
+                           value="government_funded"
+                           class="form-check-input @error('funding_type') is-invalid @enderror"
+                           {{ old('funding_type', $data['funding_type'] ?? '') === 'government_funded' ? 'checked' : '' }}
+                           required />
+                    <span class="form-check-label fw-semibold text-gray-700">Government-Funded</span>
+                </label>
+            </div>
+            @error('funding_type')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+        </div>
+
         {{-- Navigation Buttons --}}
         <div class="d-flex justify-content-end mt-10 pt-8 border-top border-gray-300">
             <button type="submit" class="btn btn-primary btn-lg fw-semibold px-8">

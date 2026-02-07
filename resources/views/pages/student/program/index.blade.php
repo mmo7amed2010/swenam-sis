@@ -164,53 +164,34 @@
                                     </div>
                                 </div>
 
+                                @php
+                                    $statusDisplay = match($application->status) {
+                                        'approved' => ['icon' => 'check-circle', 'bg' => 'success', 'label' => __('Approved')],
+                                        'initial_approved' => ['icon' => 'verify', 'bg' => 'info', 'label' => __('Under Review')],
+                                        'contract_sent' => ['icon' => 'document', 'bg' => 'primary', 'label' => __('Contract Sent')],
+                                        'contract_uploaded' => ['icon' => 'document', 'bg' => 'info', 'label' => __('Contract Under Review')],
+                                        'contract_approved' => ['icon' => 'verify', 'bg' => 'success', 'label' => __('Contract Approved')],
+                                        'payment_pending' => ['icon' => 'wallet', 'bg' => 'warning', 'label' => __('Payment Required')],
+                                        'payment_uploaded' => ['icon' => 'wallet', 'bg' => 'info', 'label' => __('Payment Under Review')],
+                                        'payment_approved' => ['icon' => 'wallet', 'bg' => 'success', 'label' => __('Payment Approved')],
+                                        'rejected' => ['icon' => 'cross-circle', 'bg' => 'danger', 'label' => __('Rejected')],
+                                        default => ['icon' => 'timer', 'bg' => 'warning', 'label' => __('Pending Review')],
+                                    };
+                                @endphp
                                 <div class="d-flex align-items-center mb-5">
                                     <div class="symbol symbol-45px me-4">
-                                        @if($application->status === 'approved')
-                                            <span class="symbol-label bg-light-success">
-                                                <i class="ki-duotone ki-check-circle fs-2 text-success">
-                                                    <span class="path1"></span>
-                                                    <span class="path2"></span>
-                                                </i>
-                                            </span>
-                                        @elseif($application->status === 'initial_approved')
-                                            <span class="symbol-label bg-light-info">
-                                                <i class="ki-duotone ki-verify fs-2 text-info">
-                                                    <span class="path1"></span>
-                                                    <span class="path2"></span>
-                                                </i>
-                                            </span>
-                                        @elseif($application->status === 'rejected')
-                                            <span class="symbol-label bg-light-danger">
-                                                <i class="ki-duotone ki-cross-circle fs-2 text-danger">
-                                                    <span class="path1"></span>
-                                                    <span class="path2"></span>
-                                                </i>
-                                            </span>
-                                        @else
-                                            <span class="symbol-label bg-light-warning">
-                                                <i class="ki-duotone ki-timer fs-2 text-warning">
-                                                    <span class="path1"></span>
-                                                    <span class="path2"></span>
-                                                    <span class="path3"></span>
-                                                </i>
-                                            </span>
-                                        @endif
+                                        <span class="symbol-label bg-light-{{ $statusDisplay['bg'] }}">
+                                            <i class="ki-duotone ki-{{ $statusDisplay['icon'] }} fs-2 text-{{ $statusDisplay['bg'] }}">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                                <span class="path3"></span>
+                                            </i>
+                                        </span>
                                     </div>
                                     <div>
                                         <div class="fs-7 text-muted">{{ __('Status') }}</div>
                                         <div class="fw-bold fs-5">
-                                            @if($application->status === 'approved')
-                                                <span class="text-success">{{ __('Approved') }}</span>
-                                            @elseif($application->status === 'initial_approved')
-                                                <span class="text-info">{{ __('Under Final Review') }}</span>
-                                            @elseif($application->status === 'rejected')
-                                                <span class="text-danger">{{ __('Rejected') }}</span>
-                                            @elseif($application->status === 'pending')
-                                                <span class="text-warning">{{ __('Pending Review') }}</span>
-                                            @else
-                                                <span class="text-gray-600">{{ ucfirst(str_replace('_', ' ', $application->status)) }}</span>
-                                            @endif
+                                            <span class="text-{{ $statusDisplay['bg'] }}">{{ $statusDisplay['label'] }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -270,6 +251,179 @@
                                     </div>
                                 </div>
                             </div>
+                        @elseif($application->status === 'contract_sent')
+                            {{-- Contract Rejection Reason (if re-upload after rejection) --}}
+                            @if($application->contract_rejection_reason)
+                                <div class="notice d-flex bg-light-danger rounded border-danger border border-dashed p-6 mb-5">
+                                    <i class="ki-duotone ki-information fs-2tx text-danger me-4">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                        <span class="path3"></span>
+                                    </i>
+                                    <div class="d-flex flex-stack flex-grow-1">
+                                        <div class="fw-semibold">
+                                            <h4 class="text-gray-900 fw-bold">{{ __('Contract Returned for Revision') }}</h4>
+                                            <div class="fs-6 text-gray-700">
+                                                <strong>{{ __('Reason:') }}</strong> {{ $application->contract_rejection_reason }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Contract Sent: Download + Upload signed contract --}}
+                            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-6 mb-5">
+                                <i class="ki-duotone ki-document fs-2tx text-primary me-4">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                                <div class="d-flex flex-stack flex-grow-1">
+                                    <div class="fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">{{ __('Contract Ready for Signing') }}</h4>
+                                        <div class="fs-6 text-gray-700">
+                                            {{ __('Your enrollment contract is ready. Please download, sign, and upload it below.') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border border-dashed border-gray-300 mb-5">
+                                <div class="card-body p-6">
+                                    <div class="d-flex flex-column flex-md-row gap-5">
+                                        {{-- Download Contract --}}
+                                        <div class="flex-grow-1">
+                                            <h5 class="fw-bold text-gray-800 mb-3">{{ __('Step 1: Download Contract') }}</h5>
+                                            <p class="text-gray-600 fs-7 mb-4">{{ __('Download and review your enrollment contract.') }}</p>
+                                            <a href="{{ route('student.contract.download') }}" class="btn btn-primary">
+                                                <i class="ki-duotone ki-down fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                {{ __('Download Contract') }}
+                                            </a>
+                                        </div>
+
+                                        <div class="separator separator-dashed d-md-none"></div>
+                                        <div class="vr d-none d-md-block"></div>
+
+                                        {{-- Upload Signed Contract --}}
+                                        <div class="flex-grow-1">
+                                            <h5 class="fw-bold text-gray-800 mb-3">{{ __('Step 2: Upload Signed Contract') }}</h5>
+                                            <p class="text-gray-600 fs-7 mb-4">{{ __('Upload your signed contract (PDF only, max 10MB).') }}</p>
+                                            <form action="{{ route('student.contract.upload-signed') }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <div class="mb-3">
+                                                    <input type="file" name="signed_contract" class="form-control form-control-solid @error('signed_contract') is-invalid @enderror" accept=".pdf" required />
+                                                    @error('signed_contract')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                </div>
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="ki-duotone ki-up fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                    {{ __('Upload Signed Contract') }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($application->status === 'contract_uploaded')
+                            <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-6 mb-5">
+                                <i class="ki-duotone ki-time fs-2tx text-info me-4">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                                <div class="d-flex flex-stack flex-grow-1">
+                                    <div class="fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">{{ __('Contract Under Review') }}</h4>
+                                        <div class="fs-6 text-gray-700">
+                                            {{ __('Your signed contract has been received and is being reviewed by our team. You will be notified once it has been approved.') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($application->status === 'contract_approved' || $application->status === 'payment_pending')
+                            {{-- Payment Rejection Reason (if re-upload after rejection) --}}
+                            @if($application->payment_rejection_reason)
+                                <div class="notice d-flex bg-light-danger rounded border-danger border border-dashed p-6 mb-5">
+                                    <i class="ki-duotone ki-information fs-2tx text-danger me-4">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                        <span class="path3"></span>
+                                    </i>
+                                    <div class="d-flex flex-stack flex-grow-1">
+                                        <div class="fw-semibold">
+                                            <h4 class="text-gray-900 fw-bold">{{ __('Payment Receipt Returned') }}</h4>
+                                            <div class="fs-6 text-gray-700">
+                                                <strong>{{ __('Reason:') }}</strong> {{ $application->payment_rejection_reason }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Payment Pending: Upload payment receipt --}}
+                            <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 mb-5">
+                                <i class="ki-duotone ki-wallet fs-2tx text-warning me-4">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                                <div class="d-flex flex-stack flex-grow-1">
+                                    <div class="fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">{{ __('Payment Required') }}</h4>
+                                        <div class="fs-6 text-gray-700">
+                                            {{ __('Your contract has been approved. Please submit your payment receipt to complete enrollment.') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border border-dashed border-gray-300 mb-5">
+                                <div class="card-body p-6">
+                                    <h5 class="fw-bold text-gray-800 mb-3">{{ __('Upload Payment Receipt') }}</h5>
+                                    <p class="text-gray-600 fs-7 mb-4">{{ __('Upload your payment receipt (PDF, JPG, or PNG, max 10MB).') }}</p>
+                                    <form action="{{ route('student.payment.upload-receipt') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="mb-3">
+                                            <input type="file" name="payment_receipt" class="form-control form-control-solid @error('payment_receipt') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png" required />
+                                            @error('payment_receipt')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="ki-duotone ki-up fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                            {{ __('Upload Payment Receipt') }}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @elseif($application->status === 'payment_uploaded')
+                            <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-6 mb-5">
+                                <i class="ki-duotone ki-time fs-2tx text-info me-4">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                                <div class="d-flex flex-stack flex-grow-1">
+                                    <div class="fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">{{ __('Payment Under Review') }}</h4>
+                                        <div class="fs-6 text-gray-700">
+                                            {{ __('Your payment receipt has been received and is being reviewed. You will be notified once it has been approved.') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($application->status === 'payment_approved')
+                            <div class="notice d-flex bg-light-success rounded border-success border border-dashed p-6 mb-5">
+                                <i class="ki-duotone ki-check-circle fs-2tx text-success me-4">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                                <div class="d-flex flex-stack flex-grow-1">
+                                    <div class="fw-semibold">
+                                        <h4 class="text-gray-900 fw-bold">{{ __('Payment Approved!') }}</h4>
+                                        <div class="fs-6 text-gray-700">
+                                            {{ __('Your payment has been approved. Your enrollment is being finalized.') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         @elseif($application->status === 'rejected')
                             <div class="notice d-flex bg-light-danger rounded border-danger border border-dashed p-6 mb-5">
                                 <i class="ki-duotone ki-information fs-2tx text-danger me-4">
@@ -285,6 +439,17 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        @endif
+
+                        {{-- Success/Error Messages --}}
+                        @if(session('success'))
+                            <div class="alert alert-success d-flex align-items-center p-5 mb-5">
+                                <i class="ki-duotone ki-check-circle fs-2hx text-success me-4">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
+                                <div>{{ session('success') }}</div>
                             </div>
                         @endif
                     @else

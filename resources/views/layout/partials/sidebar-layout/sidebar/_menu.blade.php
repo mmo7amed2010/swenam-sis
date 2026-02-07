@@ -634,6 +634,18 @@
                 </div>
                 <!--end:Menu item-->
 
+                <!--begin:Menu item - Contract Templates-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('admin.contract-templates.*') ? 'active' : '' }}"
+                        href="{{ route('admin.contract-templates.index') }}">
+                        <span class="menu-icon">{!! getIcon('clipboard', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Contract Templates') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
                 <!--begin:Menu item - System Announcements (Admin)-->
                 <div class="menu-item">
                     <!--begin:Menu link-->

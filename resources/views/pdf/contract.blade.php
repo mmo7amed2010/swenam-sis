@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrollment Contract - {{ $application->full_name }}</title>
+    <style>
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 11px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #3b82f6;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            color: #1e40af;
+        }
+        .header h2 {
+            font-size: 16px;
+            margin: 0;
+            color: #666;
+            font-weight: normal;
+        }
+        .contract-info {
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .contract-info table {
+            width: 100%;
+        }
+        .contract-info td {
+            padding: 5px 10px;
+        }
+        .contract-info .label {
+            font-weight: bold;
+            width: 150px;
+            color: #555;
+        }
+        .contract-body {
+            margin: 25px 0;
+            padding: 15px;
+            line-height: 1.8;
+        }
+        .contract-body h1, .contract-body h2, .contract-body h3 {
+            color: #1e40af;
+        }
+        .contract-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .contract-body table th, .contract-body table td {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+        }
+        .contract-body table th {
+            background: #f3f4f6;
+        }
+        .signature-block {
+            margin-top: 60px;
+            page-break-inside: avoid;
+        }
+        .signature-row {
+            display: table;
+            width: 100%;
+            margin-top: 40px;
+        }
+        .signature-col {
+            display: table-cell;
+            width: 45%;
+            vertical-align: bottom;
+        }
+        .signature-col.spacer {
+            width: 10%;
+        }
+        .signature-line {
+            border-bottom: 1px solid #333;
+            margin-bottom: 5px;
+            height: 40px;
+        }
+        .signature-label {
+            font-size: 10px;
+            color: #666;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 2px solid #e5e7eb;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+        }
+        .footer .generated {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    {{-- Header --}}
+    <div class="header">
+        <h1>ENROLLMENT CONTRACT</h1>
+        <h2>Student Enrollment Agreement</h2>
+    </div>
+
+    {{-- Contract Info --}}
+    <div class="contract-info">
+        <table>
+            <tr>
+                <td class="label">Student Name:</td>
+                <td>{{ $application->full_name }}</td>
+                <td class="label">Reference:</td>
+                <td>{{ $application->reference_number }}</td>
+            </tr>
+            <tr>
+                <td class="label">Email:</td>
+                <td>{{ $application->email }}</td>
+                <td class="label">Funding Type:</td>
+                <td>{{ $application->isSelfFunded() ? 'Self-Funded' : 'Government-Funded' }}</td>
+            </tr>
+            <tr>
+                <td class="label">Program:</td>
+                <td>{{ $application->program_name ?? 'N/A' }}</td>
+                <td class="label">Issue Date:</td>
+                <td>{{ $generatedAt->format('F d, Y') }}</td>
+            </tr>
+        </table>
+    </div>
+
+    {{-- Contract Body --}}
+    <div class="contract-body">
+        {!! $renderedBody !!}
+    </div>
+
+    {{-- Signature Block --}}
+    <div class="signature-block">
+        <div class="signature-row">
+            <div class="signature-col">
+                <div class="signature-line"></div>
+                <div class="signature-label">Student Signature</div>
+                <div class="signature-label">{{ $application->full_name }}</div>
+                <div class="signature-label">Date: _______________</div>
+            </div>
+            <div class="signature-col spacer"></div>
+            <div class="signature-col">
+                <div class="signature-line"></div>
+                <div class="signature-label">Authorized Institution Representative</div>
+                <div class="signature-label">Name: _______________</div>
+                <div class="signature-label">Date: _______________</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Footer --}}
+    <div class="footer">
+        <p><strong>This is an official enrollment contract generated by the Student Information System.</strong></p>
+        <p>For questions, please contact the Admissions Office.</p>
+        <p class="generated">
+            Generated on: {{ $generatedAt->format('F d, Y \a\t g:i A') }}<br>
+            Document ID: CONTRACT-{{ $application->id }}-{{ $generatedAt->format('YmdHis') }}
+        </p>
+    </div>
+</body>
+</html>

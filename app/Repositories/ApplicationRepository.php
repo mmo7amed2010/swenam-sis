@@ -23,6 +23,12 @@ class ApplicationRepository
             'total' => StudentApplication::count(),
             'pending' => StudentApplication::where('status', 'pending')->count(),
             'initial_approved' => StudentApplication::where('status', 'initial_approved')->count(),
+            'contract_sent' => StudentApplication::where('status', 'contract_sent')->count(),
+            'contract_uploaded' => StudentApplication::where('status', 'contract_uploaded')->count(),
+            'contract_approved' => StudentApplication::where('status', 'contract_approved')->count(),
+            'payment_pending' => StudentApplication::where('status', 'payment_pending')->count(),
+            'payment_uploaded' => StudentApplication::where('status', 'payment_uploaded')->count(),
+            'payment_approved' => StudentApplication::where('status', 'payment_approved')->count(),
             'approved' => StudentApplication::where('status', 'approved')->count(),
             'rejected' => StudentApplication::where('status', 'rejected')->count(),
         ];

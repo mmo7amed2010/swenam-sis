@@ -28,6 +28,7 @@ class StudentApplicationStepOneRequest extends FormRequest
             'intake_id' => ['required', 'integer', new ExistsInLms('intakes')],
             'has_referral' => ['required', 'boolean'],
             'referral_agency_name' => ['required_if:has_referral,1,true', 'nullable', 'string', 'max:255'],
+            'funding_type' => ['required', 'in:self_funded,government_funded'],
         ];
     }
 
@@ -44,6 +45,8 @@ class StudentApplicationStepOneRequest extends FormRequest
             'has_referral.required' => 'Please indicate whether you were referred by an agency.',
             'referral_agency_name.required_if' => 'Please provide the name of the referring agency.',
             'referral_agency_name.max' => 'Agency name cannot exceed 255 characters.',
+            'funding_type.required' => 'Please select your funding type.',
+            'funding_type.in' => 'Please select a valid funding type.',
         ];
     }
 

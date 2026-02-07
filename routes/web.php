@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\ApplicationReviewController;
+use App\Http\Controllers\Admin\ContractController;
+use App\Http\Controllers\Admin\ContractTemplateController;
+use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\ApplicationStatusController;
 use App\Http\Controllers\Apps\UserManagementController;
@@ -112,6 +115,24 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('applications/{application}/reject', [ApplicationReviewController::class, 'reject'])->name('applications.reject');
         Route::get('applications/{application}/document/{documentType}', [ApplicationReviewController::class, 'downloadDocument'])->name('applications.download');
         
+        // Contract Templates
+        Route::resource('contract-templates', ContractTemplateController::class);
+
+        // Contract Management
+        Route::get('applications/{application}/contract/create', [ContractController::class, 'create'])->name('applications.contract.create');
+        Route::post('applications/{application}/contract', [ContractController::class, 'store'])->name('applications.contract.store');
+        Route::post('applications/{application}/contract/preview', [ContractController::class, 'preview'])->name('applications.contract.preview');
+        Route::get('contract-templates/{template}/placeholders', [ContractController::class, 'getTemplatePlaceholders'])->name('contract-templates.placeholders');
+        Route::get('contracts/{contract}/download-generated', [ContractController::class, 'downloadGenerated'])->name('contracts.download-generated');
+        Route::get('contracts/{contract}/download-signed', [ContractController::class, 'downloadSigned'])->name('contracts.download-signed');
+        Route::post('applications/{application}/contract/approve', [ContractController::class, 'approveContract'])->name('applications.contract.approve');
+        Route::post('applications/{application}/contract/reject', [ContractController::class, 'rejectContract'])->name('applications.contract.reject');
+
+        // Payment Management
+        Route::get('applications/{application}/payment/download', [PaymentController::class, 'downloadReceipt'])->name('applications.payment.download');
+        Route::post('applications/{application}/payment/approve', [PaymentController::class, 'approve'])->name('applications.payment.approve');
+        Route::post('applications/{application}/payment/reject', [PaymentController::class, 'reject'])->name('applications.payment.reject');
+
         // System Announcements
         Route::resource('announcements', App\Http\Controllers\Admin\SystemAnnouncementController::class);
     });
@@ -137,6 +158,13 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
 
         // My Grades - redirects to LMS grades with SSO
         Route::get('my-grades/redirect', [\App\Http\Controllers\Student\MyCoursesController::class, 'redirectToGrades'])->name('my-grades.redirect');
+
+        // Contract
+        Route::get('contract/download', [\App\Http\Controllers\Student\StudentContractController::class, 'downloadContract'])->name('contract.download');
+        Route::post('contract/upload-signed', [\App\Http\Controllers\Student\StudentContractController::class, 'uploadSignedContract'])->name('contract.upload-signed');
+
+        // Payment
+        Route::post('payment/upload-receipt', [\App\Http\Controllers\Student\StudentPaymentController::class, 'uploadReceipt'])->name('payment.upload-receipt');
 
         // My Profile
         Route::get('profile', [\App\Http\Controllers\Student\ProfileController::class, 'show'])->name('profile.show');

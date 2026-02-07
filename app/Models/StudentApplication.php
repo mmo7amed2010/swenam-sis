@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class StudentApplication extends Model
@@ -24,6 +26,7 @@ class StudentApplication extends Model
         'preferred_intake', // Legacy field - keeping for backward compatibility
         'has_referral',
         'referral_agency_name',
+        'funding_type',
 
         // Personal Information
         'first_name',
@@ -73,6 +76,20 @@ class StudentApplication extends Model
         'created_user_id',
         'initial_approved_at',
         'initial_approved_by',
+
+        // Contract & Payment tracking
+        'contract_sent_at',
+        'contract_sent_by',
+        'contract_uploaded_at',
+        'signed_contract_path',
+        'contract_approved_at',
+        'contract_approved_by',
+        'contract_rejection_reason',
+        'payment_uploaded_at',
+        'payment_receipt_path',
+        'payment_approved_at',
+        'payment_approved_by',
+        'payment_rejection_reason',
     ];
 
     /**
@@ -87,6 +104,11 @@ class StudentApplication extends Model
         'has_referral' => 'boolean',
         'reviewed_at' => 'datetime',
         'initial_approved_at' => 'datetime',
+        'contract_sent_at' => 'datetime',
+        'contract_uploaded_at' => 'datetime',
+        'contract_approved_at' => 'datetime',
+        'payment_uploaded_at' => 'datetime',
+        'payment_approved_at' => 'datetime',
     ];
 
     /**
@@ -163,6 +185,46 @@ class StudentApplication extends Model
     public function initialApprover(): BelongsTo
     {
         return $this->belongsTo(User::class, 'initial_approved_by');
+    }
+
+    /**
+     * Get the admin who sent the contract.
+     */
+    public function contractSender(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'contract_sent_by');
+    }
+
+    /**
+     * Get the admin who approved the contract.
+     */
+    public function contractApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'contract_approved_by');
+    }
+
+    /**
+     * Get the admin who approved the payment.
+     */
+    public function paymentApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'payment_approved_by');
+    }
+
+    /**
+     * Get all contracts for this application.
+     */
+    public function studentContracts(): HasMany
+    {
+        return $this->hasMany(StudentContract::class, 'application_id');
+    }
+
+    /**
+     * Get the latest contract for this application.
+     */
+    public function latestContract(): HasOne
+    {
+        return $this->hasOne(StudentContract::class, 'application_id')->latestOfMany();
     }
 
     /**
@@ -289,11 +351,81 @@ class StudentApplication extends Model
     }
 
     /**
+     * Check if application status is contract_sent.
+     */
+    public function isContractSent(): bool
+    {
+        return $this->status === 'contract_sent';
+    }
+
+    /**
+     * Check if application status is contract_uploaded.
+     */
+    public function isContractUploaded(): bool
+    {
+        return $this->status === 'contract_uploaded';
+    }
+
+    /**
+     * Check if application status is contract_approved.
+     */
+    public function isContractApproved(): bool
+    {
+        return $this->status === 'contract_approved';
+    }
+
+    /**
+     * Check if application status is payment_pending.
+     */
+    public function isPaymentPending(): bool
+    {
+        return $this->status === 'payment_pending';
+    }
+
+    /**
+     * Check if application status is payment_uploaded.
+     */
+    public function isPaymentUploaded(): bool
+    {
+        return $this->status === 'payment_uploaded';
+    }
+
+    /**
+     * Check if application status is payment_approved.
+     */
+    public function isPaymentApproved(): bool
+    {
+        return $this->status === 'payment_approved';
+    }
+
+    /**
+     * Check if student is self-funded.
+     */
+    public function isSelfFunded(): bool
+    {
+        return $this->funding_type === 'self_funded';
+    }
+
+    /**
+     * Check if student is government-funded.
+     */
+    public function isGovernmentFunded(): bool
+    {
+        return $this->funding_type === 'government_funded';
+    }
+
+    /**
      * Check if application can be finally approved (account created).
+     * Government-funded: after contract_approved
+     * Self-funded: after payment_approved
      */
     public function canBeFinallyApproved(): bool
     {
-        return $this->isInitialApproved();
+        if ($this->isGovernmentFunded()) {
+            return $this->isContractApproved();
+        }
+
+        return $this->isPaymentApproved();
     }
 
     /**
@@ -301,6 +433,55 @@ class StudentApplication extends Model
      */
     public function canBeRejected(): bool
     {
-        return $this->isPending() || $this->isInitialApproved();
+        return in_array($this->status, [
+            'pending',
+            'initial_approved',
+            'contract_sent',
+            'contract_uploaded',
+            'contract_approved',
+            'payment_pending',
+            'payment_uploaded',
+            'payment_approved',
+        ]);
+    }
+
+    /**
+     * Check if a contract can be sent for this application.
+     */
+    public function canSendContract(): bool
+    {
+        return $this->isInitialApproved();
+    }
+
+    /**
+     * Check if a signed contract can be uploaded.
+     */
+    public function canUploadSignedContract(): bool
+    {
+        return $this->isContractSent();
+    }
+
+    /**
+     * Check if the contract can be approved.
+     */
+    public function canApproveContract(): bool
+    {
+        return $this->isContractUploaded();
+    }
+
+    /**
+     * Check if a payment receipt can be uploaded.
+     */
+    public function canUploadPayment(): bool
+    {
+        return $this->isPaymentPending();
+    }
+
+    /**
+     * Check if the payment can be approved.
+     */
+    public function canApprovePayment(): bool
+    {
+        return $this->isPaymentUploaded();
     }
 }
