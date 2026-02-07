@@ -481,7 +481,8 @@ class StudentApplication extends Model
      */
     public function canUploadPayment(): bool
     {
-        return $this->isPaymentPending();
+        return $this->isPaymentPending()
+            || ($this->isContractApproved() && $this->isSelfFunded());
     }
 
     /**

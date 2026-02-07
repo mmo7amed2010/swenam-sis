@@ -383,6 +383,18 @@
 
                             <div class="card border border-dashed border-gray-300 mb-5">
                                 <div class="card-body p-6">
+                                    @if($application->payment_amount)
+                                        <div class="d-flex align-items-center bg-light-danger rounded p-4 mb-5">
+                                            <i class="ki-duotone ki-wallet fs-2tx text-danger me-4">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                            </i>
+                                            <div>
+                                                <div class="text-gray-600 fs-7 fw-semibold">{{ __('Amount to Pay') }}</div>
+                                                <div class="fw-bolder text-gray-900 fs-1">${{ number_format($application->payment_amount, 2) }}</div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     <h5 class="fw-bold text-gray-800 mb-3">{{ __('Upload Payment Receipt') }}</h5>
                                     <p class="text-gray-600 fs-7 mb-4">{{ __('Upload your payment receipt (PDF, JPG, or PNG, max 10MB).') }}</p>
                                     <form action="{{ route('student.payment.upload-receipt') }}" method="POST" enctype="multipart/form-data">
