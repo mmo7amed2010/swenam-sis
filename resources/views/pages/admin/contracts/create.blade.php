@@ -21,10 +21,26 @@
         </a>
     </div>
 
+    @if(session('success'))
+        <div class="alert alert-success d-flex align-items-center p-5 mb-6">
+            {!! getIcon('check-circle', 'fs-2hx text-success me-4') !!}
+            <div>{{ session('success') }}</div>
+        </div>
+    @endif
+
     @if(session('error'))
         <div class="alert alert-danger d-flex align-items-center p-5 mb-6">
             {!! getIcon('cross-circle', 'fs-2hx text-danger me-4') !!}
             <div>{{ session('error') }}</div>
+        </div>
+    @endif
+
+    @if(session('prefill_template_id'))
+        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-5 mb-6">
+            {!! getIcon('arrows-circle', 'fs-2x text-info me-4 flex-shrink-0') !!}
+            <div class="text-gray-700 fs-7">
+                <strong>Contract Regeneration:</strong> The previous contract was rejected. The template and fields from the previous contract have been pre-filled below. Review, make any changes, and issue the new contract.
+            </div>
         </div>
     @endif
 
@@ -41,9 +57,12 @@
                         <div class="mb-6">
                             <label class="form-label required fw-semibold">Contract Template</label>
                             <select name="contract_template_id" id="templateSelect" class="form-select form-select-solid @error('contract_template_id') is-invalid @enderror" required>
+                                @php
+                                    $selectedTemplateId = old('contract_template_id') ?? session('prefill_template_id');
+                                @endphp
                                 <option value="">Select a Template</option>
                                 @foreach($templates as $template)
-                                    <option value="{{ $template->id }}" {{ old('contract_template_id') == $template->id ? 'selected' : '' }}>
+                                    <option value="{{ $template->id }}" {{ $selectedTemplateId == $template->id ? 'selected' : '' }}>
                                         {{ $template->name }}
                                     </option>
                                 @endforeach
@@ -181,6 +200,7 @@
         const previewContent = document.getElementById('previewContent');
         const placeholdersUrl = @json(url('admin/contract-templates'));
         const previewUrl = @json(route('admin.applications.contract.preview', $application));
+        const prefillAdminFields = @json(session('prefill_admin_fields', []));
 
         function stripPlaceholderBraces(str) {
             return str.replace(/^\{\{/, '').replace(/\}\}$/, '');
@@ -190,9 +210,7 @@
             return str.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
         }
 
-        templateSelect.addEventListener('change', function() {
-            const templateId = this.value;
-
+        function loadTemplatePlaceholders(templateId) {
             if (!templateId) {
                 adminFieldsContainer.classList.add('d-none');
                 adminFieldsList.innerHTML = '';
@@ -211,10 +229,11 @@
                         data.admin_placeholders.forEach(placeholder => {
                             const fieldName = stripPlaceholderBraces(placeholder);
                             const label = toTitleCase(fieldName);
+                            const prefillValue = prefillAdminFields[fieldName] || '';
                             const div = document.createElement('div');
                             div.className = 'mb-4';
                             div.innerHTML = '<label class="form-label fw-semibold">' + label + '</label>' +
-                                '<input type="text" name="admin_fields[' + fieldName + ']" class="form-control form-control-solid" placeholder="Enter ' + label.toLowerCase() + '" />';
+                                '<input type="text" name="admin_fields[' + fieldName + ']" class="form-control form-control-solid" placeholder="Enter ' + label.toLowerCase() + '" value="' + prefillValue.replace(/"/g, '&quot;') + '" />';
                             adminFieldsList.appendChild(div);
                         });
                     } else {
@@ -224,7 +243,16 @@
                     previewBtn.disabled = false;
                     submitBtn.disabled = false;
                 });
+        }
+
+        templateSelect.addEventListener('change', function() {
+            loadTemplatePlaceholders(this.value);
         });
+
+        // Auto-load placeholders if template is pre-selected (e.g. from regeneration)
+        if (templateSelect.value) {
+            loadTemplatePlaceholders(templateSelect.value);
+        }
 
         previewBtn.addEventListener('click', function() {
             const formData = new FormData(document.getElementById('issueContractForm'));

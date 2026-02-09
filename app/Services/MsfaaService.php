@@ -30,13 +30,20 @@ class MsfaaService
         // Log audit
         ApplicationAuditLog::logDecision($application, 'msfaa_requested');
 
-        // Send email to student
-        Mail::to($application->email)->queue(new MsfaaRequestedMail($application));
-
         Log::info('MSFAA requested from student', [
             'reference_number' => $application->reference_number,
             'requested_by' => auth()->id(),
         ]);
+
+        // Send email to student (email failures won't break the request)
+        try {
+            Mail::to($application->email)->queue(new MsfaaRequestedMail($application));
+        } catch (\Exception $e) {
+            Log::warning('Failed to send MSFAA requested notification email', [
+                'reference_number' => $application->reference_number,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return $application->fresh();
     }
@@ -61,16 +68,23 @@ class MsfaaService
         // Log audit
         ApplicationAuditLog::logDecision($application, 'msfaa_confirmed');
 
-        // Notify admin
-        $adminEmail = config('mail.admin_email', config('mail.from.address'));
-        if ($adminEmail) {
-            Mail::to($adminEmail)->queue(new MsfaaConfirmedMail($application));
-        }
-
         Log::info('MSFAA confirmed by student', [
             'reference_number' => $application->reference_number,
             'confirmed_by' => auth()->id(),
         ]);
+
+        // Notify admin (email failures won't break the confirmation)
+        try {
+            $adminEmail = config('mail.admin_email', config('mail.from.address'));
+            if ($adminEmail) {
+                Mail::to($adminEmail)->queue(new MsfaaConfirmedMail($application));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to send MSFAA confirmed notification email', [
+                'reference_number' => $application->reference_number,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return $application->fresh();
     }
@@ -121,13 +135,20 @@ class MsfaaService
         // Log audit
         ApplicationAuditLog::logDecision($application, 'msfaa_rejected', $data['rejection_reason'] ?? null);
 
-        // Send rejection email to student
-        Mail::to($application->email)->queue(new MsfaaRejectedMail($application));
-
         Log::info('MSFAA rejected, student must re-confirm', [
             'reference_number' => $application->reference_number,
             'rejected_by' => auth()->id(),
         ]);
+
+        // Send rejection email to student (email failures won't break the rejection)
+        try {
+            Mail::to($application->email)->queue(new MsfaaRejectedMail($application));
+        } catch (\Exception $e) {
+            Log::warning('Failed to send MSFAA rejected notification email', [
+                'reference_number' => $application->reference_number,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return $application->fresh();
     }

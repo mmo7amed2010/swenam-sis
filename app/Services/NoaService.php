@@ -53,7 +53,7 @@ class NoaService
             throw new \Exception('NOA can only be uploaded when it has been requested or rejected.');
         }
 
-        return DB::transaction(function () use ($application, $file) {
+        $application = DB::transaction(function () use ($application, $file) {
             // Store the file
             $directory = "applications/{$application->reference_number}";
             $filename = 'noa-'.now()->format('YmdHis').'.'.$file->getClientOriginalExtension();
@@ -78,14 +78,23 @@ class NoaService
                 'uploaded_by' => auth()->id(),
             ]);
 
-            // Notify admin
+            return $application->fresh();
+        });
+
+        // Notify admin (outside transaction — email failures won't roll back the upload)
+        try {
             $adminEmail = config('mail.admin_email', config('mail.from.address'));
             if ($adminEmail) {
                 Mail::to($adminEmail)->queue(new NoaUploadedMail($application));
             }
+        } catch (\Exception $e) {
+            Log::warning('Failed to send NOA uploaded notification email', [
+                'reference_number' => $application->reference_number,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
-            return $application->fresh();
-        });
+        return $application;
     }
 
     /**

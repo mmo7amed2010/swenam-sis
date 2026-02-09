@@ -9,10 +9,13 @@ Your enrollment contract has been approved. To complete your enrollment in the *
 
 **Reference Number:** {{ $application->reference_number }}
 **Program:** {{ $application->program_name ?? 'N/A' }}
+@if($application->payment_amount)
+**Amount Due:** ${{ number_format($application->payment_amount, 2) }}
+@endif
 
 ## How to Submit Payment
 
-1. Complete your payment as per the contract terms
+1. Complete your payment@if($application->payment_amount) of **${{ number_format($application->payment_amount, 2) }}**@endif as per the contract terms
 2. Log in to the student portal
 3. Upload your payment receipt (PDF, JPG, or PNG format)
 

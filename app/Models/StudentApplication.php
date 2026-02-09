@@ -112,6 +112,7 @@ class StudentApplication extends Model
         'msfaa_rejection_reason',
         'msfaa_rejected_by',
         'msfaa_admin_notes',
+        'payment_amount',
     ];
 
     /**
@@ -138,6 +139,7 @@ class StudentApplication extends Model
         'msfaa_requested_at' => 'datetime',
         'msfaa_confirmed_at' => 'datetime',
         'msfaa_approved_at' => 'datetime',
+        'payment_amount' => 'decimal:2',
     ];
 
     /**
@@ -490,6 +492,11 @@ class StudentApplication extends Model
      */
     public function canBeFinallyApproved(): bool
     {
+        // Admin can bypass contract/payment and directly approve from initial_approved
+        if ($this->isInitialApproved()) {
+            return true;
+        }
+
         if ($this->isGovernmentFunded()) {
             return $this->isContractApproved();
         }
@@ -543,7 +550,8 @@ class StudentApplication extends Model
      */
     public function canUploadPayment(): bool
     {
-        return $this->isPaymentPending();
+        return $this->isPaymentPending()
+            || ($this->isContractApproved() && $this->isSelfFunded());
     }
 
     /**

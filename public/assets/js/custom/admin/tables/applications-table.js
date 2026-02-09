@@ -44,9 +44,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: 'full_name',
                 name: 'full_name',
                 render: function(data, type, row) {
-                    const statusColor = row.status === 'pending' ? 'warning' :
-                                      row.status === 'initial_approved' ? 'info' :
-                                      row.status === 'approved' ? 'success' : 'danger';
+                    const statusColorMap = {
+                        'pending': 'warning',
+                        'initial_approved': 'info',
+                        'contract_sent': 'primary',
+                        'contract_uploaded': 'info',
+                        'contract_approved': 'success',
+                        'payment_pending': 'warning',
+                        'payment_uploaded': 'info',
+                        'payment_approved': 'success',
+                        'approved': 'success',
+                        'rejected': 'danger'
+                    };
+                    const statusColor = statusColorMap[row.status] || 'secondary';
 
                     return `
                         <div class="d-flex align-items-center">
@@ -103,10 +113,50 @@ document.addEventListener('DOMContentLoaded', function() {
                     statusMap: {
                         'pending': { label: 'Pending', color: 'warning' },
                         'initial_approved': { label: 'Initial Approved', color: 'info' },
+                        'contract_sent': { label: 'Contract Sent', color: 'primary' },
+                        'contract_uploaded': { label: 'Contract Uploaded', color: 'info' },
+                        'contract_approved': { label: 'Contract Approved', color: 'success' },
+                        'payment_pending': { label: 'Payment Pending', color: 'warning' },
+                        'payment_uploaded': { label: 'Payment Uploaded', color: 'info' },
+                        'payment_approved': { label: 'Payment Approved', color: 'success' },
                         'approved': { label: 'Approved', color: 'success' },
                         'rejected': { label: 'Rejected', color: 'danger' }
                     }
                 })
+            },
+            {
+                data: 'noa_status',
+                name: 'noa_status',
+                className: 'text-center',
+                orderable: false,
+                render: function(data, type, row) {
+                    if (!data) return '<span class="text-gray-400">&mdash;</span>';
+                    const map = {
+                        'requested': { label: 'Requested', color: 'warning' },
+                        'uploaded': { label: 'Uploaded', color: 'info' },
+                        'approved': { label: 'Approved', color: 'success' },
+                        'rejected': { label: 'Rejected', color: 'danger' }
+                    };
+                    const cfg = map[data] || { label: data, color: 'secondary' };
+                    return `<span class="badge badge-light-${cfg.color} px-3 py-2 fs-7 fw-semibold">${cfg.label}</span>`;
+                }
+            },
+            {
+                data: 'msfaa_status',
+                name: 'msfaa_status',
+                className: 'text-center',
+                orderable: false,
+                render: function(data, type, row) {
+                    if (!data) return '<span class="text-gray-400">&mdash;</span>';
+                    const map = {
+                        'requested': { label: 'Requested', color: 'warning' },
+                        'confirmed': { label: 'Confirmed', color: 'info' },
+                        'approved': { label: 'Approved', color: 'success' },
+                        'rejected': { label: 'Rejected', color: 'danger' }
+                    };
+                    const cfg = map[data] || { label: data, color: 'secondary' };
+                    return `<span class="badge badge-light-${cfg.color} px-3 py-2 fs-7 fw-semibold">${cfg.label}</span>`;
+                }
             },
             {
                 data: 'id',
@@ -127,6 +177,8 @@ document.addEventListener('DOMContentLoaded', function() {
         ],
         filters: {
             status: 'select[name="status"]',
+            noa_status: 'select[name="noa_status"]',
+            msfaa_status: 'select[name="msfaa_status"]',
             from: 'input[name="from"]',
             to: 'input[name="to"]'
         },
