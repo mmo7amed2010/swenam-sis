@@ -44,9 +44,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: 'full_name',
                 name: 'full_name',
                 render: function(data, type, row) {
-                    const statusColor = row.status === 'pending' ? 'warning' :
-                                      row.status === 'initial_approved' ? 'info' :
-                                      row.status === 'approved' ? 'success' : 'danger';
+                    const statusColorMap = {
+                        'pending': 'warning',
+                        'initial_approved': 'info',
+                        'contract_sent': 'primary',
+                        'contract_uploaded': 'info',
+                        'contract_approved': 'success',
+                        'payment_pending': 'warning',
+                        'payment_uploaded': 'info',
+                        'payment_approved': 'success',
+                        'approved': 'success',
+                        'rejected': 'danger'
+                    };
+                    const statusColor = statusColorMap[row.status] || 'secondary';
 
                     return `
                         <div class="d-flex align-items-center">
@@ -103,6 +113,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     statusMap: {
                         'pending': { label: 'Pending', color: 'warning' },
                         'initial_approved': { label: 'Initial Approved', color: 'info' },
+                        'contract_sent': { label: 'Contract Sent', color: 'primary' },
+                        'contract_uploaded': { label: 'Contract Uploaded', color: 'info' },
+                        'contract_approved': { label: 'Contract Approved', color: 'success' },
+                        'payment_pending': { label: 'Payment Pending', color: 'warning' },
+                        'payment_uploaded': { label: 'Payment Uploaded', color: 'info' },
+                        'payment_approved': { label: 'Payment Approved', color: 'success' },
                         'approved': { label: 'Approved', color: 'success' },
                         'rejected': { label: 'Rejected', color: 'danger' }
                     }

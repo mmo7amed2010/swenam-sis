@@ -101,6 +101,7 @@ class StudentApplication extends Model
         'noa_approved_by',
         'noa_rejection_reason',
         'noa_skipped',
+        'payment_amount',
     ];
 
     /**
@@ -124,6 +125,7 @@ class StudentApplication extends Model
         'noa_uploaded_at' => 'datetime',
         'noa_approved_at' => 'datetime',
         'noa_skipped' => 'boolean',
+        'payment_amount' => 'decimal:2',
     ];
 
     /**
@@ -452,6 +454,11 @@ class StudentApplication extends Model
      */
     public function canBeFinallyApproved(): bool
     {
+        // Admin can bypass contract/payment and directly approve from initial_approved
+        if ($this->isInitialApproved()) {
+            return true;
+        }
+
         if ($this->isGovernmentFunded()) {
             return $this->isContractApproved();
         }
@@ -505,7 +512,8 @@ class StudentApplication extends Model
      */
     public function canUploadPayment(): bool
     {
-        return $this->isPaymentPending();
+        return $this->isPaymentPending()
+            || ($this->isContractApproved() && $this->isSelfFunded());
     }
 
     /**

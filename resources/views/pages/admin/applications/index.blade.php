@@ -28,6 +28,42 @@
             color="info"
         />
         <x-stat-card
+            icon="send"
+            :label="__('Contract Sent')"
+            :value="$stats['contract_sent']"
+            color="primary"
+        />
+        <x-stat-card
+            icon="document"
+            :label="__('Contract Uploaded')"
+            :value="$stats['contract_uploaded']"
+            color="info"
+        />
+        <x-stat-card
+            icon="verify"
+            :label="__('Contract Approved')"
+            :value="$stats['contract_approved']"
+            color="success"
+        />
+        <x-stat-card
+            icon="wallet"
+            :label="__('Payment Pending')"
+            :value="$stats['payment_pending']"
+            color="warning"
+        />
+        <x-stat-card
+            icon="wallet"
+            :label="__('Payment Uploaded')"
+            :value="$stats['payment_uploaded']"
+            color="info"
+        />
+        <x-stat-card
+            icon="wallet"
+            :label="__('Payment Approved')"
+            :value="$stats['payment_approved']"
+            color="success"
+        />
+        <x-stat-card
             icon="check-circle"
             :label="__('Approved')"
             :value="$stats['approved']"
@@ -56,10 +92,16 @@
                 
                 <x-slot:filters>
                     {{-- Status Filter --}}
-                    <select name="status" class="form-select form-select-sm w-150px">
+                    <select name="status" class="form-select form-select-sm w-175px">
                         <option value="all">{{ __('All Statuses') }}</option>
                         <option value="pending">{{ __('Pending') }}</option>
                         <option value="initial_approved">{{ __('Initial Approved') }}</option>
+                        <option value="contract_sent">{{ __('Contract Sent') }}</option>
+                        <option value="contract_uploaded">{{ __('Contract Uploaded') }}</option>
+                        <option value="contract_approved">{{ __('Contract Approved') }}</option>
+                        <option value="payment_pending">{{ __('Payment Pending') }}</option>
+                        <option value="payment_uploaded">{{ __('Payment Uploaded') }}</option>
+                        <option value="payment_approved">{{ __('Payment Approved') }}</option>
                         <option value="approved">{{ __('Approved') }}</option>
                         <option value="rejected">{{ __('Rejected') }}</option>
                     </select>

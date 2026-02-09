@@ -187,7 +187,6 @@
 
                 {{-- Education & Work Tab --}}
                 <div class="tab-pane fade" id="tab_education" role="tabpanel">
-                    {{-- Education History --}}
                     <x-cards.section title="Education History" class="mb-5">
                         <div class="card border border-dashed border-gray-300">
                             <div class="card-body p-5">
@@ -222,7 +221,6 @@
                         </div>
                     </x-cards.section>
 
-                    {{-- Work Experience --}}
                     <x-cards.section title="Work Experience">
                         @if($application->has_work_experience)
                             <div class="card border border-dashed border-gray-300">
@@ -326,75 +324,7 @@
                 </div>
 
                 {{-- Contract & Payment Tab --}}
-                @if($application->latestContract)
-                    <div class="tab-pane fade" id="tab_contract" role="tabpanel">
-                        {{-- Contract Details --}}
-                        <x-cards.section title="Contract Details" class="mb-5">
-                            @php $contract = $application->latestContract; @endphp
-                            <div class="row g-4 mb-4">
-                                <div class="col-md-6">
-                                    <x-detail.field icon="document" label="Template Used" :value="$contract->template?->name ?? 'N/A'" color="primary" />
-                                </div>
-                                <div class="col-md-6">
-                                    <x-detail.field icon="calendar" label="Issued Date" :value="$contract->issued_at ? $contract->issued_at->format('F d, Y \a\t h:i A') : 'N/A'" color="primary" />
-                                </div>
-                                <div class="col-md-6">
-                                    <x-detail.field icon="profile-user" label="Issued By" :value="$contract->issuer?->name ?? 'N/A'" color="primary" />
-                                </div>
-                                <div class="col-md-6">
-                                    <x-detail.field icon="verify" label="Signed" color="primary">
-                                        @if($contract->isSigned())
-                                            <span class="badge badge-light-success">Yes - {{ $contract->signed_at?->format('M d, Y') }}</span>
-                                        @else
-                                            <span class="badge badge-light-warning">Pending</span>
-                                        @endif
-                                    </x-detail.field>
-                                </div>
-                            </div>
-
-                            <div class="d-flex gap-3">
-                                @if($contract->generated_pdf_path)
-                                    <a href="{{ route('admin.contracts.download-generated', $contract) }}" class="btn btn-sm btn-light-primary">
-                                        {!! getIcon('down', 'fs-5 me-1') !!}
-                                        Download Generated Contract
-                                    </a>
-                                @endif
-                                @if($contract->signed_pdf_path)
-                                    <a href="{{ route('admin.contracts.download-signed', $contract) }}" class="btn btn-sm btn-light-success">
-                                        {!! getIcon('down', 'fs-5 me-1') !!}
-                                        Download Signed Contract
-                                    </a>
-                                @endif
-                            </div>
-                        </x-cards.section>
-
-                        {{-- Payment Details (if self-funded) --}}
-                        @if($application->isSelfFunded() && $application->payment_receipt_path)
-                            <x-cards.section title="Payment Receipt">
-                                <div class="row g-4 mb-4">
-                                    <div class="col-md-6">
-                                        <x-detail.field icon="calendar" label="Uploaded At" :value="$application->payment_uploaded_at ? $application->payment_uploaded_at->format('F d, Y \a\t h:i A') : 'N/A'" color="warning" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <x-detail.field icon="verify" label="Payment Status" color="warning">
-                                            @if($application->isPaymentApproved() || $application->isApproved())
-                                                <span class="badge badge-light-success">Approved</span>
-                                            @elseif($application->isPaymentUploaded())
-                                                <span class="badge badge-light-info">Awaiting Review</span>
-                                            @else
-                                                <span class="badge badge-light-warning">Pending</span>
-                                            @endif
-                                        </x-detail.field>
-                                    </div>
-                                </div>
-                                <a href="{{ route('admin.applications.payment.download', $application) }}" class="btn btn-sm btn-light-warning">
-                                    {!! getIcon('down', 'fs-5 me-1') !!}
-                                    Download Payment Receipt
-                                </a>
-                            </x-cards.section>
-                        @endif
-                    </div>
-                @endif
+                @include('pages.admin.applications._partials.tab-contract')
 
                 {{-- Review Details Tab --}}
                 @if($application->reviewed_at || $application->initial_approved_at)
@@ -960,6 +890,7 @@
                     @endif
                 @endif
             @endif
+            @include('pages.admin.applications._partials.sidebar-actions')
 
             {{-- Quick Info Card --}}
             <x-detail.quick-info
@@ -982,467 +913,8 @@
         </div>
     </div>
 
-    {{-- Initial Approve Modal --}}
-    <div class="modal fade" id="initialApproveModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-light-info border-0">
-                    <div class="d-flex align-items-center">
-                        <div class="symbol symbol-50px me-4">
-                            <span class="symbol-label bg-info">
-                                {!! getIcon('shield-tick', 'fs-2x text-white') !!}
-                            </span>
-                        </div>
-                        <div>
-                            <h2 class="fw-bolder text-gray-800 mb-1">Initial Approve Application</h2>
-                            <p class="text-gray-600 fs-7 mb-0">Mark {{ $application->full_name }}'s application for further processing</p>
-                        </div>
-                    </div>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                        {!! getIcon('cross', 'fs-1') !!}
-                    </div>
-                </div>
-
-                <form action="{{ route('admin.applications.initial-approve', $application) }}" method="POST">
-                    @csrf
-                    <div class="modal-body py-8">
-                        {{-- What will happen --}}
-                        <div class="mb-6">
-                            <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
-                            <div class="d-flex flex-column gap-3">
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('check-circle', 'fs-4 text-info me-3') !!}
-                                    <span class="text-gray-700 fs-7">Mark the application as <strong>Initially Approved</strong></span>
-                                </div>
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('information-5', 'fs-4 text-warning me-3') !!}
-                                    <span class="text-gray-700 fs-7"><strong>No student account</strong> will be created yet</span>
-                                </div>
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('information-5', 'fs-4 text-warning me-3') !!}
-                                    <span class="text-gray-700 fs-7"><strong>No email</strong> will be sent to the applicant</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Admin Notes --}}
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
-                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add notes about pricing discussions, next steps, etc..."></textarea>
-                        </div>
-
-                        {{-- Info --}}
-                        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4">
-                            {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
-                            <div class="text-gray-700 fs-7">
-                                <strong>Next Step:</strong> Contact the student offline to discuss pricing and enrollment details.
-                                Return here to complete the final approval.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-info">
-                            {!! getIcon('shield-tick', 'fs-4 me-2') !!}
-                            Initial Approve
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Final Approve Modal --}}
-    <div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-light-success border-0">
-                    <div class="d-flex align-items-center">
-                        <div class="symbol symbol-50px me-4">
-                            <span class="symbol-label bg-success">
-                                {!! getIcon('check', 'fs-2x text-white') !!}
-                            </span>
-                        </div>
-                        <div>
-                            <h2 class="fw-bolder text-gray-800 mb-1">Final Approve Application</h2>
-                            <p class="text-gray-600 fs-7 mb-0">Complete {{ $application->full_name }}'s enrollment</p>
-                        </div>
-                    </div>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                        {!! getIcon('cross', 'fs-1') !!}
-                    </div>
-                </div>
-
-                <form action="{{ route('admin.applications.approve', $application) }}" method="POST">
-                    @csrf
-                    <div class="modal-body py-8">
-                        {{-- What will happen --}}
-                        <div class="mb-6">
-                            <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
-                            <div class="d-flex flex-column gap-3">
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
-                                    <span class="text-gray-700 fs-7">Create a student account with email <strong>{{ $application->email }}</strong></span>
-                                </div>
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
-                                    <span class="text-gray-700 fs-7">Send login credentials to the applicant</span>
-                                </div>
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
-                                    <span class="text-gray-700 fs-7">Enroll in <strong>{{ $application->program_name ?? 'the program' }}</strong></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Admin Notes --}}
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
-                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes about this approval...">{{ $application->admin_notes }}</textarea>
-                        </div>
-
-                        {{-- Warning --}}
-                        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4">
-                            {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
-                            <div class="text-gray-700 fs-7">
-                                <strong>Note:</strong> This action cannot be undone. Please ensure all information has been verified.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            {!! getIcon('check', 'fs-4 me-2') !!}
-                            Final Approve & Create Account
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Reject Modal --}}
-    <div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-light-danger border-0">
-                    <div class="d-flex align-items-center">
-                        <div class="symbol symbol-50px me-4">
-                            <span class="symbol-label bg-danger">
-                                {!! getIcon('cross', 'fs-2x text-white') !!}
-                            </span>
-                        </div>
-                        <div>
-                            <h2 class="fw-bolder text-gray-800 mb-1">Reject Application</h2>
-                            <p class="text-gray-600 fs-7 mb-0">Reject {{ $application->full_name }}'s application</p>
-                        </div>
-                    </div>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                        {!! getIcon('cross', 'fs-1') !!}
-                    </div>
-                </div>
-
-                <form action="{{ route('admin.applications.reject', $application) }}" method="POST" x-data="{ reason: '', minLength: 20, maxLength: 1000 }">
-                    @csrf
-                    <div class="modal-body py-8">
-                        {{-- Rejection Reason --}}
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
-                            <textarea
-                                name="rejection_reason"
-                                class="form-control form-control-solid @error('rejection_reason') is-invalid @enderror"
-                                rows="5"
-                                placeholder="Provide a clear and detailed reason for rejection..."
-                                x-model="reason"
-                                required
-                                minlength="20"
-                                maxlength="1000"></textarea>
-                            @error('rejection_reason')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <div class="d-flex justify-content-between mt-2">
-                                <span class="text-gray-500 fs-8">
-                                    <span x-text="reason.length"></span> / <span x-text="maxLength"></span> characters
-                                </span>
-                                <span x-show="reason.length > 0 && reason.length < minLength" class="text-danger fs-8">
-                                    Minimum <span x-text="minLength"></span> characters required
-                                </span>
-                            </div>
-                        </div>
-
-                        {{-- Admin Notes --}}
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
-                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
-                        </div>
-
-                        {{-- Warning --}}
-                        <div class="notice d-flex bg-light-danger rounded border-danger border border-dashed p-4">
-                            {!! getIcon('information-5', 'fs-2x text-danger me-3 flex-shrink-0') !!}
-                            <div class="text-gray-700 fs-7">
-                                <strong>Warning:</strong> This action cannot be undone. The applicant will be notified of the rejection.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger" :disabled="reason.length < minLength">
-                            {!! getIcon('cross', 'fs-4 me-2') !!}
-                            Reject Application
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Preview Modal --}}
-    <div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header border-0 bg-light-primary">
-                    <h2 class="fw-bold text-gray-800" id="previewTitle">Document Preview</h2>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                        {!! getIcon('cross', 'fs-1') !!}
-                    </div>
-                </div>
-                <div class="modal-body p-0" id="previewBody" style="min-height: 600px;">
-                    <!-- Dynamic content loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Approve Contract Modal --}}
-    <div class="modal fade" id="approveContractModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-light-success border-0">
-                    <div class="d-flex align-items-center">
-                        <div class="symbol symbol-50px me-4">
-                            <span class="symbol-label bg-success">
-                                {!! getIcon('check', 'fs-2x text-white') !!}
-                            </span>
-                        </div>
-                        <div>
-                            <h2 class="fw-bolder text-gray-800 mb-1">Approve Contract</h2>
-                            <p class="text-gray-600 fs-7 mb-0">Approve {{ $application->full_name }}'s signed contract</p>
-                        </div>
-                    </div>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                        {!! getIcon('cross', 'fs-1') !!}
-                    </div>
-                </div>
-
-                <form action="{{ route('admin.applications.contract.approve', $application) }}" method="POST">
-                    @csrf
-                    <div class="modal-body py-8">
-                        <div class="mb-6">
-                            <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
-                            <div class="d-flex flex-column gap-3">
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
-                                    <span class="text-gray-700 fs-7">Mark the contract as <strong>Approved</strong></span>
-                                </div>
-                                @if($application->isGovernmentFunded())
-                                    <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                        {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
-                                        <span class="text-gray-700 fs-7">Auto-approve the application and <strong>create student account</strong></span>
-                                    </div>
-                                @else
-                                    <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                        {!! getIcon('information-5', 'fs-4 text-warning me-3') !!}
-                                        <span class="text-gray-700 fs-7">Move to <strong>Payment Pending</strong> (self-funded student)</span>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
-                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any notes...">{{ $application->admin_notes }}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            {!! getIcon('check', 'fs-4 me-2') !!}
-                            Approve Contract
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Reject Contract Modal --}}
-    <div class="modal fade" id="rejectContractModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-light-warning border-0">
-                    <div class="d-flex align-items-center">
-                        <div class="symbol symbol-50px me-4">
-                            <span class="symbol-label bg-warning">
-                                {!! getIcon('cross', 'fs-2x text-white') !!}
-                            </span>
-                        </div>
-                        <div>
-                            <h2 class="fw-bolder text-gray-800 mb-1">Reject Contract</h2>
-                            <p class="text-gray-600 fs-7 mb-0">Student will need to re-upload their signed contract</p>
-                        </div>
-                    </div>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                        {!! getIcon('cross', 'fs-1') !!}
-                    </div>
-                </div>
-
-                <form action="{{ route('admin.applications.contract.reject', $application) }}" method="POST">
-                    @csrf
-                    <div class="modal-body py-8">
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
-                            <textarea name="rejection_reason" class="form-control form-control-solid" rows="4" placeholder="Explain why the signed contract is being rejected..." required minlength="10"></textarea>
-                        </div>
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
-                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
-                        </div>
-                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
-                            {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
-                            <div class="text-gray-700 fs-7">
-                                The student will be able to re-upload their signed contract.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-warning">
-                            {!! getIcon('cross', 'fs-4 me-2') !!}
-                            Reject Contract
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Approve Payment Modal --}}
-    <div class="modal fade" id="approvePaymentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-light-success border-0">
-                    <div class="d-flex align-items-center">
-                        <div class="symbol symbol-50px me-4">
-                            <span class="symbol-label bg-success">
-                                {!! getIcon('check', 'fs-2x text-white') !!}
-                            </span>
-                        </div>
-                        <div>
-                            <h2 class="fw-bolder text-gray-800 mb-1">Approve Payment</h2>
-                            <p class="text-gray-600 fs-7 mb-0">Approve {{ $application->full_name }}'s payment receipt</p>
-                        </div>
-                    </div>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                        {!! getIcon('cross', 'fs-1') !!}
-                    </div>
-                </div>
-
-                <form action="{{ route('admin.applications.payment.approve', $application) }}" method="POST">
-                    @csrf
-                    <div class="modal-body py-8">
-                        <div class="mb-6">
-                            <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
-                            <div class="d-flex flex-column gap-3">
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
-                                    <span class="text-gray-700 fs-7">Mark the payment as <strong>Approved</strong></span>
-                                </div>
-                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
-                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
-                                    <span class="text-gray-700 fs-7"><strong>Approve the application</strong> and create student LMS account</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
-                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any notes...">{{ $application->admin_notes }}</textarea>
-                        </div>
-
-                        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4">
-                            {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
-                            <div class="text-gray-700 fs-7">
-                                <strong>Note:</strong> This action cannot be undone. The student will be fully enrolled.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-success">
-                            {!! getIcon('check', 'fs-4 me-2') !!}
-                            Approve Payment
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    {{-- Reject Payment Modal --}}
-    <div class="modal fade" id="rejectPaymentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered mw-650px">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-light-warning border-0">
-                    <div class="d-flex align-items-center">
-                        <div class="symbol symbol-50px me-4">
-                            <span class="symbol-label bg-warning">
-                                {!! getIcon('cross', 'fs-2x text-white') !!}
-                            </span>
-                        </div>
-                        <div>
-                            <h2 class="fw-bolder text-gray-800 mb-1">Reject Payment</h2>
-                            <p class="text-gray-600 fs-7 mb-0">Student will need to re-upload their payment receipt</p>
-                        </div>
-                    </div>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
-                        {!! getIcon('cross', 'fs-1') !!}
-                    </div>
-                </div>
-
-                <form action="{{ route('admin.applications.payment.reject', $application) }}" method="POST">
-                    @csrf
-                    <div class="modal-body py-8">
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
-                            <textarea name="rejection_reason" class="form-control form-control-solid" rows="4" placeholder="Explain why the payment receipt is being rejected..." required minlength="10"></textarea>
-                        </div>
-                        <div class="mb-5">
-                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
-                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
-                        </div>
-                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
-                            {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
-                            <div class="text-gray-700 fs-7">
-                                The student will be able to re-upload their payment receipt.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-warning">
-                            {!! getIcon('cross', 'fs-4 me-2') !!}
-                            Reject Payment
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    {{-- All Modals --}}
+    @include('pages.admin.applications._partials.modals')
 
     {{-- Approve NOA Modal --}}
     <div class="modal fade" id="approveNoaModal" tabindex="-1" aria-hidden="true">
@@ -1589,7 +1061,6 @@
 
             titleEl.textContent = type;
 
-            // Show loading state
             bodyEl.innerHTML = `
                 <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 600px;">
                     <div class="spinner-border text-gray-600 mb-3" role="status">
@@ -1601,7 +1072,6 @@
 
             modal.show();
 
-            // Determine file type and render
             const isPdf = url.toLowerCase().includes('.pdf') || url.includes('preview=1');
             const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
 
@@ -1629,6 +1099,43 @@
                 }
             }, 300);
         }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const rejectOnlyRadio = document.getElementById('rejectOnlyRadio');
+            const regenerateRadio = document.getElementById('regenerateRadio');
+            const rejectOnlyNotice = document.getElementById('rejectOnlyNotice');
+            const regenerateNotice = document.getElementById('regenerateNotice');
+            const rejectOnlyLabel = document.getElementById('rejectOnlyLabel');
+            const regenerateLabel = document.getElementById('regenerateLabel');
+            const rejectBtn = document.getElementById('rejectContractBtn');
+
+            if (!rejectOnlyRadio || !regenerateRadio) return;
+
+            function updateRejectUI() {
+                if (regenerateRadio.checked) {
+                    rejectOnlyNotice.classList.add('d-none');
+                    regenerateNotice.classList.remove('d-none');
+                    rejectOnlyLabel.classList.remove('border-primary');
+                    regenerateLabel.classList.add('border-primary');
+                    rejectBtn.innerHTML = '{!! getIcon("arrows-circle", "fs-4 me-2") !!} Reject & Regenerate';
+                    rejectBtn.classList.remove('btn-warning');
+                    rejectBtn.classList.add('btn-primary');
+                } else {
+                    rejectOnlyNotice.classList.remove('d-none');
+                    regenerateNotice.classList.add('d-none');
+                    rejectOnlyLabel.classList.add('border-primary');
+                    regenerateLabel.classList.remove('border-primary');
+                    rejectBtn.innerHTML = '{!! getIcon("cross", "fs-4 me-2") !!} Reject Contract';
+                    rejectBtn.classList.remove('btn-primary');
+                    rejectBtn.classList.add('btn-warning');
+                }
+            }
+
+            rejectOnlyRadio.addEventListener('change', updateRejectUI);
+            regenerateRadio.addEventListener('change', updateRejectUI);
+            updateRejectUI();
+        });
     </script>
     @endpush
 </x-default-layout>

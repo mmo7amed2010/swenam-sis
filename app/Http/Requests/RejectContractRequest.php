@@ -14,6 +14,7 @@ class RejectContractRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'reject_action' => ['required', 'in:reject_only,reject_and_regenerate'],
             'rejection_reason' => ['required', 'string', 'min:10', 'max:1000'],
             'admin_notes' => ['nullable', 'string', 'max:1000'],
         ];

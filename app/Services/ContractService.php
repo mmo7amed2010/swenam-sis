@@ -195,27 +195,32 @@ class ContractService
 
         $oldStatus = $application->status;
 
-        $application->update([
-            'status' => 'contract_approved',
-            'contract_approved_at' => now(),
-            'contract_approved_by' => auth()->id(),
-            'admin_notes' => $data['admin_notes'] ?? $application->admin_notes,
-        ]);
+        // Perform all status updates inside a transaction
+        \Illuminate\Support\Facades\DB::transaction(function () use ($application, $data, $oldStatus) {
+            $application->update([
+                'status' => 'contract_approved',
+                'contract_approved_at' => now(),
+                'contract_approved_by' => auth()->id(),
+                'admin_notes' => $data['admin_notes'] ?? $application->admin_notes,
+            ]);
 
-        // Log audit
-        ApplicationAuditLog::logDecision($application, 'contract_approved', null, $oldStatus);
+            ApplicationAuditLog::logDecision($application, 'contract_approved', null, $oldStatus);
 
-        // Send contract approved email
+            if ($application->isGovernmentFunded()) {
+                $this->reviewService->approveApplication($application, $data);
+            } else {
+                $application->update([
+                    'status' => 'payment_pending',
+                    'payment_amount' => $data['payment_amount'] ?? null,
+                ]);
+                ApplicationAuditLog::logDecision($application, 'payment_pending', null, 'contract_approved');
+            }
+        });
+
+        // Send emails after transaction commits
         Mail::to($application->email)->queue(new ContractApprovedMail($application));
 
-        if ($application->isGovernmentFunded()) {
-            // Auto-approve application for government-funded students
-            $this->reviewService->approveApplication($application, $data);
-        } else {
-            // Transition to payment_pending for self-funded
-            $application->update(['status' => 'payment_pending']);
-            ApplicationAuditLog::logDecision($application, 'payment_pending', null, 'contract_approved');
-
+        if ($application->isSelfFunded()) {
             Mail::to($application->email)->queue(new PaymentPendingMail($application));
         }
 
@@ -260,6 +265,39 @@ class ContractService
         ApplicationAuditLog::logDecision($application, 'contract_rejected', $data['rejection_reason'] ?? null, $oldStatus);
 
         Log::info('Contract rejected, student must re-upload', [
+            'reference_number' => $application->reference_number,
+            'rejected_by' => auth()->id(),
+        ]);
+
+        return $application->fresh();
+    }
+
+    /**
+     * Reject a contract for regeneration.
+     * Resets status to initial_approved so admin can re-issue through the contract create flow.
+     */
+    public function rejectContractForRegeneration(StudentApplication $application, array $data): StudentApplication
+    {
+        if (! $application->canApproveContract()) {
+            throw new \Exception('Contract can only be rejected when signed contract has been uploaded.');
+        }
+
+        $oldStatus = $application->status;
+
+        $application->update([
+            'status' => 'initial_approved',
+            'contract_uploaded_at' => null,
+            'signed_contract_path' => null,
+            'contract_sent_at' => null,
+            'contract_sent_by' => null,
+            'contract_rejection_reason' => $data['rejection_reason'] ?? null,
+            'admin_notes' => $data['admin_notes'] ?? $application->admin_notes,
+        ]);
+
+        // Log audit
+        ApplicationAuditLog::logDecision($application, 'contract_rejected_for_regeneration', $data['rejection_reason'] ?? null, $oldStatus);
+
+        Log::info('Contract rejected for regeneration, admin will re-issue', [
             'reference_number' => $application->reference_number,
             'rejected_by' => auth()->id(),
         ]);
