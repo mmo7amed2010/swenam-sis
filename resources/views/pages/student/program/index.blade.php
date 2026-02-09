@@ -235,6 +235,106 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- NOA Section --}}
+                            @if($application->canUploadNoa())
+                                {{-- NOA Rejection Reason (if re-upload after rejection) - stays inline --}}
+                                @if($application->noa_rejection_reason)
+                                    <div class="notice d-flex bg-light-danger rounded border-danger border border-dashed p-6 mb-5">
+                                        <i class="ki-duotone ki-information fs-2tx text-danger me-4">
+                                            <span class="path1"></span>
+                                            <span class="path2"></span>
+                                            <span class="path3"></span>
+                                        </i>
+                                        <div class="d-flex flex-stack flex-grow-1">
+                                            <div class="fw-semibold">
+                                                <h4 class="text-gray-900 fw-bold">{{ __('NOA Document Returned') }}</h4>
+                                                <div class="fs-6 text-gray-700">
+                                                    <strong>{{ __('Reason:') }}</strong> {{ $application->noa_rejection_reason }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                {{-- NOA Upload Modal (auto-shown on page load) --}}
+                                <x-modals.base-modal id="noaUploadModal" :static="true">
+                                    <x-slot:header>
+                                        <div class="d-flex align-items-center">
+                                            <i class="ki-duotone ki-document fs-2 text-primary me-3">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                            </i>
+                                            <h5 class="modal-title fw-bold mb-0">{{ __('Notice of Assessment Required') }}</h5>
+                                        </div>
+                                    </x-slot:header>
+
+                                    @if($application->noa_rejection_reason)
+                                        <div class="alert alert-danger d-flex align-items-center p-4 mb-4">
+                                            <i class="ki-duotone ki-information fs-2x text-danger me-3">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                                <span class="path3"></span>
+                                            </i>
+                                            <div>
+                                                <strong>{{ __('NOA Rejected:') }}</strong> {{ $application->noa_rejection_reason }}
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <p class="text-gray-600 fs-7 mb-4">{{ __('Upload your NOA document (PDF, JPG, or PNG, max 10MB).') }}</p>
+                                    <form id="noaUploadForm" action="{{ route('student.noa.upload') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="mb-4">
+                                            <input type="file" name="noa_document" class="form-control form-control-solid @error('noa_document') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png" required />
+                                            @error('noa_document')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="d-flex gap-3">
+                                            <button type="submit" class="btn btn-success flex-grow-1">
+                                                <i class="ki-duotone ki-up fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                {{ __('Upload NOA') }}
+                                            </button>
+                                            <button type="button" id="noaSkipBtn" class="btn btn-light-warning flex-grow-1">
+                                                <i class="ki-duotone ki-time fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                {{ __('Skip for Now') }}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </x-modals.base-modal>
+
+                            @elseif($application->isNoaUploaded())
+                                <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-6 mb-5">
+                                    <i class="ki-duotone ki-time fs-2tx text-info me-4">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                    </i>
+                                    <div class="d-flex flex-stack flex-grow-1">
+                                        <div class="fw-semibold">
+                                            <h4 class="text-gray-900 fw-bold">{{ __('NOA Under Review') }}</h4>
+                                            <div class="fs-6 text-gray-700">
+                                                {{ __('Your NOA document has been received and is being reviewed by our team.') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @elseif($application->isNoaApproved())
+                                <div class="notice d-flex bg-light-success rounded border-success border border-dashed p-6 mb-5">
+                                    <i class="ki-duotone ki-check-circle fs-2tx text-success me-4">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                    </i>
+                                    <div class="d-flex flex-stack flex-grow-1">
+                                        <div class="fw-semibold">
+                                            <h4 class="text-gray-900 fw-bold">{{ __('NOA Approved') }}</h4>
+                                            <div class="fs-6 text-gray-700">
+                                                {{ __('Your Notice of Assessment has been reviewed and approved.') }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         @elseif($application->status === 'pending' || $application->status === 'initial_approved')
                             <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 mb-5">
                                 <i class="ki-duotone ki-information fs-2tx text-warning me-4">
@@ -466,5 +566,47 @@
             </div>
         </div>
     </div>
+
+    @if(isset($application) && $application && $application->canUploadNoa())
+        @push('scripts')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var skipKey = 'noaSkipped_{{ session()->getId() }}';
+                    if (!sessionStorage.getItem(skipKey)) {
+                        var noaModal = new bootstrap.Modal(document.getElementById('noaUploadModal'));
+                        noaModal.show();
+                    }
+                    document.getElementById('noaSkipBtn').addEventListener('click', function () {
+                        sessionStorage.setItem(skipKey, '1');
+                        bootstrap.Modal.getInstance(document.getElementById('noaUploadModal')).hide();
+                    });
+
+                    // File size validation
+                    var maxSize = 10 * 1024 * 1024;
+                    var fileInput = document.querySelector('#noaUploadForm input[name="noa_document"]');
+                    if (fileInput) {
+                        fileInput.addEventListener('change', function () {
+                            if (this.files[0] && this.files[0].size > maxSize) {
+                                this.value = '';
+                                alert('{{ __("File size must not exceed 10MB.") }}');
+                            }
+                        });
+                    }
+
+                    // Loading state on submit
+                    var form = document.getElementById('noaUploadForm');
+                    if (form) {
+                        form.addEventListener('submit', function () {
+                            var btn = form.querySelector('button[type="submit"]');
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{{ __("Uploading...") }}';
+                            }
+                        });
+                    }
+                });
+            </script>
+        @endpush
+    @endif
 
 </x-default-layout>

@@ -277,4 +277,90 @@
         </div>
     </div>
 
+    {{-- NOA Upload Modal (auto-shown on dashboard if student needs to upload) --}}
+    @if(isset($application) && $application && $application->canUploadNoa())
+        <x-modals.base-modal id="noaUploadModal" :static="true">
+            <x-slot:header>
+                <div class="d-flex align-items-center">
+                    <i class="ki-duotone ki-document fs-2 text-primary me-3">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                    </i>
+                    <h5 class="modal-title fw-bold mb-0">{{ __('Notice of Assessment Required') }}</h5>
+                </div>
+            </x-slot:header>
+
+            @if($application->noa_rejection_reason)
+                <div class="alert alert-danger d-flex align-items-center p-4 mb-4">
+                    <i class="ki-duotone ki-information fs-2x text-danger me-3">
+                        <span class="path1"></span>
+                        <span class="path2"></span>
+                        <span class="path3"></span>
+                    </i>
+                    <div>
+                        <strong>{{ __('NOA Rejected:') }}</strong> {{ $application->noa_rejection_reason }}
+                    </div>
+                </div>
+            @endif
+
+            <p class="text-gray-600 fs-7 mb-4">{{ __('Upload your NOA document (PDF, JPG, or PNG, max 10MB).') }}</p>
+            <form id="noaUploadForm" action="{{ route('student.noa.upload') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-4">
+                    <input type="file" name="noa_document" class="form-control form-control-solid" accept=".pdf,.jpg,.jpeg,.png" required />
+                </div>
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-success flex-grow-1">
+                        <i class="ki-duotone ki-up fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                        {{ __('Upload NOA') }}
+                    </button>
+                    <button type="button" id="noaSkipBtn" class="btn btn-light-warning flex-grow-1">
+                        <i class="ki-duotone ki-time fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                        {{ __('Skip for Now') }}
+                    </button>
+                </div>
+            </form>
+        </x-modals.base-modal>
+
+        @push('scripts')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var skipKey = 'noaSkipped_{{ session()->getId() }}';
+                    if (!sessionStorage.getItem(skipKey)) {
+                        var noaModal = new bootstrap.Modal(document.getElementById('noaUploadModal'));
+                        noaModal.show();
+                    }
+                    document.getElementById('noaSkipBtn').addEventListener('click', function () {
+                        sessionStorage.setItem(skipKey, '1');
+                        bootstrap.Modal.getInstance(document.getElementById('noaUploadModal')).hide();
+                    });
+
+                    // File size validation
+                    var maxSize = 10 * 1024 * 1024;
+                    var fileInput = document.querySelector('#noaUploadForm input[name="noa_document"]');
+                    if (fileInput) {
+                        fileInput.addEventListener('change', function () {
+                            if (this.files[0] && this.files[0].size > maxSize) {
+                                this.value = '';
+                                alert('{{ __("File size must not exceed 10MB.") }}');
+                            }
+                        });
+                    }
+
+                    // Loading state on submit
+                    var form = document.getElementById('noaUploadForm');
+                    if (form) {
+                        form.addEventListener('submit', function () {
+                            var btn = form.querySelector('button[type="submit"]');
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{{ __("Uploading...") }}';
+                            }
+                        });
+                    }
+                });
+            </script>
+        @endpush
+    @endif
+
 </x-default-layout>

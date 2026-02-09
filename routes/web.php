@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ApplicationReviewController;
 use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\ContractTemplateController;
+use App\Http\Controllers\Admin\NoaController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\ApplicationStatusController;
@@ -133,6 +134,12 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('applications/{application}/payment/approve', [PaymentController::class, 'approve'])->name('applications.payment.approve');
         Route::post('applications/{application}/payment/reject', [PaymentController::class, 'reject'])->name('applications.payment.reject');
 
+        // NOA (Notice of Assessment) Management
+        Route::post('applications/{application}/noa/request', [NoaController::class, 'request'])->name('applications.noa.request');
+        Route::get('applications/{application}/noa/download', [NoaController::class, 'download'])->name('applications.noa.download');
+        Route::post('applications/{application}/noa/approve', [NoaController::class, 'approve'])->name('applications.noa.approve');
+        Route::post('applications/{application}/noa/reject', [NoaController::class, 'reject'])->name('applications.noa.reject');
+
         // System Announcements
         Route::resource('announcements', App\Http\Controllers\Admin\SystemAnnouncementController::class);
     });
@@ -165,6 +172,10 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
 
         // Payment
         Route::post('payment/upload-receipt', [\App\Http\Controllers\Student\StudentPaymentController::class, 'uploadReceipt'])->name('payment.upload-receipt');
+
+        // NOA (Notice of Assessment)
+        Route::post('noa/upload', [\App\Http\Controllers\Student\StudentNoaController::class, 'upload'])->name('noa.upload');
+        Route::post('noa/skip', [\App\Http\Controllers\Student\StudentNoaController::class, 'skip'])->name('noa.skip');
 
         // My Profile
         Route::get('profile', [\App\Http\Controllers\Student\ProfileController::class, 'show'])->name('profile.show');

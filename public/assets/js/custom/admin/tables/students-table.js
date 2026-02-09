@@ -474,17 +474,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = button.dataset.studentName;
         const confirmMsg = tableElement.dataset.textConfirmSuspend || 'Are you sure you want to suspend this student? They will not be able to login.';
 
-        if (!confirm(confirmMsg)) return;
+        const result = await Swal.fire({
+            title: 'Suspend Student',
+            text: confirmMsg,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Suspend',
+            confirmButtonColor: '#f1416c',
+        });
+        if (!result.isConfirmed) return;
 
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
-                }
+                },
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
 
             const data = await response.json();
 
@@ -516,7 +529,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Suspend error:', error);
-            alert('An error occurred while suspending the student.');
+            const msg = error.name === 'AbortError'
+                ? 'The request timed out. Please try again.'
+                : 'An error occurred while suspending the student.';
+            alert(msg);
         }
     };
 
@@ -526,17 +542,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = button.dataset.studentName;
         const confirmMsg = tableElement.dataset.textConfirmUnsuspend || 'Are you sure you want to reactivate this student?';
 
-        if (!confirm(confirmMsg)) return;
+        const result = await Swal.fire({
+            title: 'Reactivate Student',
+            text: confirmMsg,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Reactivate',
+            confirmButtonColor: '#50cd89',
+        });
+        if (!result.isConfirmed) return;
 
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json'
-                }
+                },
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
 
             const data = await response.json();
 
@@ -568,7 +597,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Unsuspend error:', error);
-            alert('An error occurred while reactivating the student.');
+            const msg = error.name === 'AbortError'
+                ? 'The request timed out. Please try again.'
+                : 'An error occurred while reactivating the student.';
+            alert(msg);
         }
     };
 

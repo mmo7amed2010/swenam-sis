@@ -132,10 +132,10 @@
     @include('pages.admin.students.partials.student-modals')
 
     @push('scripts')
-        <script src="{{ asset('assets/js/custom/admin/courses/main.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/admin/tables/column-renderers.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/admin/tables/admin-datatable.js') }}"></script>
-        <script src="{{ asset('assets/js/custom/admin/tables/students-table.js') }}"></script>
+        <script src="{{ asset('assets/js/custom/admin/courses/main.js') }}?v={{ filemtime(public_path('assets/js/custom/admin/courses/main.js')) }}"></script>
+        <script src="{{ asset('assets/js/custom/admin/tables/column-renderers.js') }}?v={{ filemtime(public_path('assets/js/custom/admin/tables/column-renderers.js')) }}"></script>
+        <script src="{{ asset('assets/js/custom/admin/tables/admin-datatable.js') }}?v={{ filemtime(public_path('assets/js/custom/admin/tables/admin-datatable.js')) }}"></script>
+        <script src="{{ asset('assets/js/custom/admin/tables/students-table.js') }}?v={{ filemtime(public_path('assets/js/custom/admin/tables/students-table.js')) }}"></script>
     @endpush
 
 </x-default-layout>

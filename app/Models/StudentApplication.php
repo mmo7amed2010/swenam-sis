@@ -90,6 +90,17 @@ class StudentApplication extends Model
         'payment_approved_at',
         'payment_approved_by',
         'payment_rejection_reason',
+
+        // NOA (Notice of Assessment) tracking
+        'noa_status',
+        'noa_requested_at',
+        'noa_requested_by',
+        'noa_uploaded_at',
+        'noa_document_path',
+        'noa_approved_at',
+        'noa_approved_by',
+        'noa_rejection_reason',
+        'noa_skipped',
     ];
 
     /**
@@ -109,6 +120,10 @@ class StudentApplication extends Model
         'contract_approved_at' => 'datetime',
         'payment_uploaded_at' => 'datetime',
         'payment_approved_at' => 'datetime',
+        'noa_requested_at' => 'datetime',
+        'noa_uploaded_at' => 'datetime',
+        'noa_approved_at' => 'datetime',
+        'noa_skipped' => 'boolean',
     ];
 
     /**
@@ -209,6 +224,22 @@ class StudentApplication extends Model
     public function paymentApprover(): BelongsTo
     {
         return $this->belongsTo(User::class, 'payment_approved_by');
+    }
+
+    /**
+     * Get the admin who requested the NOA.
+     */
+    public function noaRequester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'noa_requested_by');
+    }
+
+    /**
+     * Get the admin who approved the NOA.
+     */
+    public function noaApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'noa_approved_by');
     }
 
     /**
@@ -483,5 +514,73 @@ class StudentApplication extends Model
     public function canApprovePayment(): bool
     {
         return $this->isPaymentUploaded();
+    }
+
+    /**
+     * Check if NOA can be requested for this application.
+     */
+    public function canRequestNoa(): bool
+    {
+        return $this->isApproved() && is_null($this->noa_status);
+    }
+
+    /**
+     * Check if student can upload a NOA document.
+     */
+    public function canUploadNoa(): bool
+    {
+        return in_array($this->noa_status, ['requested', 'rejected']);
+    }
+
+    /**
+     * Check if the NOA can be reviewed (approved/rejected).
+     */
+    public function canReviewNoa(): bool
+    {
+        return $this->noa_status === 'uploaded';
+    }
+
+    /**
+     * Check if NOA has been requested.
+     */
+    public function isNoaRequested(): bool
+    {
+        return $this->noa_status === 'requested';
+    }
+
+    /**
+     * Check if NOA has been uploaded.
+     */
+    public function isNoaUploaded(): bool
+    {
+        return $this->noa_status === 'uploaded';
+    }
+
+    /**
+     * Check if NOA has been approved.
+     */
+    public function isNoaApproved(): bool
+    {
+        return $this->noa_status === 'approved';
+    }
+
+    /**
+     * Check if the student has skipped NOA upload.
+     */
+    public function isNoaSkipped(): bool
+    {
+        return (bool) $this->noa_skipped;
+    }
+
+    /**
+     * Get the number of days elapsed since NOA was requested.
+     */
+    public function getNoaElapsedDaysAttribute(): ?int
+    {
+        if (! $this->noa_requested_at) {
+            return null;
+        }
+
+        return (int) $this->noa_requested_at->diffInDays(now());
     }
 }
