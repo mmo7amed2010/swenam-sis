@@ -89,33 +89,82 @@
                 search-placeholder="{{ __('Search applications...') }}"
                 search-name="search"
                 :show-refresh="true">
-                
-                <x-slot:filters>
-                    {{-- Status Filter --}}
-                    <select name="status" class="form-select form-select-sm w-175px">
-                        <option value="all">{{ __('All Statuses') }}</option>
-                        <option value="pending">{{ __('Pending') }}</option>
-                        <option value="initial_approved">{{ __('Initial Approved') }}</option>
-                        <option value="contract_sent">{{ __('Contract Sent') }}</option>
-                        <option value="contract_uploaded">{{ __('Contract Uploaded') }}</option>
-                        <option value="contract_approved">{{ __('Contract Approved') }}</option>
-                        <option value="payment_pending">{{ __('Payment Pending') }}</option>
-                        <option value="payment_uploaded">{{ __('Payment Uploaded') }}</option>
-                        <option value="payment_approved">{{ __('Payment Approved') }}</option>
-                        <option value="approved">{{ __('Approved') }}</option>
-                        <option value="rejected">{{ __('Rejected') }}</option>
-                    </select>
-
-                    {{-- Date From --}}
-                    <input type="date" name="from" class="form-control form-control-sm w-150px" 
-                           placeholder="{{ __('From Date') }}">
-
-                    {{-- Date To --}}
-                    <input type="date" name="to" class="form-control form-control-sm w-150px" 
-                           placeholder="{{ __('To Date') }}">
-                </x-slot:filters>
+                <x-slot:actions>
+                    <button type="button"
+                            class="btn btn-sm btn-light-primary d-flex align-items-center gap-2"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#applications-filters"
+                            aria-expanded="false">
+                        <i class="ki-outline ki-filter fs-4"></i>
+                        {{ __('Filters') }}
+                        <span class="badge badge-circle badge-primary d-none"
+                              id="active-filter-count">0</span>
+                    </button>
+                </x-slot:actions>
             </x-tables.toolbar>
         </x-slot:toolbar>
+
+        {{-- Collapsible Filter Panel --}}
+        <div class="collapse" id="applications-filters">
+            <div class="separator border-gray-200"></div>
+            <div class="py-5 px-3">
+                <div class="row g-4">
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Status') }}</label>
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="all">{{ __('All Statuses') }}</option>
+                            <option value="pending">{{ __('Pending') }}</option>
+                            <option value="initial_approved">{{ __('Initial Approved') }}</option>
+                            <option value="contract_sent">{{ __('Contract Sent') }}</option>
+                            <option value="contract_uploaded">{{ __('Contract Uploaded') }}</option>
+                            <option value="contract_approved">{{ __('Contract Approved') }}</option>
+                            <option value="payment_pending">{{ __('Payment Pending') }}</option>
+                            <option value="payment_uploaded">{{ __('Payment Uploaded') }}</option>
+                            <option value="payment_approved">{{ __('Payment Approved') }}</option>
+                            <option value="approved">{{ __('Approved') }}</option>
+                            <option value="rejected">{{ __('Rejected') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('NOA Status') }}</label>
+                        <select name="noa_status" class="form-select form-select-sm">
+                            <option value="all">{{ __('All NOA Statuses') }}</option>
+                            <option value="requested">{{ __('Requested') }}</option>
+                            <option value="uploaded">{{ __('Uploaded') }}</option>
+                            <option value="approved">{{ __('Approved') }}</option>
+                            <option value="rejected">{{ __('Rejected') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('MSFAA Status') }}</label>
+                        <select name="msfaa_status" class="form-select form-select-sm">
+                            <option value="all">{{ __('All MSFAA Statuses') }}</option>
+                            <option value="requested">{{ __('Requested') }}</option>
+                            <option value="confirmed">{{ __('Confirmed') }}</option>
+                            <option value="approved">{{ __('Approved') }}</option>
+                            <option value="rejected">{{ __('Rejected') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Date From') }}</label>
+                        <input type="date" name="from" class="form-control form-control-sm"
+                               placeholder="{{ __('From Date') }}">
+                    </div>
+                    <div class="col-md-3 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Date To') }}</label>
+                        <input type="date" name="to" class="form-control form-control-sm"
+                               placeholder="{{ __('To Date') }}">
+                    </div>
+                    <div class="col-md-2 col-lg-auto d-flex align-items-end">
+                        <button type="button" class="btn btn-sm btn-light-danger" id="reset-filters">
+                            <i class="ki-outline ki-arrows-circle fs-4 me-1"></i>
+                            {{ __('Reset') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="separator border-gray-200"></div>
+        </div>
 
         {{-- DataTable Container --}}
         <div id="table-container">
@@ -132,6 +181,8 @@
                             <th class="min-w-150px">{{ __('Program') }}</th>
                             <th class="text-center min-w-120px">{{ __('Submitted') }}</th>
                             <th class="text-center min-w-120px">{{ __('Status') }}</th>
+                            <th class="text-center min-w-120px">{{ __('NOA Status') }}</th>
+                            <th class="text-center min-w-120px">{{ __('MSFAA Status') }}</th>
                             <th class="text-end pe-4 min-w-100px">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
@@ -150,6 +201,44 @@
         <script src="{{ asset('assets/js/custom/admin/tables/column-renderers.js') }}"></script>
         <script src="{{ asset('assets/js/custom/admin/tables/admin-datatable.js') }}"></script>
         <script src="{{ asset('assets/js/custom/admin/tables/applications-table.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const badge = document.getElementById('active-filter-count');
+                const resetBtn = document.getElementById('reset-filters');
+                const filtersPanel = document.getElementById('applications-filters');
+                if (!filtersPanel) return;
+
+                const selects = filtersPanel.querySelectorAll('select');
+                const dateInputs = filtersPanel.querySelectorAll('input[type="date"]');
+
+                function updateBadge() {
+                    let count = 0;
+                    selects.forEach(function(s) { if (s.value !== 'all') count++; });
+                    dateInputs.forEach(function(d) { if (d.value) count++; });
+
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                }
+
+                selects.forEach(function(s) { s.addEventListener('change', updateBadge); });
+                dateInputs.forEach(function(d) { d.addEventListener('change', updateBadge); });
+
+                resetBtn.addEventListener('click', function() {
+                    selects.forEach(function(s) {
+                        s.value = 'all';
+                        s.dispatchEvent(new Event('change', { bubbles: true }));
+                    });
+                    dateInputs.forEach(function(d) {
+                        d.value = '';
+                        d.dispatchEvent(new Event('change', { bubbles: true }));
+                    });
+                });
+            });
+        </script>
     @endpush
 
 </x-default-layout>

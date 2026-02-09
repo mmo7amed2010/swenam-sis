@@ -496,3 +496,271 @@
         </div>
     </div>
 </div>
+
+{{-- Approve NOA Modal --}}
+<div class="modal fade" id="approveNoaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light-success border-0">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px me-4">
+                        <span class="symbol-label bg-success">
+                            {!! getIcon('check', 'fs-2x text-white') !!}
+                        </span>
+                    </div>
+                    <div>
+                        <h2 class="fw-bolder text-gray-800 mb-1">Approve NOA</h2>
+                        <p class="text-gray-600 fs-7 mb-0">Approve {{ $application->full_name }}'s NOA document</p>
+                    </div>
+                </div>
+                <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                    {!! getIcon('cross', 'fs-1') !!}
+                </div>
+            </div>
+
+            <form action="{{ route('admin.applications.noa.approve', $application) }}" method="POST">
+                @csrf
+                <div class="modal-body py-8">
+                    <div class="mb-6">
+                        <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
+                                <span class="text-gray-700 fs-7">Mark the NOA as <strong>Approved</strong></span>
+                            </div>
+                            <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
+                                <span class="text-gray-700 fs-7">The student will be notified of the approval</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                        <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any notes about this approval..."></textarea>
+                    </div>
+
+                    <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4">
+                        {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                        <div class="text-gray-700 fs-7">
+                            <strong>Note:</strong> Approving the NOA confirms the student's Notice of Acceptance document is valid.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        {!! getIcon('check', 'fs-4 me-2') !!}
+                        Approve NOA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Reject NOA Modal --}}
+<div class="modal fade" id="rejectNoaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light-warning border-0">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px me-4">
+                        <span class="symbol-label bg-warning">
+                            {!! getIcon('cross', 'fs-2x text-white') !!}
+                        </span>
+                    </div>
+                    <div>
+                        <h2 class="fw-bolder text-gray-800 mb-1">Reject NOA</h2>
+                        <p class="text-gray-600 fs-7 mb-0">Student will need to re-upload their NOA document</p>
+                    </div>
+                </div>
+                <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                    {!! getIcon('cross', 'fs-1') !!}
+                </div>
+            </div>
+
+            <form action="{{ route('admin.applications.noa.reject', $application) }}" method="POST" x-data="{ noaReason: '', minLength: 10, maxLength: 1000 }">
+                @csrf
+                <div class="modal-body py-8">
+                    <div class="mb-5">
+                        <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
+                        <textarea
+                            name="rejection_reason"
+                            class="form-control form-control-solid @error('rejection_reason') is-invalid @enderror"
+                            rows="4"
+                            placeholder="Explain why the NOA document is being rejected..."
+                            x-model="noaReason"
+                            required
+                            minlength="10"
+                            maxlength="1000"></textarea>
+                        @error('rejection_reason')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="d-flex justify-content-between mt-2">
+                            <span class="text-gray-500 fs-8">
+                                <span x-text="noaReason.length"></span> / <span x-text="maxLength"></span> characters
+                            </span>
+                            <span x-show="noaReason.length > 0 && noaReason.length < minLength" class="text-danger fs-8">
+                                Minimum <span x-text="minLength"></span> characters required
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                        <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
+                    </div>
+
+                    <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
+                        {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                        <div class="text-gray-700 fs-7">
+                            The student will be able to re-upload a new NOA document.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning" :disabled="noaReason.length < minLength">
+                        {!! getIcon('cross', 'fs-4 me-2') !!}
+                        Reject NOA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Approve MSFAA Modal --}}
+<div class="modal fade" id="approveMsfaaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light-success border-0">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px me-4">
+                        <span class="symbol-label bg-success">
+                            {!! getIcon('check', 'fs-2x text-white') !!}
+                        </span>
+                    </div>
+                    <div>
+                        <h2 class="fw-bolder text-gray-800 mb-1">Approve MSFAA</h2>
+                        <p class="text-gray-600 fs-7 mb-0">Approve {{ $application->full_name }}'s MSFAA confirmation</p>
+                    </div>
+                </div>
+                <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                    {!! getIcon('cross', 'fs-1') !!}
+                </div>
+            </div>
+
+            <form action="{{ route('admin.applications.msfaa.approve', $application) }}" method="POST">
+                @csrf
+                <div class="modal-body py-8">
+                    <div class="mb-6">
+                        <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
+                                <span class="text-gray-700 fs-7">Mark the MSFAA as <strong>Approved</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                        <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any notes about this approval..."></textarea>
+                    </div>
+
+                    <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4">
+                        {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                        <div class="text-gray-700 fs-7">
+                            <strong>Note:</strong> Approving the MSFAA confirms the student's financial assistance agreement is valid.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">
+                        {!! getIcon('check', 'fs-4 me-2') !!}
+                        Approve MSFAA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Reject MSFAA Modal --}}
+<div class="modal fade" id="rejectMsfaaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light-warning border-0">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px me-4">
+                        <span class="symbol-label bg-warning">
+                            {!! getIcon('cross', 'fs-2x text-white') !!}
+                        </span>
+                    </div>
+                    <div>
+                        <h2 class="fw-bolder text-gray-800 mb-1">Reject MSFAA</h2>
+                        <p class="text-gray-600 fs-7 mb-0">Student will need to re-confirm their MSFAA</p>
+                    </div>
+                </div>
+                <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                    {!! getIcon('cross', 'fs-1') !!}
+                </div>
+            </div>
+
+            <form action="{{ route('admin.applications.msfaa.reject', $application) }}" method="POST" x-data="{ msfaaReason: '', minLength: 10, maxLength: 1000 }">
+                @csrf
+                <div class="modal-body py-8">
+                    <div class="mb-5">
+                        <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
+                        <textarea
+                            name="rejection_reason"
+                            class="form-control form-control-solid @error('rejection_reason') is-invalid @enderror"
+                            rows="4"
+                            placeholder="Explain why the MSFAA is being rejected..."
+                            x-model="msfaaReason"
+                            required
+                            minlength="10"
+                            maxlength="1000"></textarea>
+                        @error('rejection_reason')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <div class="d-flex justify-content-between mt-2">
+                            <span class="text-gray-500 fs-8">
+                                <span x-text="msfaaReason.length"></span> / <span x-text="maxLength"></span> characters
+                            </span>
+                            <span x-show="msfaaReason.length > 0 && msfaaReason.length < minLength" class="text-danger fs-8">
+                                Minimum <span x-text="minLength"></span> characters required
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                        <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
+                    </div>
+
+                    <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
+                        {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                        <div class="text-gray-700 fs-7">
+                            The student will need to re-confirm their MSFAA.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning" :disabled="msfaaReason.length < minLength">
+                        {!! getIcon('cross', 'fs-4 me-2') !!}
+                        Reject MSFAA
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
