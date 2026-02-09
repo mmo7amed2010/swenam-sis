@@ -30,6 +30,14 @@
         ];
         $noaConfig = $noaStatusConfig[$application->noa_status] ?? null;
 
+        $msfaaStatusConfig = [
+            'requested'  => ['badge' => 'warning', 'label' => 'Requested'],
+            'confirmed'  => ['badge' => 'info', 'label' => 'Confirmed'],
+            'approved'   => ['badge' => 'success', 'label' => 'Approved'],
+            'rejected'   => ['badge' => 'danger', 'label' => 'Rejected'],
+        ];
+        $msfaaConfig = $msfaaStatusConfig[$application->msfaa_status] ?? null;
+
         $docCount = collect([
             $application->government_id_path,
             $application->degree_certificate_path,
@@ -108,6 +116,15 @@
                             {!! getIcon('document', 'fs-5') !!}
                             NOA
                             <span class="badge badge-sm badge-light-{{ $noaConfig['badge'] }}">{{ $noaConfig['label'] }}</span>
+                        </a>
+                    </li>
+                @endif
+                @if($application->msfaa_status)
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link d-flex align-items-center gap-2" data-bs-toggle="tab" href="#tab_msfaa" role="tab">
+                            {!! getIcon('verify', 'fs-5') !!}
+                            MSFAA
+                            <span class="badge badge-sm badge-light-{{ $msfaaConfig['badge'] }}">{{ $msfaaConfig['label'] }}</span>
                         </a>
                     </li>
                 @endif
@@ -513,6 +530,68 @@
                                 </div>
                             </x-cards.section>
                         @endif
+                    </div>
+                @endif
+
+                {{-- MSFAA Tab --}}
+                @if($application->msfaa_status)
+                    <div class="tab-pane fade" id="tab_msfaa" role="tabpanel">
+                        <x-cards.section title="MSFAA Details" class="mb-5">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <x-detail.field icon="verify" label="MSFAA Status" color="{{ $msfaaConfig['badge'] }}">
+                                        <span class="badge badge-light-{{ $msfaaConfig['badge'] }}">{{ $msfaaConfig['label'] }}</span>
+                                    </x-detail.field>
+                                </div>
+
+                                @if($application->msfaa_requested_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="profile-user" label="Requested By" :value="$application->msfaaRequester->name ?? 'N/A'" color="warning" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Requested At" :value="$application->msfaa_requested_at->format('F d, Y \a\t h:i A')" color="warning" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="time" label="Days Elapsed" :value="($application->msfaa_elapsed_days ?? 0) . ' days'" color="warning" />
+                                    </div>
+                                @endif
+
+                                @if($application->msfaa_confirmed_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Confirmed At" :value="$application->msfaa_confirmed_at->format('F d, Y \a\t h:i A')" color="info" />
+                                    </div>
+                                @endif
+
+                                @if($application->msfaa_approved_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="profile-user" label="Approved By" :value="$application->msfaaApprover->name ?? 'N/A'" color="success" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Approved At" :value="$application->msfaa_approved_at->format('F d, Y \a\t h:i A')" color="success" />
+                                    </div>
+                                @endif
+
+                                @if($application->msfaa_rejection_reason)
+                                    <div class="col-12">
+                                        <div class="separator separator-dashed mb-4"></div>
+                                        <label class="text-gray-500 fs-8 text-uppercase fw-semibold mb-3 d-block">Rejection Reason</label>
+                                        <div class="bg-light-danger rounded p-4">
+                                            <p class="text-danger mb-0">{{ $application->msfaa_rejection_reason }}</p>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if($application->msfaa_admin_notes)
+                                    <div class="col-12">
+                                        <div class="separator separator-dashed mb-4"></div>
+                                        <label class="text-gray-500 fs-8 text-uppercase fw-semibold mb-3 d-block">Admin Notes</label>
+                                        <div class="bg-light-primary rounded p-4">
+                                            <p class="text-gray-800 mb-0">{{ $application->msfaa_admin_notes }}</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </x-cards.section>
                     </div>
                 @endif
             </div>
@@ -957,6 +1036,143 @@
                                 </div>
                             </div>
                         </div>
+                    @endif
+
+                    {{-- MSFAA Actions (only after NOA is approved) --}}
+                    @if($application->isNoaApproved())
+                        @if($application->canRequestMsfaa())
+                            {{-- No MSFAA requested yet --}}
+                            <div class="card border-0 shadow-sm mb-5">
+                                <div class="card-header border-0 bg-light-primary py-5">
+                                    <h3 class="card-title fw-bold text-gray-800">
+                                        {!! getIcon('verify', 'fs-4 me-2 text-primary') !!}
+                                        MSFAA
+                                    </h3>
+                                </div>
+                                <div class="card-body p-6">
+                                    <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4 mb-5">
+                                        {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                                        <div class="text-gray-700 fs-7">
+                                            Request the student to confirm their Master Student Financial Assistance Agreement (MSFAA). The student will be notified via email.
+                                        </div>
+                                    </div>
+
+                                    <form action="{{ route('admin.applications.msfaa.request', $application) }}" method="POST">
+                                        @csrf
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary btn-lg d-flex align-items-center justify-content-center gap-2">
+                                                {!! getIcon('send', 'fs-3') !!}
+                                                <span>Request MSFAA</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        @elseif($application->isMsfaaRequested())
+                            {{-- MSFAA requested, waiting for student --}}
+                            <div class="card border-0 shadow-sm mb-5">
+                                <div class="card-header border-0 bg-light-warning py-5">
+                                    <h3 class="card-title fw-bold text-gray-800">
+                                        {!! getIcon('verify', 'fs-4 me-2 text-warning') !!}
+                                        MSFAA Requested
+                                    </h3>
+                                </div>
+                                <div class="card-body p-6">
+                                    <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4 mb-5">
+                                        {!! getIcon('time', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                                        <div class="text-gray-700 fs-7">
+                                            Waiting for the student to confirm their MSFAA.
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                        {!! getIcon('time', 'fs-4 text-warning me-3') !!}
+                                        <span class="text-gray-700 fs-7">
+                                            <strong>{{ $application->msfaa_elapsed_days ?? 0 }} days</strong> since MSFAA was requested
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($application->canReviewMsfaa())
+                            {{-- MSFAA confirmed, needs review --}}
+                            <div class="card border-0 shadow-sm mb-5">
+                                <div class="card-header border-0 bg-light-info py-5">
+                                    <h3 class="card-title fw-bold text-gray-800">
+                                        {!! getIcon('verify', 'fs-4 me-2 text-info') !!}
+                                        Review MSFAA
+                                    </h3>
+                                </div>
+                                <div class="card-body p-6">
+                                    <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4 mb-5">
+                                        {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                                        <div class="text-gray-700 fs-7">
+                                            The student has confirmed their MSFAA. Review and approve or reject.
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid gap-3">
+                                        <button type="button"
+                                                class="btn btn-success btn-lg d-flex align-items-center justify-content-center gap-2"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#approveMsfaaModal">
+                                            {!! getIcon('check-circle', 'fs-3') !!}
+                                            <span>Approve MSFAA</span>
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn btn-warning btn-lg d-flex align-items-center justify-content-center gap-2"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#rejectMsfaaModal">
+                                            {!! getIcon('cross-circle', 'fs-3') !!}
+                                            <span>Reject MSFAA</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($application->isMsfaaApproved())
+                            {{-- MSFAA approved --}}
+                            <div class="card border-0 shadow-sm mb-5">
+                                <div class="card-header border-0 bg-light-success py-5">
+                                    <h3 class="card-title fw-bold text-gray-800">
+                                        {!! getIcon('check-circle', 'fs-4 me-2 text-success') !!}
+                                        MSFAA Approved
+                                    </h3>
+                                </div>
+                                <div class="card-body p-6">
+                                    <div class="notice d-flex bg-light-success rounded border-success border border-dashed p-4">
+                                        {!! getIcon('check-circle', 'fs-2x text-success me-3 flex-shrink-0') !!}
+                                        <div class="text-gray-700 fs-7">
+                                            The MSFAA has been approved.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($application->isMsfaaRejected())
+                            {{-- MSFAA rejected --}}
+                            <div class="card border-0 shadow-sm mb-5">
+                                <div class="card-header border-0 bg-light-danger py-5">
+                                    <h3 class="card-title fw-bold text-gray-800">
+                                        {!! getIcon('cross-circle', 'fs-4 me-2 text-danger') !!}
+                                        MSFAA Rejected
+                                    </h3>
+                                </div>
+                                <div class="card-body p-6">
+                                    @if($application->msfaa_rejection_reason)
+                                        <div class="bg-light-danger rounded p-4 mb-5">
+                                            <label class="text-gray-500 fs-8 text-uppercase fw-semibold mb-2 d-block">Rejection Reason</label>
+                                            <p class="text-danger mb-0">{{ $application->msfaa_rejection_reason }}</p>
+                                        </div>
+                                    @endif
+
+                                    <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
+                                        {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                                        <div class="text-gray-700 fs-7">
+                                            The student can re-confirm their MSFAA.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @endif
                 @endif
             @endif
@@ -1573,6 +1789,138 @@
                         <button type="submit" class="btn btn-warning" :disabled="noaReason.length < minLength">
                             {!! getIcon('cross', 'fs-4 me-2') !!}
                             Reject NOA
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Approve MSFAA Modal --}}
+    <div class="modal fade" id="approveMsfaaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light-success border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-50px me-4">
+                            <span class="symbol-label bg-success">
+                                {!! getIcon('check', 'fs-2x text-white') !!}
+                            </span>
+                        </div>
+                        <div>
+                            <h2 class="fw-bolder text-gray-800 mb-1">Approve MSFAA</h2>
+                            <p class="text-gray-600 fs-7 mb-0">Approve {{ $application->full_name }}'s MSFAA confirmation</p>
+                        </div>
+                    </div>
+                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                        {!! getIcon('cross', 'fs-1') !!}
+                    </div>
+                </div>
+
+                <form action="{{ route('admin.applications.msfaa.approve', $application) }}" method="POST">
+                    @csrf
+                    <div class="modal-body py-8">
+                        <div class="mb-6">
+                            <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
+                            <div class="d-flex flex-column gap-3">
+                                <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                    {!! getIcon('check-circle', 'fs-4 text-success me-3') !!}
+                                    <span class="text-gray-700 fs-7">Mark the MSFAA as <strong>Approved</strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any notes about this approval..."></textarea>
+                        </div>
+
+                        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4">
+                            {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                <strong>Note:</strong> Approving the MSFAA confirms the student's financial assistance agreement is valid.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">
+                            {!! getIcon('check', 'fs-4 me-2') !!}
+                            Approve MSFAA
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Reject MSFAA Modal --}}
+    <div class="modal fade" id="rejectMsfaaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-light-warning border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="symbol symbol-50px me-4">
+                            <span class="symbol-label bg-warning">
+                                {!! getIcon('cross', 'fs-2x text-white') !!}
+                            </span>
+                        </div>
+                        <div>
+                            <h2 class="fw-bolder text-gray-800 mb-1">Reject MSFAA</h2>
+                            <p class="text-gray-600 fs-7 mb-0">Student will need to re-confirm their MSFAA</p>
+                        </div>
+                    </div>
+                    <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                        {!! getIcon('cross', 'fs-1') !!}
+                    </div>
+                </div>
+
+                <form action="{{ route('admin.applications.msfaa.reject', $application) }}" method="POST" x-data="{ msfaaReason: '', minLength: 10, maxLength: 1000 }">
+                    @csrf
+                    <div class="modal-body py-8">
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold required">Rejection Reason</label>
+                            <textarea
+                                name="rejection_reason"
+                                class="form-control form-control-solid @error('rejection_reason') is-invalid @enderror"
+                                rows="4"
+                                placeholder="Explain why the MSFAA is being rejected..."
+                                x-model="msfaaReason"
+                                required
+                                minlength="10"
+                                maxlength="1000"></textarea>
+                            @error('rejection_reason')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="d-flex justify-content-between mt-2">
+                                <span class="text-gray-500 fs-8">
+                                    <span x-text="msfaaReason.length"></span> / <span x-text="maxLength"></span> characters
+                                </span>
+                                <span x-show="msfaaReason.length > 0 && msfaaReason.length < minLength" class="text-danger fs-8">
+                                    Minimum <span x-text="minLength"></span> characters required
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label text-gray-700 fw-semibold">Admin Notes <span class="text-gray-500 fs-8">(Optional)</span></label>
+                            <textarea name="admin_notes" class="form-control form-control-solid" rows="3" placeholder="Add any internal notes..."></textarea>
+                        </div>
+
+                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4">
+                            {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                The student will need to re-confirm their MSFAA.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning" :disabled="msfaaReason.length < minLength">
+                            {!! getIcon('cross', 'fs-4 me-2') !!}
+                            Reject MSFAA
                         </button>
                     </div>
                 </form>

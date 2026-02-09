@@ -304,6 +304,53 @@
                                     </form>
                                 </x-modals.base-modal>
 
+                                {{-- Inline NOA Upload Card (always visible when NOA is requested) --}}
+                                <div class="card border border-dashed border-gray-300 mb-5">
+                                    <div class="card-body p-6">
+                                        <div class="d-flex align-items-center mb-4">
+                                            <div class="symbol symbol-45px me-4">
+                                                <span class="symbol-label bg-light-primary">
+                                                    <i class="ki-duotone ki-document fs-2 text-primary">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                    </i>
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <h5 class="fw-bold text-gray-800 mb-0">{{ __('Upload Notice of Assessment') }}</h5>
+                                                <span class="text-muted fs-7">{{ __('PDF, JPG, or PNG, max 10MB') }}</span>
+                                            </div>
+                                        </div>
+
+                                        @if($application->noa_rejection_reason)
+                                            <div class="alert alert-danger d-flex align-items-center p-4 mb-4">
+                                                <i class="ki-duotone ki-information fs-2x text-danger me-3">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                    <span class="path3"></span>
+                                                </i>
+                                                <div>
+                                                    <strong>{{ __('NOA Rejected:') }}</strong> {{ $application->noa_rejection_reason }}
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <form id="noaInlineUploadForm" action="{{ route('student.noa.upload') }}" method="POST" enctype="multipart/form-data">
+                                            @csrf
+                                            <div class="mb-4">
+                                                <input type="file" name="noa_document" class="form-control form-control-solid @error('noa_document') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png" required />
+                                                @error('noa_document')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="ki-duotone ki-up fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                {{ __('Upload NOA') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
                             @elseif($application->isNoaUploaded())
                                 <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-6 mb-5">
                                     <i class="ki-duotone ki-time fs-2tx text-info me-4">
@@ -334,6 +381,145 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                {{-- MSFAA Section (only after NOA is approved) --}}
+                                @if($application->canConfirmMsfaa())
+                                    @if($application->msfaa_rejection_reason)
+                                        <div class="notice d-flex bg-light-danger rounded border-danger border border-dashed p-6 mb-5">
+                                            <i class="ki-duotone ki-information fs-2tx text-danger me-4">
+                                                <span class="path1"></span>
+                                                <span class="path2"></span>
+                                                <span class="path3"></span>
+                                            </i>
+                                            <div class="d-flex flex-stack flex-grow-1 flex-wrap gap-3">
+                                                <div class="fw-semibold">
+                                                    <h4 class="text-gray-900 fw-bold">{{ __('MSFAA Returned') }}</h4>
+                                                    <div class="fs-6 text-gray-700">
+                                                        <strong>{{ __('Reason:') }}</strong> {{ $application->msfaa_rejection_reason }}
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#msfaaConfirmModal">
+                                                    <i class="ki-duotone ki-verify fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                    {{ __('Confirm MSFAA') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- MSFAA Confirmation Modal (auto-shown on page load) --}}
+                                    <x-modals.base-modal id="msfaaConfirmModal" :static="true">
+                                        <x-slot:header>
+                                            <div class="d-flex align-items-center">
+                                                <i class="ki-duotone ki-verify fs-2 text-primary me-3">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                </i>
+                                                <h5 class="modal-title fw-bold mb-0">{{ __('MSFAA Confirmation Required') }}</h5>
+                                            </div>
+                                        </x-slot:header>
+
+                                        @if($application->msfaa_rejection_reason)
+                                            <div class="alert alert-danger d-flex align-items-center p-4 mb-4">
+                                                <i class="ki-duotone ki-information fs-2x text-danger me-3">
+                                                    <span class="path1"></span>
+                                                    <span class="path2"></span>
+                                                    <span class="path3"></span>
+                                                </i>
+                                                <div>
+                                                    <strong>{{ __('MSFAA Rejected:') }}</strong> {{ $application->msfaa_rejection_reason }}
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <p class="text-gray-600 fs-7 mb-4">{{ __('Please confirm your Master Student Financial Assistance Agreement (MSFAA). Do you agree to the terms of the MSFAA?') }}</p>
+                                        <div class="d-flex gap-3">
+                                            <form action="{{ route('student.msfaa.confirm') }}" method="POST" class="flex-grow-1" id="msfaaConfirmForm">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success w-100">
+                                                    <i class="ki-duotone ki-check-circle fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                    {{ __('Yes, I Confirm') }}
+                                                </button>
+                                            </form>
+                                            <button type="button" id="msfaaDeclineBtn" class="btn btn-light-danger flex-grow-1">
+                                                <i class="ki-duotone ki-cross-circle fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                {{ __('No') }}
+                                            </button>
+                                        </div>
+                                    </x-modals.base-modal>
+
+                                    {{-- Inline MSFAA Confirmation Card (always visible when MSFAA is requested) --}}
+                                    <div class="card border border-dashed border-gray-300 mb-5">
+                                        <div class="card-body p-6">
+                                            <div class="d-flex align-items-center mb-4">
+                                                <div class="symbol symbol-45px me-4">
+                                                    <span class="symbol-label bg-light-primary">
+                                                        <i class="ki-duotone ki-verify fs-2 text-primary">
+                                                            <span class="path1"></span>
+                                                            <span class="path2"></span>
+                                                        </i>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h5 class="fw-bold text-gray-800 mb-0">{{ __('MSFAA Confirmation') }}</h5>
+                                                    <span class="text-muted fs-7">{{ __('Confirm your MSFAA agreement') }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($application->msfaa_rejection_reason)
+                                                <div class="alert alert-danger d-flex align-items-center p-4 mb-4">
+                                                    <i class="ki-duotone ki-information fs-2x text-danger me-3">
+                                                        <span class="path1"></span>
+                                                        <span class="path2"></span>
+                                                        <span class="path3"></span>
+                                                    </i>
+                                                    <div>
+                                                        <strong>{{ __('MSFAA Rejected:') }}</strong> {{ $application->msfaa_rejection_reason }}
+                                                    </div>
+                                                </div>
+                                            @endif
+
+                                            <p class="text-gray-600 fs-7 mb-4">{{ __('Do you agree to the terms of the MSFAA?') }}</p>
+                                            <form id="msfaaInlineConfirmForm" action="{{ route('student.msfaa.confirm') }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="ki-duotone ki-check-circle fs-5 me-2"><span class="path1"></span><span class="path2"></span></i>
+                                                    {{ __('Yes, I Confirm MSFAA') }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                @elseif($application->isMsfaaConfirmed())
+                                    <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-6 mb-5">
+                                        <i class="ki-duotone ki-time fs-2tx text-info me-4">
+                                            <span class="path1"></span>
+                                            <span class="path2"></span>
+                                        </i>
+                                        <div class="d-flex flex-stack flex-grow-1">
+                                            <div class="fw-semibold">
+                                                <h4 class="text-gray-900 fw-bold">{{ __('MSFAA Under Review') }}</h4>
+                                                <div class="fs-6 text-gray-700">
+                                                    {{ __('Your MSFAA confirmation has been received and is being reviewed by our team.') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @elseif($application->isMsfaaApproved())
+                                    <div class="notice d-flex bg-light-success rounded border-success border border-dashed p-6 mb-5">
+                                        <i class="ki-duotone ki-check-circle fs-2tx text-success me-4">
+                                            <span class="path1"></span>
+                                            <span class="path2"></span>
+                                        </i>
+                                        <div class="d-flex flex-stack flex-grow-1">
+                                            <div class="fw-semibold">
+                                                <h4 class="text-gray-900 fw-bold">{{ __('MSFAA Approved') }}</h4>
+                                                <div class="fs-6 text-gray-700">
+                                                    {{ __('Your Master Student Financial Assistance Agreement has been reviewed and approved.') }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             @endif
                         @elseif($application->status === 'pending' || $application->status === 'initial_approved')
                             <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-6 mb-5">
@@ -581,27 +767,82 @@
                         bootstrap.Modal.getInstance(document.getElementById('noaUploadModal')).hide();
                     });
 
-                    // File size validation
+                    // File size validation for both forms
                     var maxSize = 10 * 1024 * 1024;
-                    var fileInput = document.querySelector('#noaUploadForm input[name="noa_document"]');
-                    if (fileInput) {
+                    document.querySelectorAll('#noaUploadForm input[name="noa_document"], #noaInlineUploadForm input[name="noa_document"]').forEach(function (fileInput) {
                         fileInput.addEventListener('change', function () {
                             if (this.files[0] && this.files[0].size > maxSize) {
                                 this.value = '';
                                 alert('{{ __("File size must not exceed 10MB.") }}');
                             }
                         });
+                    });
+
+                    // Loading state on submit + cross-disable for both NOA forms
+                    var noaModalForm = document.getElementById('noaUploadForm');
+                    var noaInlineForm = document.getElementById('noaInlineUploadForm');
+
+                    function disableNoaForm(form, loadingText) {
+                        var btn = form.querySelector('button[type="submit"]');
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + loadingText;
+                        }
                     }
 
-                    // Loading state on submit
-                    var form = document.getElementById('noaUploadForm');
-                    if (form) {
-                        form.addEventListener('submit', function () {
-                            var btn = form.querySelector('button[type="submit"]');
-                            if (btn) {
-                                btn.disabled = true;
-                                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>{{ __("Uploading...") }}';
-                            }
+                    if (noaModalForm) {
+                        noaModalForm.addEventListener('submit', function () {
+                            disableNoaForm(noaModalForm, '{{ __("Uploading...") }}');
+                            if (noaInlineForm) disableNoaForm(noaInlineForm, '{{ __("Uploading...") }}');
+                        });
+                    }
+                    if (noaInlineForm) {
+                        noaInlineForm.addEventListener('submit', function () {
+                            disableNoaForm(noaInlineForm, '{{ __("Uploading...") }}');
+                            if (noaModalForm) disableNoaForm(noaModalForm, '{{ __("Uploading...") }}');
+                        });
+                    }
+                });
+            </script>
+        @endpush
+    @endif
+
+    @if(isset($application) && $application && $application->canConfirmMsfaa())
+        @push('scripts')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    var declineKey = 'msfaaDeclined_{{ session()->getId() }}_{{ $application->msfaa_status }}';
+                    if (!sessionStorage.getItem(declineKey)) {
+                        var msfaaModal = new bootstrap.Modal(document.getElementById('msfaaConfirmModal'));
+                        msfaaModal.show();
+                    }
+                    document.getElementById('msfaaDeclineBtn').addEventListener('click', function () {
+                        sessionStorage.setItem(declineKey, '1');
+                        bootstrap.Modal.getInstance(document.getElementById('msfaaConfirmModal')).hide();
+                    });
+
+                    // Loading state on submit + cross-disable for both MSFAA forms
+                    var msfaaModalForm = document.getElementById('msfaaConfirmForm');
+                    var msfaaInlineForm = document.getElementById('msfaaInlineConfirmForm');
+
+                    function disableMsfaaForm(form, loadingText) {
+                        var btn = form.querySelector('button[type="submit"]');
+                        if (btn) {
+                            btn.disabled = true;
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + loadingText;
+                        }
+                    }
+
+                    if (msfaaModalForm) {
+                        msfaaModalForm.addEventListener('submit', function () {
+                            disableMsfaaForm(msfaaModalForm, '{{ __("Confirming...") }}');
+                            if (msfaaInlineForm) disableMsfaaForm(msfaaInlineForm, '{{ __("Confirming...") }}');
+                        });
+                    }
+                    if (msfaaInlineForm) {
+                        msfaaInlineForm.addEventListener('submit', function () {
+                            disableMsfaaForm(msfaaInlineForm, '{{ __("Confirming...") }}');
+                            if (msfaaModalForm) disableMsfaaForm(msfaaModalForm, '{{ __("Confirming...") }}');
                         });
                     }
                 });

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ApplicationReviewController;
 use App\Http\Controllers\Admin\ContractController;
 use App\Http\Controllers\Admin\ContractTemplateController;
+use App\Http\Controllers\Admin\MsfaaController;
 use App\Http\Controllers\Admin\NoaController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\StudentController;
@@ -140,6 +141,11 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('applications/{application}/noa/approve', [NoaController::class, 'approve'])->name('applications.noa.approve');
         Route::post('applications/{application}/noa/reject', [NoaController::class, 'reject'])->name('applications.noa.reject');
 
+        // MSFAA (Master Student Financial Assistance Agreement) Management
+        Route::post('applications/{application}/msfaa/request', [MsfaaController::class, 'request'])->name('applications.msfaa.request');
+        Route::post('applications/{application}/msfaa/approve', [MsfaaController::class, 'approve'])->name('applications.msfaa.approve');
+        Route::post('applications/{application}/msfaa/reject', [MsfaaController::class, 'reject'])->name('applications.msfaa.reject');
+
         // System Announcements
         Route::resource('announcements', App\Http\Controllers\Admin\SystemAnnouncementController::class);
     });
@@ -176,6 +182,9 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         // NOA (Notice of Assessment)
         Route::post('noa/upload', [\App\Http\Controllers\Student\StudentNoaController::class, 'upload'])->name('noa.upload');
         Route::post('noa/skip', [\App\Http\Controllers\Student\StudentNoaController::class, 'skip'])->name('noa.skip');
+
+        // MSFAA (Master Student Financial Assistance Agreement)
+        Route::post('msfaa/confirm', [\App\Http\Controllers\Student\StudentMsfaaController::class, 'confirm'])->name('msfaa.confirm');
 
         // My Profile
         Route::get('profile', [\App\Http\Controllers\Student\ProfileController::class, 'show'])->name('profile.show');
