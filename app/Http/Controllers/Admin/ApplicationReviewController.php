@@ -54,6 +54,8 @@ class ApplicationReviewController extends Controller
                         'program_name' => $program['name'] ?? 'N/A', // Direct lookup, no API call
                         'program_id' => $application->program_id,
                         'status' => $application->status,
+                        'noa_status' => $application->noa_status,
+                        'msfaa_status' => $application->msfaa_status,
                         'created_at' => $application->created_at->format('M d, Y H:i'),
                         'created_at_human' => $application->created_at->diffForHumans(),
                         'funding_type' => $application->funding_type,
@@ -64,6 +66,8 @@ class ApplicationReviewController extends Controller
                 searchableColumns: ['reference_number', 'first_name', 'last_name', 'email', 'phone'],
                 filters: [
                     'status' => fn ($q, $val) => $val !== 'all' ? $q->where('status', $val) : $q,
+                    'noa_status' => fn ($q, $val) => $val !== 'all' ? $q->where('noa_status', $val) : $q,
+                    'msfaa_status' => fn ($q, $val) => $val !== 'all' ? $q->where('msfaa_status', $val) : $q,
                     'program' => fn ($q, $val) => $val !== 'all' ? $q->where('program_id', $val) : $q,
                     'from' => fn ($q, $val) => $q->whereDate('created_at', '>=', $val),
                     'to' => fn ($q, $val) => $q->whereDate('created_at', '<=', $val),

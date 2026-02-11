@@ -90,6 +90,28 @@ class StudentApplication extends Model
         'payment_approved_at',
         'payment_approved_by',
         'payment_rejection_reason',
+
+        // NOA (Notice of Assessment) tracking
+        'noa_status',
+        'noa_requested_at',
+        'noa_requested_by',
+        'noa_uploaded_at',
+        'noa_document_path',
+        'noa_approved_at',
+        'noa_approved_by',
+        'noa_rejection_reason',
+        'noa_skipped',
+
+        // MSFAA (Master Student Financial Assistance Agreement) tracking
+        'msfaa_status',
+        'msfaa_requested_at',
+        'msfaa_requested_by',
+        'msfaa_confirmed_at',
+        'msfaa_approved_at',
+        'msfaa_approved_by',
+        'msfaa_rejection_reason',
+        'msfaa_rejected_by',
+        'msfaa_admin_notes',
         'payment_amount',
     ];
 
@@ -110,6 +132,13 @@ class StudentApplication extends Model
         'contract_approved_at' => 'datetime',
         'payment_uploaded_at' => 'datetime',
         'payment_approved_at' => 'datetime',
+        'noa_requested_at' => 'datetime',
+        'noa_uploaded_at' => 'datetime',
+        'noa_approved_at' => 'datetime',
+        'noa_skipped' => 'boolean',
+        'msfaa_requested_at' => 'datetime',
+        'msfaa_confirmed_at' => 'datetime',
+        'msfaa_approved_at' => 'datetime',
         'payment_amount' => 'decimal:2',
     ];
 
@@ -211,6 +240,46 @@ class StudentApplication extends Model
     public function paymentApprover(): BelongsTo
     {
         return $this->belongsTo(User::class, 'payment_approved_by');
+    }
+
+    /**
+     * Get the admin who requested the NOA.
+     */
+    public function noaRequester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'noa_requested_by');
+    }
+
+    /**
+     * Get the admin who approved the NOA.
+     */
+    public function noaApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'noa_approved_by');
+    }
+
+    /**
+     * Get the admin who requested the MSFAA.
+     */
+    public function msfaaRequester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'msfaa_requested_by');
+    }
+
+    /**
+     * Get the admin who approved the MSFAA.
+     */
+    public function msfaaApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'msfaa_approved_by');
+    }
+
+    /**
+     * Get the admin who rejected the MSFAA.
+     */
+    public function msfaaRejecter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'msfaa_rejected_by');
     }
 
     /**
@@ -491,5 +560,141 @@ class StudentApplication extends Model
     public function canApprovePayment(): bool
     {
         return $this->isPaymentUploaded();
+    }
+
+    /**
+     * Check if NOA can be requested for this application.
+     */
+    public function canRequestNoa(): bool
+    {
+        return $this->isApproved() && is_null($this->noa_status);
+    }
+
+    /**
+     * Check if student can upload a NOA document.
+     */
+    public function canUploadNoa(): bool
+    {
+        return in_array($this->noa_status, ['requested', 'rejected']);
+    }
+
+    /**
+     * Check if the NOA can be reviewed (approved/rejected).
+     */
+    public function canReviewNoa(): bool
+    {
+        return $this->noa_status === 'uploaded';
+    }
+
+    /**
+     * Check if NOA has been requested.
+     */
+    public function isNoaRequested(): bool
+    {
+        return $this->noa_status === 'requested';
+    }
+
+    /**
+     * Check if NOA has been uploaded.
+     */
+    public function isNoaUploaded(): bool
+    {
+        return $this->noa_status === 'uploaded';
+    }
+
+    /**
+     * Check if NOA has been approved.
+     */
+    public function isNoaApproved(): bool
+    {
+        return $this->noa_status === 'approved';
+    }
+
+    /**
+     * Check if the student has skipped NOA upload.
+     */
+    public function isNoaSkipped(): bool
+    {
+        return (bool) $this->noa_skipped;
+    }
+
+    /**
+     * Get the number of days elapsed since NOA was requested.
+     */
+    public function getNoaElapsedDaysAttribute(): ?int
+    {
+        if (! $this->noa_requested_at) {
+            return null;
+        }
+
+        return (int) $this->noa_requested_at->diffInDays(now());
+    }
+
+    /**
+     * Check if MSFAA can be requested for this application.
+     */
+    public function canRequestMsfaa(): bool
+    {
+        return $this->isNoaApproved() && is_null($this->msfaa_status);
+    }
+
+    /**
+     * Check if student can confirm MSFAA.
+     */
+    public function canConfirmMsfaa(): bool
+    {
+        return in_array($this->msfaa_status, ['requested', 'rejected']);
+    }
+
+    /**
+     * Check if the MSFAA can be reviewed (approved/rejected).
+     */
+    public function canReviewMsfaa(): bool
+    {
+        return $this->msfaa_status === 'confirmed';
+    }
+
+    /**
+     * Check if MSFAA has been requested.
+     */
+    public function isMsfaaRequested(): bool
+    {
+        return $this->msfaa_status === 'requested';
+    }
+
+    /**
+     * Check if MSFAA has been confirmed by student.
+     */
+    public function isMsfaaConfirmed(): bool
+    {
+        return $this->msfaa_status === 'confirmed';
+    }
+
+    /**
+     * Check if MSFAA has been approved.
+     */
+    public function isMsfaaApproved(): bool
+    {
+        return $this->msfaa_status === 'approved';
+    }
+
+    /**
+     * Check if MSFAA has been rejected.
+     */
+    public function isMsfaaRejected(): bool
+    {
+        return $this->msfaa_status === 'rejected';
+    }
+
+    /**
+     * Get the number of days elapsed since MSFAA was requested.
+     */
+    public function getMsfaaElapsedDaysAttribute(): ?int
+    {
+        if (! $this->msfaa_requested_at) {
+            return null;
+        }
+
+        return (int) $this->msfaa_requested_at->diffInDays(now());
     }
 }

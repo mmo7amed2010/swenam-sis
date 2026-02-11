@@ -82,22 +82,29 @@ class AuthenticatedSessionController extends Controller
             return $this->sendLockoutResponse($request);
         }
 
-        // Attempt authentication
-        if ($this->attemptLogin($request)) {
-            $request->session()->regenerate();
+        // Validate credentials without logging in (session & CSRF token untouched)
+        if (Auth::validate($request->only('email', 'password'))) {
+            $user = Auth::getLastAttempted();
 
-            $user = $request->user();
-
-            // Check if user account is suspended
+            // Check suspension BEFORE login — session has not been modified
             if ($user->isSuspended()) {
-                Auth::logout();
-                $request->session()->invalidate();
                 $this->logLoginAttempt($request, 'failed', $user->id, 'Account suspended');
 
-                throw ValidationException::withMessages([
-                    'email' => __('Your account has been suspended. Please contact the administrator.'),
-                ]);
+                $message = __('Your account has been suspended. Please contact the administrator.');
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => $message,
+                        'errors' => ['suspended' => [$message]],
+                    ], 422);
+                }
+
+                return redirect('/login')->withErrors(['suspended' => $message]);
             }
+
+            // Not suspended — actually log in now
+            Auth::login($user, $request->filled('remember'));
+            $request->session()->regenerate();
 
             // Configure role-based session timeout
             $this->configureSessionTimeout($request, $user);
@@ -113,7 +120,6 @@ class AuthenticatedSessionController extends Controller
             $this->logLoginAttempt($request, 'success', $user->id);
 
             // Clear any stored intended URL to prevent cross-user-type redirect issues
-            // Each user type has their own dashboard, so always redirect there
             $request->session()->forget('url.intended');
 
             return redirect(RouteServiceProvider::HOME);

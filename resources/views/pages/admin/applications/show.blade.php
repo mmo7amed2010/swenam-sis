@@ -22,6 +22,22 @@
         ];
         $config = $statusConfig[$application->status] ?? $statusConfig['pending'];
 
+        $noaStatusConfig = [
+            'requested' => ['badge' => 'warning', 'label' => 'Requested'],
+            'uploaded'  => ['badge' => 'info', 'label' => 'Uploaded'],
+            'approved'  => ['badge' => 'success', 'label' => 'Approved'],
+            'rejected'  => ['badge' => 'danger', 'label' => 'Rejected'],
+        ];
+        $noaConfig = $noaStatusConfig[$application->noa_status] ?? null;
+
+        $msfaaStatusConfig = [
+            'requested'  => ['badge' => 'warning', 'label' => 'Requested'],
+            'confirmed'  => ['badge' => 'info', 'label' => 'Confirmed'],
+            'approved'   => ['badge' => 'success', 'label' => 'Approved'],
+            'rejected'   => ['badge' => 'danger', 'label' => 'Rejected'],
+        ];
+        $msfaaConfig = $msfaaStatusConfig[$application->msfaa_status] ?? null;
+
         $docCount = collect([
             $application->government_id_path,
             $application->degree_certificate_path,
@@ -91,6 +107,24 @@
                         <a class="nav-link d-flex align-items-center gap-2" data-bs-toggle="tab" href="#tab_review" role="tab">
                             {!! getIcon('shield-tick', 'fs-5') !!}
                             Review Details
+                        </a>
+                    </li>
+                @endif
+                @if($application->noa_status)
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link d-flex align-items-center gap-2" data-bs-toggle="tab" href="#tab_noa" role="tab">
+                            {!! getIcon('document', 'fs-5') !!}
+                            NOA
+                            <span class="badge badge-sm badge-light-{{ $noaConfig['badge'] }}">{{ $noaConfig['label'] }}</span>
+                        </a>
+                    </li>
+                @endif
+                @if($application->msfaa_status)
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link d-flex align-items-center gap-2" data-bs-toggle="tab" href="#tab_msfaa" role="tab">
+                            {!! getIcon('verify', 'fs-5') !!}
+                            MSFAA
+                            <span class="badge badge-sm badge-light-{{ $msfaaConfig['badge'] }}">{{ $msfaaConfig['label'] }}</span>
                         </a>
                     </li>
                 @endif
@@ -357,6 +391,137 @@
                                 </div>
                             </x-cards.section>
                         @endif
+                    </div>
+                @endif
+
+                {{-- NOA Tab --}}
+                @if($application->noa_status)
+                    <div class="tab-pane fade" id="tab_noa" role="tabpanel">
+                        <x-cards.section title="NOA Details" class="mb-5">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <x-detail.field icon="verify" label="NOA Status" color="{{ $noaConfig['badge'] }}">
+                                        <span class="badge badge-light-{{ $noaConfig['badge'] }}">{{ $noaConfig['label'] }}</span>
+                                    </x-detail.field>
+                                </div>
+
+                                @if($application->noa_requested_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="profile-user" label="Requested By" :value="$application->noaRequester->name ?? 'N/A'" color="warning" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Requested At" :value="$application->noa_requested_at->format('F d, Y \a\t h:i A')" color="warning" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="time" label="Days Elapsed" :value="($application->noa_elapsed_days ?? 0) . ' days'" color="warning" />
+                                    </div>
+                                @endif
+
+                                @if($application->noa_uploaded_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Uploaded At" :value="$application->noa_uploaded_at->format('F d, Y \a\t h:i A')" color="info" />
+                                    </div>
+                                @endif
+
+                                @if($application->noa_approved_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="profile-user" label="Approved By" :value="$application->noaApprover->name ?? 'N/A'" color="success" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Approved At" :value="$application->noa_approved_at->format('F d, Y \a\t h:i A')" color="success" />
+                                    </div>
+                                @endif
+
+                                @if($application->noa_rejection_reason)
+                                    <div class="col-12">
+                                        <div class="separator separator-dashed mb-4"></div>
+                                        <label class="text-gray-500 fs-8 text-uppercase fw-semibold mb-3 d-block">Rejection Reason</label>
+                                        <div class="bg-light-danger rounded p-4">
+                                            <p class="text-danger mb-0">{{ $application->noa_rejection_reason }}</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </x-cards.section>
+
+                        @if($application->noa_document_path)
+                            <x-cards.section title="NOA Document">
+                                <div class="d-flex gap-3">
+                                    <a href="{{ route('admin.applications.noa.download', $application) }}" class="btn btn-sm btn-light-primary">
+                                        {!! getIcon('down', 'fs-5 me-1') !!}
+                                        Download NOA
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-light-info"
+                                            onclick="previewDocument('{{ route('admin.applications.noa.download', $application) }}?preview=1', 'NOA Document')">
+                                        {!! getIcon('eye', 'fs-5 me-1') !!}
+                                        Preview
+                                    </button>
+                                </div>
+                            </x-cards.section>
+                        @endif
+                    </div>
+                @endif
+
+                {{-- MSFAA Tab --}}
+                @if($application->msfaa_status)
+                    <div class="tab-pane fade" id="tab_msfaa" role="tabpanel">
+                        <x-cards.section title="MSFAA Details" class="mb-5">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <x-detail.field icon="verify" label="MSFAA Status" color="{{ $msfaaConfig['badge'] }}">
+                                        <span class="badge badge-light-{{ $msfaaConfig['badge'] }}">{{ $msfaaConfig['label'] }}</span>
+                                    </x-detail.field>
+                                </div>
+
+                                @if($application->msfaa_requested_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="profile-user" label="Requested By" :value="$application->msfaaRequester->name ?? 'N/A'" color="warning" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Requested At" :value="$application->msfaa_requested_at->format('F d, Y \a\t h:i A')" color="warning" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="time" label="Days Elapsed" :value="($application->msfaa_elapsed_days ?? 0) . ' days'" color="warning" />
+                                    </div>
+                                @endif
+
+                                @if($application->msfaa_confirmed_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Confirmed At" :value="$application->msfaa_confirmed_at->format('F d, Y \a\t h:i A')" color="info" />
+                                    </div>
+                                @endif
+
+                                @if($application->msfaa_approved_at)
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="profile-user" label="Approved By" :value="$application->msfaaApprover->name ?? 'N/A'" color="success" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Approved At" :value="$application->msfaa_approved_at->format('F d, Y \a\t h:i A')" color="success" />
+                                    </div>
+                                @endif
+
+                                @if($application->msfaa_rejection_reason)
+                                    <div class="col-12">
+                                        <div class="separator separator-dashed mb-4"></div>
+                                        <label class="text-gray-500 fs-8 text-uppercase fw-semibold mb-3 d-block">Rejection Reason</label>
+                                        <div class="bg-light-danger rounded p-4">
+                                            <p class="text-danger mb-0">{{ $application->msfaa_rejection_reason }}</p>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if($application->msfaa_admin_notes)
+                                    <div class="col-12">
+                                        <div class="separator separator-dashed mb-4"></div>
+                                        <label class="text-gray-500 fs-8 text-uppercase fw-semibold mb-3 d-block">Admin Notes</label>
+                                        <div class="bg-light-primary rounded p-4">
+                                            <p class="text-gray-800 mb-0">{{ $application->msfaa_admin_notes }}</p>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+                        </x-cards.section>
                     </div>
                 @endif
             </div>
