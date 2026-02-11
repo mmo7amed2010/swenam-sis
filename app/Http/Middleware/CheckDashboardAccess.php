@@ -23,7 +23,7 @@ class CheckDashboardAccess
         }
 
         // Check valid user_type
-        if (in_array($user->user_type, ['student', 'instructor', 'admin'])) {
+        if (in_array($user->user_type, ['student', 'instructor', 'admin', 'agent'])) {
             Log::info('Dashboard access granted', [
                 'user_id' => $user->id,
                 'user_type' => $user->user_type,

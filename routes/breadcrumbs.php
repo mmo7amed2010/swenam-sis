@@ -80,6 +80,18 @@ Breadcrumbs::for('admin.applications.show', function (BreadcrumbTrail $trail, St
     $trail->push($application->reference_number, route('admin.applications.show', $application));
 });
 
+// Home > Dashboard > Agents
+Breadcrumbs::for('admin.agents.index', function (BreadcrumbTrail $trail) {
+    $trail->parent('dashboard');
+    $trail->push(__('Agents'), route('admin.agents.index'));
+});
+
+// Home > Dashboard > Agents > [Agent]
+Breadcrumbs::for('admin.agents.show', function (BreadcrumbTrail $trail, User $agent) {
+    $trail->parent('admin.agents.index');
+    $trail->push($agent->name, route('admin.agents.show', $agent));
+});
+
 // ============================================
 // Student Breadcrumbs
 // ============================================

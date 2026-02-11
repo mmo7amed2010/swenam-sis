@@ -84,6 +84,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             },
             {
+                data: 'agent_name',
+                name: 'agent_name',
+                orderable: false,
+                render: function(data) {
+                    if (!data) return '<span class="text-gray-400">Self-Applied</span>';
+                    return `<span class="badge badge-light-info fs-7 fw-semibold px-3 py-2">${data}</span>`;
+                }
+            },
+            {
                 data: 'program_name',
                 name: 'program_name',
                 orderable: false,
@@ -180,9 +189,10 @@ document.addEventListener('DOMContentLoaded', function() {
             noa_status: 'select[name="noa_status"]',
             msfaa_status: 'select[name="msfaa_status"]',
             from: 'input[name="from"]',
-            to: 'input[name="to"]'
+            to: 'input[name="to"]',
+            agent_id: 'input[name="agent_id"]'
         },
-        order: [[4, 'desc']], // Order by created_at column descending
+        order: [[5, 'desc']], // Order by created_at column descending (shifted by 1 due to Agent column)
         pageLength: 25,
         translations: translations
     });

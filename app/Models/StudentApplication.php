@@ -113,6 +113,7 @@ class StudentApplication extends Model
         'msfaa_rejected_by',
         'msfaa_admin_notes',
         'payment_amount',
+        'agent_id',
     ];
 
     /**
@@ -280,6 +281,14 @@ class StudentApplication extends Model
     public function msfaaRejecter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'msfaa_rejected_by');
+    }
+
+    /**
+     * Get the agent who submitted this application.
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'agent_id');
     }
 
     /**

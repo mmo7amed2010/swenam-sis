@@ -28,6 +28,13 @@ class StudentApplicationController extends Controller
         $this->lmsApiService = $lmsApiService;
     }
 
+    private function applicationRoute(string $suffix, array $parameters = []): string
+    {
+        $prefix = Session::has('agent_submission') ? 'agent.application.' : 'application.';
+
+        return route($prefix . $suffix, $parameters);
+    }
+
     /**
      * Show Step 1 - Program Information
      *
@@ -69,7 +76,7 @@ class StudentApplicationController extends Controller
         $application = array_merge($application, $validated);
         Session::put('application', $application);
 
-        return redirect()->route('application.step2');
+        return redirect()->to($this->applicationRoute('step2'));
     }
 
     /**
@@ -78,7 +85,7 @@ class StudentApplicationController extends Controller
     public function showStepTwo()
     {
         if (! Session::has('application.program_id')) {
-            return redirect()->route('application.step1');
+            return redirect()->to($this->applicationRoute('step1'));
         }
 
         $data = Session::get('application', []);
@@ -100,7 +107,7 @@ class StudentApplicationController extends Controller
         $application = array_merge($application, $validated);
         Session::put('application', $application);
 
-        return redirect()->route('application.step3');
+        return redirect()->to($this->applicationRoute('step3'));
     }
 
     /**
@@ -109,7 +116,7 @@ class StudentApplicationController extends Controller
     public function showStepThree()
     {
         if (! Session::has('application.email')) {
-            return redirect()->route('application.step1');
+            return redirect()->to($this->applicationRoute('step1'));
         }
 
         $data = Session::get('application', []);
@@ -126,7 +133,7 @@ class StudentApplicationController extends Controller
         $application = array_merge($application, $request->validated());
         Session::put('application', $application);
 
-        return redirect()->route('application.step4');
+        return redirect()->to($this->applicationRoute('step4'));
     }
 
     /**
@@ -135,7 +142,7 @@ class StudentApplicationController extends Controller
     public function showStepFour()
     {
         if (! Session::has('application.education_field')) {
-            return redirect()->route('application.step1');
+            return redirect()->to($this->applicationRoute('step1'));
         }
 
         $data = Session::get('application', []);
@@ -152,7 +159,7 @@ class StudentApplicationController extends Controller
         $application = array_merge($application, $request->validated());
         Session::put('application', $application);
 
-        return redirect()->route('application.step5');
+        return redirect()->to($this->applicationRoute('step5'));
     }
 
     /**
@@ -161,7 +168,7 @@ class StudentApplicationController extends Controller
     public function showStepFive()
     {
         if (! Session::has('application.has_work_experience')) {
-            return redirect()->route('application.step1');
+            return redirect()->to($this->applicationRoute('step1'));
         }
 
         $data = Session::get('application', []);
@@ -232,6 +239,13 @@ class StudentApplicationController extends Controller
         // This also sends the account created email with login credentials
         CreateImmediateStudentAccountJob::dispatchSync($application);
 
+        // If submitted by an agent, assign agent_id and redirect to agent confirmation
+        if (Session::has('agent_submission')) {
+            $application->update(['agent_id' => Session::get('agent_submission')]);
+            Session::forget('agent_submission');
+            return redirect()->route('agent.applications.confirmation', $application->reference_number);
+        }
+
         return redirect()->route('application.confirmation', $application->reference_number);
     }
 
@@ -250,6 +264,6 @@ class StudentApplicationController extends Controller
      */
     public function back($step)
     {
-        return redirect()->route("application.step{$step}");
+        return redirect()->to($this->applicationRoute("step{$step}"));
     }
 }

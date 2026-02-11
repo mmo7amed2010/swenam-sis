@@ -1,10 +1,11 @@
-@extends('application.layout')
+@extends(session()->has('agent_submission') ? 'application.agent-layout' : 'application.layout')
+@php $rp = session()->has('agent_submission') ? 'agent.application.' : 'application.'; @endphp
 
 @section('content')
     {{-- Progress Indicator --}}
     <x-application-progress currentStep="5" />
 
-    <form method="POST" action="{{ route('application.submit') }}" class="mt-10" enctype="multipart/form-data">
+    <form method="POST" action="{{ route($rp . 'submit') }}" class="mt-10" enctype="multipart/form-data">
         @csrf
 
         {{-- Section Title --}}
@@ -141,7 +142,7 @@
 
         {{-- Navigation Buttons --}}
         <div class="d-flex justify-content-between mt-10 pt-8 border-top border-gray-300">
-            <a href="{{ route('application.step4') }}" class="btn btn-light btn-lg fw-semibold px-8">
+            <a href="{{ route($rp . 'step4') }}" class="btn btn-light btn-lg fw-semibold px-8">
                 <i class="ki-outline ki-arrow-left fs-3 me-2"></i>
                 Previous
             </a>

@@ -153,6 +153,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is an agent
+     */
+    public function isAgent(): bool
+    {
+        return $this->user_type === 'agent';
+    }
+
+    /**
      * Check if user is a super admin (admin with super admin privileges)
      */
     public function isSuperAdmin(): bool
@@ -215,5 +223,13 @@ class User extends Authenticatable
     public function getStudentApplicationAttribute(): ?StudentApplication
     {
         return $this->student?->studentApplication;
+    }
+
+    /**
+     * Get applications submitted by this agent.
+     */
+    public function agentApplications()
+    {
+        return $this->hasMany(StudentApplication::class, 'agent_id');
     }
 }

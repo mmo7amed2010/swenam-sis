@@ -4,7 +4,7 @@
     @endsection
 
     @section('breadcrumbs')
-        {{ Breadcrumbs::render('admin.applications.show', $application) }}
+        {{ Breadcrumbs::render('dashboard') }}
     @endsection
 
     @php
@@ -134,22 +134,6 @@
             <div class="tab-content">
                 {{-- Personal Details Tab --}}
                 <div class="tab-pane fade show active" id="tab_details" role="tabpanel">
-                    {{-- Agent Information (if submitted by agent) --}}
-                    @if($application->agent_id && $application->agent)
-                        <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-6 mb-5">
-                            <i class="ki-outline ki-people fs-2tx text-info me-4"></i>
-                            <div class="d-flex flex-stack flex-grow-1">
-                                <div class="fw-semibold">
-                                    <h6 class="text-gray-900 fw-bold mb-1">{{ __('Submitted by Agent') }}</h6>
-                                    <div class="fs-6 text-gray-700">
-                                        {{ $application->agent->name ?? ($application->agent->first_name . ' ' . $application->agent->last_name) }}
-                                        <span class="text-muted">({{ $application->agent->email }})</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
                     {{-- Program Information --}}
                     <x-cards.section title="Program Information" class="mb-5">
                         <div class="row g-4">
@@ -326,19 +310,6 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td class="text-end">
-                                                        <a href="{{ route('admin.applications.download', [$application, $doc['key']]) }}"
-                                                           class="btn btn-sm btn-light-primary me-2">
-                                                            {!! getIcon('down', 'fs-5 me-1') !!}
-                                                            Download
-                                                        </a>
-                                                        <button type="button"
-                                                                class="btn btn-sm btn-light-info"
-                                                                onclick="previewDocument('{{ route('admin.applications.download', [$application, $doc['key']]) }}?preview=1', '{{ $doc['label'] }}')">
-                                                            {!! getIcon('eye', 'fs-5 me-1') !!}
-                                                            Preview
-                                                        </button>
-                                                    </td>
                                                 </tr>
                                             @endif
                                         @endforeach
@@ -357,7 +328,80 @@
                 </div>
 
                 {{-- Contract & Payment Tab --}}
-                @include('pages.admin.applications._partials.tab-contract')
+                @if($application->latestContract)
+                    <div class="tab-pane fade" id="tab_contract" role="tabpanel">
+                        {{-- Contract Details --}}
+                        <x-cards.section title="Contract Details" class="mb-5">
+                            @php $contract = $application->latestContract; @endphp
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <x-detail.field icon="document" label="Template Used" :value="$contract->template?->name ?? 'N/A'" color="primary" />
+                                </div>
+                                <div class="col-md-6">
+                                    <x-detail.field icon="calendar" label="Issued Date" :value="$contract->issued_at ? $contract->issued_at->format('F d, Y \a\t h:i A') : 'N/A'" color="primary" />
+                                </div>
+                                <div class="col-md-6">
+                                    <x-detail.field icon="profile-user" label="Issued By" :value="$contract->issuer?->name ?? 'N/A'" color="primary" />
+                                </div>
+                                <div class="col-md-6">
+                                    <x-detail.field icon="verify" label="Signed" color="primary">
+                                        @if($contract->isSigned())
+                                            <span class="badge badge-light-success">Yes - {{ $contract->signed_at?->format('M d, Y') }}</span>
+                                        @else
+                                            <span class="badge badge-light-warning">Pending</span>
+                                        @endif
+                                    </x-detail.field>
+                                </div>
+                            </div>
+                        </x-cards.section>
+
+                        {{-- Payment Information (if self-funded) --}}
+                        @if($application->isSelfFunded() && $application->payment_amount)
+                            <x-cards.section title="Payment Information" class="mb-5">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="wallet" label="Payment Amount" color="warning">
+                                            <span class="fw-bolder fs-4">${{ number_format($application->payment_amount, 2) }}</span>
+                                        </x-detail.field>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="verify" label="Payment Status" color="warning">
+                                            @if($application->isPaymentApproved() || $application->isApproved())
+                                                <span class="badge badge-light-success">Approved</span>
+                                            @elseif($application->isPaymentUploaded())
+                                                <span class="badge badge-light-info">Receipt Uploaded - Awaiting Review</span>
+                                            @elseif($application->isPaymentPending())
+                                                <span class="badge badge-light-warning">Awaiting Payment</span>
+                                            @endif
+                                        </x-detail.field>
+                                    </div>
+                                </div>
+                            </x-cards.section>
+                        @endif
+
+                        {{-- Payment Receipt --}}
+                        @if($application->isSelfFunded() && $application->payment_receipt_path)
+                            <x-cards.section title="Payment Receipt">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="calendar" label="Uploaded At" :value="$application->payment_uploaded_at ? $application->payment_uploaded_at->format('F d, Y \a\t h:i A') : 'N/A'" color="warning" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <x-detail.field icon="verify" label="Payment Status" color="warning">
+                                            @if($application->isPaymentApproved() || $application->isApproved())
+                                                <span class="badge badge-light-success">Approved</span>
+                                            @elseif($application->isPaymentUploaded())
+                                                <span class="badge badge-light-info">Awaiting Review</span>
+                                            @else
+                                                <span class="badge badge-light-warning">Pending</span>
+                                            @endif
+                                        </x-detail.field>
+                                    </div>
+                                </div>
+                            </x-cards.section>
+                        @endif
+                    </div>
+                @endif
 
                 {{-- Review Details Tab --}}
                 @if($application->reviewed_at || $application->initial_approved_at)
@@ -459,23 +503,6 @@
                                 @endif
                             </div>
                         </x-cards.section>
-
-                        @if($application->noa_document_path)
-                            <x-cards.section title="NOA Document">
-                                <div class="d-flex gap-3">
-                                    <a href="{{ route('admin.applications.noa.download', $application) }}" class="btn btn-sm btn-light-primary">
-                                        {!! getIcon('down', 'fs-5 me-1') !!}
-                                        Download NOA
-                                    </a>
-                                    <button type="button"
-                                            class="btn btn-sm btn-light-info"
-                                            onclick="previewDocument('{{ route('admin.applications.noa.download', $application) }}?preview=1', 'NOA Document')">
-                                        {!! getIcon('eye', 'fs-5 me-1') !!}
-                                        Preview
-                                    </button>
-                                </div>
-                            </x-cards.section>
-                        @endif
                     </div>
                 @endif
 
@@ -545,8 +572,6 @@
 
         {{-- Sidebar --}}
         <div class="col-xl-4">
-            @include('pages.admin.applications._partials.sidebar-actions')
-
             {{-- Quick Info Card --}}
             <x-detail.quick-info
                 title="Quick Info"
@@ -561,100 +586,10 @@
             />
 
             {{-- Back Button --}}
-            <a href="{{ route('admin.applications.index') }}" class="btn btn-light w-100 d-flex align-items-center justify-content-center gap-2">
+            <a href="{{ route('agent.applications.index') }}" class="btn btn-light w-100 d-flex align-items-center justify-content-center gap-2">
                 {!! getIcon('left', 'fs-4') !!}
                 Back to Applications
             </a>
         </div>
     </div>
-
-    {{-- All Modals --}}
-    @include('pages.admin.applications._partials.modals')
-
-    @push('scripts')
-    <script>
-        function previewDocument(url, type) {
-            const modal = new bootstrap.Modal(document.getElementById('previewModal'));
-            const titleEl = document.getElementById('previewTitle');
-            const bodyEl = document.getElementById('previewBody');
-
-            titleEl.textContent = type;
-
-            bodyEl.innerHTML = `
-                <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 600px;">
-                    <div class="spinner-border text-gray-600 mb-3" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <span class="text-gray-600">Loading document...</span>
-                </div>
-            `;
-
-            modal.show();
-
-            const isPdf = url.toLowerCase().includes('.pdf') || url.includes('preview=1');
-            const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
-
-            setTimeout(() => {
-                if (isPdf) {
-                    bodyEl.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="700px" style="border: none;">`;
-                } else if (isImage) {
-                    bodyEl.innerHTML = `
-                        <div class="d-flex align-items-center justify-content-center p-5" style="min-height: 600px; background: #f8f9fa;">
-                            <img src="${url}" class="img-fluid shadow-sm rounded" alt="${type}" style="max-height: 700px;">
-                        </div>
-                    `;
-                } else {
-                    bodyEl.innerHTML = `
-                        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 600px;">
-                            <div class="symbol symbol-100px mb-5">
-                                <span class="symbol-label bg-gray-100">
-                                    <i class="ki-outline ki-document fs-2x text-gray-600"></i>
-                                </span>
-                            </div>
-                            <h4 class="text-gray-600 fw-semibold mb-2">Preview Not Available</h4>
-                            <p class="text-gray-500 fs-7 mb-0">Please download the file to view its contents</p>
-                        </div>
-                    `;
-                }
-            }, 300);
-        }
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const rejectOnlyRadio = document.getElementById('rejectOnlyRadio');
-            const regenerateRadio = document.getElementById('regenerateRadio');
-            const rejectOnlyNotice = document.getElementById('rejectOnlyNotice');
-            const regenerateNotice = document.getElementById('regenerateNotice');
-            const rejectOnlyLabel = document.getElementById('rejectOnlyLabel');
-            const regenerateLabel = document.getElementById('regenerateLabel');
-            const rejectBtn = document.getElementById('rejectContractBtn');
-
-            if (!rejectOnlyRadio || !regenerateRadio) return;
-
-            function updateRejectUI() {
-                if (regenerateRadio.checked) {
-                    rejectOnlyNotice.classList.add('d-none');
-                    regenerateNotice.classList.remove('d-none');
-                    rejectOnlyLabel.classList.remove('border-primary');
-                    regenerateLabel.classList.add('border-primary');
-                    rejectBtn.innerHTML = '{!! getIcon("arrows-circle", "fs-4 me-2") !!} Reject & Regenerate';
-                    rejectBtn.classList.remove('btn-warning');
-                    rejectBtn.classList.add('btn-primary');
-                } else {
-                    rejectOnlyNotice.classList.remove('d-none');
-                    regenerateNotice.classList.add('d-none');
-                    rejectOnlyLabel.classList.add('border-primary');
-                    regenerateLabel.classList.remove('border-primary');
-                    rejectBtn.innerHTML = '{!! getIcon("cross", "fs-4 me-2") !!} Reject Contract';
-                    rejectBtn.classList.remove('btn-primary');
-                    rejectBtn.classList.add('btn-warning');
-                }
-            }
-
-            rejectOnlyRadio.addEventListener('change', updateRejectUI);
-            regenerateRadio.addEventListener('change', updateRejectUI);
-            updateRejectUI();
-        });
-    </script>
-    @endpush
 </x-default-layout>
