@@ -63,7 +63,9 @@
                         {{-- Body (CKEditor) --}}
                         <div class="mb-6">
                             <label class="form-label required fw-semibold">Contract Body</label>
-                            <textarea name="body" id="contract-body" class="form-control @error('body') is-invalid @enderror" rows="20">{{ old('body', $contractTemplate->body) }}</textarea>
+                            <div class="ck-editor-wrapper border rounded @error('body') border-danger @enderror">
+                                <textarea name="body" id="contract-body">{{ old('body', $contractTemplate->body) }}</textarea>
+                            </div>
                             @error('body')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
@@ -121,14 +123,94 @@
         </div>
     </form>
 
+    @push('styles')
+    <style>
+        .ck-editor-wrapper .ck.ck-editor { width: 100%; }
+        .ck-editor-wrapper .ck.ck-editor__main > .ck-editor__editable { min-height: 600px; }
+        .ck-editor-wrapper .ck.ck-toolbar { border-radius: 0.475rem 0.475rem 0 0 !important; flex-wrap: wrap !important; }
+        .ck-editor-wrapper .ck.ck-editor__main > .ck-editor__editable { border-radius: 0 0 0.475rem 0.475rem !important; }
+        .ck.ck-toolbar .ck-toolbar__separator { height: 1.6em; }
+    </style>
+    @endpush
+
     @push('scripts')
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
     <script>
         let editorInstance;
 
-        ClassicEditor
+        CKEDITOR.ClassicEditor
             .create(document.querySelector('#contract-body'), {
-                toolbar: ['heading', '|', 'bold', 'italic', 'underline', '|', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
+                toolbar: {
+                    items: [
+                        'undo', 'redo',
+                        '|', 'heading',
+                        '|', 'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor',
+                        '|', 'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'removeFormat',
+                        '|', 'alignment',
+                        '|', 'bulletedList', 'numberedList', 'outdent', 'indent',
+                        '|', 'link', 'insertTable', 'blockQuote', 'horizontalLine', 'pageBreak',
+                        '|', 'findAndReplace', 'specialCharacters', 'sourceEditing',
+                    ],
+                    shouldNotGroupWhenFull: true
+                },
+                heading: {
+                    options: [
+                        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                        { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
+                    ]
+                },
+                fontSize: {
+                    options: [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72],
+                    supportAllValues: true
+                },
+                fontFamily: {
+                    options: [
+                        'default',
+                        'Arial, Helvetica, sans-serif',
+                        'Courier New, Courier, monospace',
+                        'Georgia, serif',
+                        'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                        'Tahoma, Geneva, sans-serif',
+                        'Times New Roman, Times, serif',
+                        'Trebuchet MS, Helvetica, sans-serif',
+                        'Verdana, Geneva, sans-serif',
+                    ],
+                    supportAllValues: true
+                },
+                table: {
+                    contentToolbar: [
+                        'tableColumn', 'tableRow', 'mergeTableCells',
+                        'tableProperties', 'tableCellProperties',
+                    ]
+                },
+                list: {
+                    properties: {
+                        styles: true,
+                        startIndex: true,
+                        reversed: true
+                    }
+                },
+                link: {
+                    addTargetToExternalLinks: true,
+                    defaultProtocol: 'https://',
+                },
+                htmlSupport: {
+                    allow: [
+                        { name: /.*/, attributes: true, classes: true, styles: true }
+                    ]
+                },
+                removePlugins: [
+                    'ExportPdf', 'ExportWord', 'AIAssistant', 'CKBox', 'CKFinder',
+                    'EasyImage', 'MultiLevelList', 'RealTimeCollaborativeComments',
+                    'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory',
+                    'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesData',
+                    'RevisionHistory', 'Pagination', 'WProofreader', 'MathType',
+                    'SlashCommand', 'Template', 'DocumentOutline', 'FormatPainter',
+                    'TableOfContents', 'PasteFromOfficeEnhanced', 'CaseChange'
+                ]
             })
             .then(editor => {
                 editorInstance = editor;
