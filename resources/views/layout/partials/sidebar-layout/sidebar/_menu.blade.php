@@ -533,6 +533,72 @@
 
             @endif
 
+            {{-- Agent Menu Items (visible only for agents) --}}
+            @if(auth()->user()->isAgent())
+                <!--begin:Menu item - Agent Home-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                        href="{{ route('dashboard') }}">
+                        <span class="menu-icon">{!! getIcon('element-11', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Home') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Notifications-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"
+                        href="{{ route('notifications.index') }}">
+                        <span class="menu-icon">{!! getIcon('notification-bing', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Notifications') }}</span>
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="menu-badge">
+                                <span class="badge badge-sm badge-circle badge-danger">{{ auth()->user()->unreadNotifications->count() }}</span>
+                            </span>
+                        @endif
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Applications Section Header-->
+                <div class="menu-item pt-5">
+                    <!--begin:Menu content-->
+                    <div class="menu-content">
+                        <span class="menu-heading fw-bold text-uppercase fs-7">{{ __('Applications') }}</span>
+                    </div>
+                    <!--end:Menu content-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - My Applications-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('agent.applications.index') || request()->routeIs('agent.applications.show') ? 'active' : '' }}"
+                        href="{{ route('agent.applications.index') }}">
+                        <span class="menu-icon">{!! getIcon('document', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('My Applications') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+
+                <!--begin:Menu item - Create Application-->
+                <div class="menu-item">
+                    <!--begin:Menu link-->
+                    <a class="menu-link {{ request()->routeIs('agent.applications.create') ? 'active' : '' }}"
+                        href="{{ route('agent.applications.create') }}">
+                        <span class="menu-icon">{!! getIcon('plus-circle', 'fs-2') !!}</span>
+                        <span class="menu-title">{{ __('Create Application') }}</span>
+                    </a>
+                    <!--end:Menu link-->
+                </div>
+                <!--end:Menu item-->
+            @endif
+
             {{-- Admin Menu Items --}}
             @if(auth()->user()->isAdmin())
                 <!--begin:Menu item-->
@@ -610,6 +676,19 @@
                                     <span class="bullet bullet-dot"></span>
                                 </span>
                                 <span class="menu-title">{{ __('Students') }}</span>
+                            </a>
+                            <!--end:Menu link-->
+                        </div>
+                        <!--end:Menu item-->
+                        <!--begin:Menu item-->
+                        <div class="menu-item">
+                            <!--begin:Menu link-->
+                            <a class="menu-link {{ request()->routeIs('admin.agents.*') ? 'active' : '' }}"
+                                href="{{ route('admin.agents.index') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">{{ __('Agents') }}</span>
                             </a>
                             <!--end:Menu link-->
                         </div>

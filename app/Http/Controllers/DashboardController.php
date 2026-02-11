@@ -19,6 +19,7 @@ class DashboardController extends Controller
             'student' => $this->studentDashboard($request),
             'instructor' => $this->instructorDashboard($request),
             'admin' => $this->adminDashboard(),
+            'agent' => $this->agentDashboard($request),
             default => abort(403, 'Invalid user type'),
         };
     }
@@ -75,6 +76,34 @@ class DashboardController extends Controller
         return view('pages/dashboards.admin', [
             'kpis' => $kpis,
             'charts' => $charts,
+        ]);
+    }
+
+    /**
+     * Agent dashboard - application submission focused
+     */
+    protected function agentDashboard(Request $request)
+    {
+        $user = $request->user();
+
+        $applications = $user->agentApplications();
+
+        $stats = [
+            'total' => $applications->count(),
+            'pending' => (clone $applications)->where('status', 'pending')->count(),
+            'approved' => (clone $applications)->where('status', 'approved')->count(),
+            'rejected' => (clone $applications)->where('status', 'rejected')->count(),
+        ];
+
+        $recentApplications = $user->agentApplications()
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('pages/dashboards.agent', [
+            'user' => $user,
+            'stats' => $stats,
+            'recentApplications' => $recentApplications,
         ]);
     }
 

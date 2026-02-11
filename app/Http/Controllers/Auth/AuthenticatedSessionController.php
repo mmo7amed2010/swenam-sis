@@ -309,6 +309,12 @@ class AuthenticatedSessionController extends Controller
                 'background' => '#f9fafb',
                 'name' => 'admin-theme',
             ],
+            'agent' => [
+                'primary' => '#0d9488',
+                'secondary' => '#14b8a6',
+                'background' => '#f0fdfa',
+                'name' => 'agent-theme',
+            ],
             default => [
                 'primary' => '#64748b',
                 'secondary' => '#8b5cf6',
@@ -329,6 +335,7 @@ class AuthenticatedSessionController extends Controller
             'student' => config('lms.session.student_timeout', self::STUDENT_SESSION_TIMEOUT),
             'instructor' => config('lms.session.instructor_timeout', self::INSTRUCTOR_SESSION_TIMEOUT),
             'admin' => config('lms.session.admin_timeout', self::ADMIN_SESSION_TIMEOUT),
+            'agent' => config('lms.session.instructor_timeout', self::INSTRUCTOR_SESSION_TIMEOUT),
             default => config('lms.session.instructor_timeout', self::INSTRUCTOR_SESSION_TIMEOUT)
         };
 

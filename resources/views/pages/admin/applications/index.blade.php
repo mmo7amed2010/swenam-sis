@@ -84,6 +84,24 @@
         :subtitle="__('Review and process student applications')"
         variant="default">
 
+        @if($agentFilter)
+            <div class="alert alert-info d-flex align-items-center py-3 px-5 mb-0 border-0 rounded-0" id="agent-filter-banner">
+                <i class="ki-outline ki-information-3 fs-2 text-info me-3"></i>
+                <div class="d-flex flex-grow-1 align-items-center">
+                    <span class="fw-semibold">
+                        {{ __('Showing applications submitted by agent:') }}
+                        <strong>{{ $agentFilter->name }}</strong>
+                    </span>
+                </div>
+                <a href="{{ route('admin.applications.index') }}" class="btn btn-sm btn-light-info ms-3">
+                    <i class="ki-outline ki-cross fs-5 me-1"></i>{{ __('Clear Filter') }}
+                </a>
+            </div>
+            <div class="separator border-gray-200"></div>
+        @endif
+
+        <input type="hidden" name="agent_id" value="{{ request('agent_id', '') }}">
+
         <x-slot:toolbar>
             <x-tables.toolbar
                 search-placeholder="{{ __('Search applications...') }}"
@@ -178,6 +196,7 @@
                             <th class="ps-4 min-w-150px">{{ __('Reference') }}</th>
                             <th class="min-w-200px">{{ __('Applicant Name') }}</th>
                             <th class="min-w-200px">{{ __('Email') }}</th>
+                            <th class="min-w-150px">{{ __('Agent') }}</th>
                             <th class="min-w-150px">{{ __('Program') }}</th>
                             <th class="text-center min-w-120px">{{ __('Submitted') }}</th>
                             <th class="text-center min-w-120px">{{ __('Status') }}</th>
@@ -236,6 +255,15 @@
                         d.value = '';
                         d.dispatchEvent(new Event('change', { bubbles: true }));
                     });
+
+                    // Clear agent filter
+                    const agentInput = document.querySelector('input[name="agent_id"]');
+                    if (agentInput && agentInput.value) {
+                        agentInput.value = '';
+                        agentInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    const banner = document.getElementById('agent-filter-banner');
+                    if (banner) banner.remove();
                 });
             });
         </script>

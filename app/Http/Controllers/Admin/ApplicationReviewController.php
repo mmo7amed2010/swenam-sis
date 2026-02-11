@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\StudentApplication;
+use App\Models\User;
 use App\Repositories\ApplicationRepository;
 use App\Services\ApplicationReviewService;
 use App\Traits\HandlesDataTableRequests;
@@ -28,7 +29,7 @@ class ApplicationReviewController extends Controller
         // Handle DataTables AJAX request
         if ($this->isDataTableRequest($request)) {
             $query = StudentApplication::query()
-                ->with(['reviewer']);
+                ->with(['reviewer', 'agent']);
 
             // Pre-fetch programs ONCE per request (fresh API call, no caching)
             // This eliminates N+1 API calls when accessing program_name
@@ -60,6 +61,7 @@ class ApplicationReviewController extends Controller
                         'created_at_human' => $application->created_at->diffForHumans(),
                         'funding_type' => $application->funding_type,
                         'reviewer_name' => $application->reviewer?->name,
+                        'agent_name' => $application->agent ? ($application->agent->name ?? ($application->agent->first_name . ' ' . $application->agent->last_name)) : null,
                         'show_url' => route('admin.applications.show', $application),
                     ];
                 },
@@ -71,13 +73,14 @@ class ApplicationReviewController extends Controller
                     'program' => fn ($q, $val) => $val !== 'all' ? $q->where('program_id', $val) : $q,
                     'from' => fn ($q, $val) => $q->whereDate('created_at', '>=', $val),
                     'to' => fn ($q, $val) => $q->whereDate('created_at', '<=', $val),
+                    'agent_id' => fn ($q, $val) => $q->where('agent_id', (int) $val),
                 ],
                 orderableColumns: [
                     0 => 'reference_number',
                     1 => 'first_name',
                     2 => 'email',
-                    4 => 'created_at',
-                    5 => 'status',
+                    5 => 'created_at',
+                    6 => 'status',
                 ]
             );
         }
@@ -85,7 +88,14 @@ class ApplicationReviewController extends Controller
         // Regular page load - return view with stats
         $stats = $this->applicationRepository->getStats();
 
-        return view('pages.admin.applications.index', compact('stats'));
+        $agentFilter = null;
+        if ($request->filled('agent_id')) {
+            $agentFilter = User::where('id', $request->input('agent_id'))
+                ->where('user_type', 'agent')
+                ->first(['id', 'name']);
+        }
+
+        return view('pages.admin.applications.index', compact('stats', 'agentFilter'));
     }
 
     /**
@@ -106,7 +116,7 @@ class ApplicationReviewController extends Controller
      */
     public function show(StudentApplication $application)
     {
-        $application->load('reviewer', 'createdUser', 'latestContract', 'latestContract.template');
+        $application->load('reviewer', 'createdUser', 'agent', 'latestContract', 'latestContract.template');
 
         return view('pages.admin.applications.show', compact('application'));
     }

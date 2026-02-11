@@ -1,10 +1,11 @@
-@extends('application.layout')
+@extends(session()->has('agent_submission') ? 'application.agent-layout' : 'application.layout')
+@php $rp = session()->has('agent_submission') ? 'agent.application.' : 'application.'; @endphp
 
 @section('content')
     {{-- Progress Indicator --}}
     <x-application-progress currentStep="1" />
 
-    <form method="POST" action="{{ route('application.step1.store') }}" class="mt-10">
+    <form method="POST" action="{{ route($rp . 'step1.store') }}" class="mt-10">
         @csrf
 
         {{-- Section Title --}}

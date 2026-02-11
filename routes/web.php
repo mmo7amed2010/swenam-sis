@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ContractTemplateController;
 use App\Http\Controllers\Admin\MsfaaController;
 use App\Http\Controllers\Admin\NoaController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\AgentManagementController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\ApplicationStatusController;
 use App\Http\Controllers\Apps\UserManagementController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\StudentApplicationController;
+use App\Http\Controllers\Agent\AgentApplicationController;
 use App\Http\Controllers\TranslationsController;
 use Illuminate\Support\Facades\Route;
 
@@ -157,8 +159,37 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('students/{student}/unsuspend', [StudentController::class, 'unsuspend'])->name('students.unsuspend');
     });
 
+    // Admin-only routes - Agent Management
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::resource('agents', AgentManagementController::class);
+    });
+
     // Programs and Intakes are managed from LMS (master system)
     // SIS fetches programs/intakes via LMS API for application form
+
+    // Agent portal routes
+    Route::middleware(['agent'])->prefix('agent')->name('agent.')->group(function () {
+        Route::get('applications', [AgentApplicationController::class, 'index'])->name('applications.index');
+        Route::get('applications/create', [AgentApplicationController::class, 'createApplication'])->name('applications.create');
+        Route::get('applications/confirmation/{reference}', [AgentApplicationController::class, 'confirmation'])->name('applications.confirmation');
+        Route::get('applications/{application}', [AgentApplicationController::class, 'show'])->name('applications.show');
+
+        // Agent application form steps (mirrors public /apply/* routes)
+        Route::name('application.')->prefix('application')
+            ->controller(StudentApplicationController::class)
+            ->group(function () {
+                Route::get('/', 'showStepOne')->name('step1');
+                Route::post('/step-1', 'storeStepOne')->name('step1.store');
+                Route::get('/step-2', 'showStepTwo')->name('step2');
+                Route::post('/step-2', 'storeStepTwo')->name('step2.store');
+                Route::get('/step-3', 'showStepThree')->name('step3');
+                Route::post('/step-3', 'storeStepThree')->name('step3.store');
+                Route::get('/step-4', 'showStepFour')->name('step4');
+                Route::post('/step-4', 'storeStepFour')->name('step4.store');
+                Route::get('/step-5', 'showStepFive')->name('step5');
+                Route::post('/submit', 'submit')->name('submit');
+            });
+    });
 
     // Student portal routes
     Route::middleware(['student'])->prefix('student')->name('student.')->group(function () {
