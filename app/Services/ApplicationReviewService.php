@@ -160,12 +160,12 @@ class ApplicationReviewService
      * @param  string  $format  Export format (xlsx, csv)
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse Export file
      */
-    public function exportApplications(string $status, ?string $from, ?string $to, string $format = 'xlsx')
+    public function exportApplications(string $status, ?string $from, ?string $to, string $format = 'xlsx', ?string $noaStatus = null, ?string $msfaaStatus = null, $agentId = null)
     {
         $filename = "applications-{$status}-".now()->format('Y-m-d').".{$format}";
 
         return Excel::download(
-            new ApplicationsExport($status, $from, $to),
+            new ApplicationsExport($status, $from, $to, $noaStatus, $msfaaStatus, $agentId),
             $filename,
             $format === 'csv' ? \Maatwebsite\Excel\Excel::CSV : \Maatwebsite\Excel\Excel::XLSX
         );

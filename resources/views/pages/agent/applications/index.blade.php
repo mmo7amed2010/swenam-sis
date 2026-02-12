@@ -52,6 +52,9 @@
                         <i class="ki-outline ki-plus fs-4"></i>
                         {{ __('New Application') }}
                     </a>
+                    <x-tables.export-dropdown
+                        :export-url="route('agent.applications.export')"
+                    />
                     <button type="button"
                             class="btn btn-sm btn-light-primary d-flex align-items-center gap-2"
                             data-bs-toggle="collapse"

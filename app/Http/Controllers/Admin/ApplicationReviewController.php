@@ -107,8 +107,11 @@ class ApplicationReviewController extends Controller
         $status = $request->input('status', 'all');
         $from = $request->input('from');
         $to = $request->input('to');
+        $noaStatus = $request->input('noa_status');
+        $msfaaStatus = $request->input('msfaa_status');
+        $agentId = $request->input('agent_id');
 
-        return $this->applicationService->exportApplications($status, $from, $to, $format);
+        return $this->applicationService->exportApplications($status, $from, $to, $format, $noaStatus, $msfaaStatus, $agentId);
     }
 
     /**

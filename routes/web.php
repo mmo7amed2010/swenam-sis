@@ -170,6 +170,7 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
     // Agent portal routes
     Route::middleware(['agent'])->prefix('agent')->name('agent.')->group(function () {
         Route::get('applications', [AgentApplicationController::class, 'index'])->name('applications.index');
+        Route::get('applications/export', [AgentApplicationController::class, 'export'])->name('applications.export');
         Route::get('applications/create', [AgentApplicationController::class, 'createApplication'])->name('applications.create');
         Route::get('applications/confirmation/{reference}', [AgentApplicationController::class, 'confirmation'])->name('applications.confirmation');
         Route::get('applications/{application}', [AgentApplicationController::class, 'show'])->name('applications.show');

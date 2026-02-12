@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Agent;
 
+use App\Exports\ApplicationsExport;
 use App\Http\Controllers\Controller;
 use App\Models\StudentApplication;
 use App\Services\LmsApiService;
 use App\Traits\HandlesDataTableRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AgentApplicationController extends Controller
 {
@@ -72,6 +74,25 @@ class AgentApplicationController extends Controller
         ];
 
         return view('pages.agent.applications.index', compact('stats'));
+    }
+
+    /**
+     * Export agent's applications to Excel or CSV.
+     */
+    public function export(Request $request)
+    {
+        $format = $request->input('format', 'xlsx');
+        $status = $request->input('status', 'all');
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        $filename = "my-applications-{$status}-".now()->format('Y-m-d').".{$format}";
+
+        return Excel::download(
+            new ApplicationsExport($status, $from, $to, null, null, auth()->id()),
+            $filename,
+            $format === 'csv' ? \Maatwebsite\Excel\Excel::CSV : \Maatwebsite\Excel\Excel::XLSX
+        );
     }
 
     /**

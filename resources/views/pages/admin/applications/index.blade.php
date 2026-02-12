@@ -108,6 +108,10 @@
                 search-name="search"
                 :show-refresh="true">
                 <x-slot:actions>
+                    <x-tables.export-dropdown
+                        :export-url="route('admin.applications.export')"
+                        :extra-fields="['agent_id']"
+                    />
                     <button type="button"
                             class="btn btn-sm btn-light-primary d-flex align-items-center gap-2"
                             data-bs-toggle="collapse"
