@@ -117,6 +117,7 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('applications/{application}/initial-approve', [ApplicationReviewController::class, 'initialApprove'])->name('applications.initial-approve');
         Route::post('applications/{application}/approve', [ApplicationReviewController::class, 'approve'])->name('applications.approve');
         Route::post('applications/{application}/reject', [ApplicationReviewController::class, 'reject'])->name('applications.reject');
+        Route::post('applications/{application}/update-intake', [ApplicationReviewController::class, 'updateIntake'])->name('applications.update-intake');
         Route::get('applications/{application}/document/{documentType}', [ApplicationReviewController::class, 'downloadDocument'])->name('applications.download');
         
         // Contract Templates

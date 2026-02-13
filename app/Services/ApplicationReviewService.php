@@ -7,6 +7,8 @@ use App\Jobs\CreateLmsStudentAccountJob;
 use App\Mail\ApplicationRejectedMail;
 use App\Models\ApplicationAuditLog;
 use App\Models\StudentApplication;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
@@ -149,6 +151,96 @@ class ApplicationReviewService
         Mail::to($application->email)->queue(new ApplicationRejectedMail($application));
 
         return $application->fresh();
+    }
+
+    /**
+     * Update the intake assigned to an application.
+     * Syncs the change to SIS user and LMS (if applicable).
+     *
+     * @param  StudentApplication  $application  Application to update
+     * @param  int  $newIntakeId  The new intake ID
+     * @param  string  $newIntakeName  The new intake name (for audit log and preferred_intake)
+     * @return StudentApplication Updated application
+     *
+     * @throws \Exception If the update fails
+     */
+    public function updateApplicationIntake(StudentApplication $application, int $newIntakeId, string $newIntakeName): StudentApplication
+    {
+        // Early return if same intake selected
+        if ((int) $application->intake_id === $newIntakeId) {
+            return $application;
+        }
+
+        $oldIntakeName = $application->intake_name ?? $application->preferred_intake ?? 'N/A';
+
+        DB::beginTransaction();
+
+        try {
+            // 1. Update application record
+            $application->update([
+                'intake_id' => $newIntakeId,
+                'preferred_intake' => $newIntakeName,
+            ]);
+
+            // 2. Update SIS user record if the student user exists
+            if ($application->created_user_id) {
+                $sisUser = User::find($application->created_user_id);
+                if ($sisUser) {
+                    $sisUser->update(['intake_id' => $newIntakeId]);
+                }
+            }
+            // 3. Sync to LMS if the student has an LMS account
+            if ($application->created_user_id) {
+                $sisUser = $sisUser ?? User::find($application->created_user_id);
+                if ($sisUser && $sisUser->lms_user_id) {
+                    $lmsApiService = app(LmsApiService::class);
+                    $result = $lmsApiService->updateStudent($sisUser->lms_user_id, [
+                        'intake_id' => $newIntakeId,
+                    ]);
+
+                    if (! $result['success']) {
+                        throw new \Exception('Failed to update intake in LMS: '.($result['error'] ?? 'Unknown error'));
+                    }
+                }
+            }
+
+            // 4. Create audit log entry
+            ApplicationAuditLog::create([
+                'application_id' => $application->id,
+                'user_id' => auth()->id(),
+                'action' => 'intake_changed',
+                'old_status' => $application->status,
+                'new_status' => $application->status,
+                'reason' => "Intake changed from \"{$oldIntakeName}\" to \"{$newIntakeName}\"",
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
+
+            DB::commit();
+
+            Log::info('Application intake updated', [
+                'application_id' => $application->id,
+                'reference_number' => $application->reference_number,
+                'old_intake' => $oldIntakeName,
+                'new_intake' => $newIntakeName,
+                'new_intake_id' => $newIntakeId,
+                'updated_by' => auth()->id(),
+            ]);
+
+            return $application->fresh();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Failed to update application intake', [
+                'application_id' => $application->id,
+                'reference_number' => $application->reference_number,
+                'error' => $e->getMessage(),
+                'updated_by' => auth()->id(),
+            ]);
+
+            throw $e;
+        }
     }
 
     /**

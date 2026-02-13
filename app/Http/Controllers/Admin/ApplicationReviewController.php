@@ -121,7 +121,10 @@ class ApplicationReviewController extends Controller
     {
         $application->load('reviewer', 'createdUser', 'agent', 'latestContract', 'latestContract.template');
 
-        return view('pages.admin.applications.show', compact('application'));
+        $lmsApiService = app(\App\Services\LmsApiService::class);
+        $intakes = $lmsApiService->getIntakes();
+
+        return view('pages.admin.applications.show', compact('application', 'intakes'));
     }
 
     /**
@@ -182,6 +185,37 @@ class ApplicationReviewController extends Controller
             ]);
 
             return back()->with('error', 'Failed to reject application: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Update the intake assigned to an application
+     */
+    public function updateIntake(\App\Http\Requests\UpdateApplicationIntakeRequest $request, StudentApplication $application)
+    {
+        try {
+            $lmsApiService = app(\App\Services\LmsApiService::class);
+            $intake = $lmsApiService->getIntake((int) $request->input('intake_id'));
+
+            if (! $intake) {
+                return back()->with('error', 'Could not fetch intake details from LMS. Please try again.');
+            }
+
+            $this->applicationService->updateApplicationIntake(
+                $application,
+                (int) $request->input('intake_id'),
+                $intake['name'] ?? 'Unknown Intake'
+            );
+
+            return back()->with('success', 'Intake has been updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Failed to update application intake', [
+                'reference_number' => $application->reference_number,
+                'error' => $e->getMessage(),
+                'updated_by' => auth()->id(),
+            ]);
+
+            return back()->with('error', 'Failed to update intake: '.$e->getMessage());
         }
     }
 

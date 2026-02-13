@@ -764,3 +764,95 @@
         </div>
     </div>
 </div>
+
+{{-- Change Intake Modal --}}
+@if(!$application->isRejected() && isset($intakes))
+<div class="modal fade" id="changeIntakeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered mw-650px">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-light-primary border-0">
+                <div class="d-flex align-items-center">
+                    <div class="symbol symbol-50px me-4">
+                        <span class="symbol-label bg-primary">
+                            {!! getIcon('calendar', 'fs-2x text-white') !!}
+                        </span>
+                    </div>
+                    <div>
+                        <h2 class="fw-bolder text-gray-800 mb-1">Change Intake</h2>
+                        <p class="text-gray-600 fs-7 mb-0">Update the intake for {{ $application->full_name }}'s application</p>
+                    </div>
+                </div>
+                <div class="btn btn-icon btn-sm btn-active-light-primary" data-bs-dismiss="modal">
+                    {!! getIcon('cross', 'fs-1') !!}
+                </div>
+            </div>
+
+            <form action="{{ route('admin.applications.update-intake', $application) }}" method="POST">
+                @csrf
+                <div class="modal-body py-8">
+                    <div class="mb-6">
+                        <label class="form-label text-gray-700 fw-semibold required">Select New Intake</label>
+                        <select name="intake_id" class="form-select form-select-solid @error('intake_id') is-invalid @enderror" required>
+                            <option value="">-- Select Intake --</option>
+                            @foreach($intakes as $intake)
+                                <option value="{{ $intake['id'] }}" {{ (int)$application->intake_id === (int)$intake['id'] ? 'selected' : '' }}>
+                                    {{ $intake['name'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('intake_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="text-gray-700 fw-bold fs-6 mb-4 d-block">This action will:</label>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                {!! getIcon('check-circle', 'fs-4 text-primary me-3') !!}
+                                <span class="text-gray-700 fs-7">Update the intake on this <strong>application record</strong></span>
+                            </div>
+                            <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                {!! getIcon('check-circle', 'fs-4 text-primary me-3') !!}
+                                <span class="text-gray-700 fs-7">Update the intake on the <strong>SIS student account</strong> (if exists)</span>
+                            </div>
+                            <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                {!! getIcon('check-circle', 'fs-4 text-primary me-3') !!}
+                                <span class="text-gray-700 fs-7">Update the intake on the <strong>LMS student account</strong> (if exists)</span>
+                            </div>
+                            <div class="d-flex align-items-center bg-gray-100 rounded p-3">
+                                {!! getIcon('document', 'fs-4 text-info me-3') !!}
+                                <span class="text-gray-700 fs-7">Create an <strong>audit log</strong> entry for this change</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($application->latestContract)
+                        <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-4 mb-5">
+                            {!! getIcon('information-5', 'fs-2x text-warning me-3 flex-shrink-0') !!}
+                            <div class="text-gray-700 fs-7">
+                                <strong>Warning:</strong> This application already has a contract. Changing the intake will <strong>not</strong> automatically update the contract PDF. If the contract needs to reflect the new intake, use "Reject & Regenerate Contract" after changing the intake.
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="notice d-flex bg-light-info rounded border-info border border-dashed p-4">
+                        {!! getIcon('information-5', 'fs-2x text-info me-3 flex-shrink-0') !!}
+                        <div class="text-gray-700 fs-7">
+                            <strong>Note:</strong> If the student does not yet have an LMS account, the new intake will be used when the account is created upon final approval.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        {!! getIcon('check', 'fs-4 me-2') !!}
+                        Update Intake
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif

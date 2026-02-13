@@ -157,7 +157,19 @@
                                 <x-detail.info-card icon="abstract-26" label="Program" :value="$application->program_name ?? 'N/A'" color="primary" />
                             </div>
                             <div class="col-md-4">
-                                <x-detail.info-card icon="calendar" label="Preferred Intake" :value="$application->intake_name ?? $application->preferred_intake ?? 'N/A'" color="primary" />
+                                <div class="position-relative">
+                                    <x-detail.info-card icon="calendar" label="Preferred Intake" :value="$application->intake_name ?? $application->preferred_intake ?? 'N/A'" color="primary" />
+                                    @if(!$application->isRejected())
+                                        <button type="button"
+                                                class="btn btn-icon btn-sm btn-light-primary position-absolute"
+                                                style="top: 8px; right: 8px;"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#changeIntakeModal"
+                                                title="Change Intake">
+                                            {!! getIcon('pencil', 'fs-6') !!}
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <x-detail.info-card icon="people" label="Agency Referral" color="primary">

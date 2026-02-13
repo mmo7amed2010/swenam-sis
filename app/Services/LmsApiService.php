@@ -304,6 +304,7 @@ class LmsApiService
      */
     public function updateStudent(int $lmsUserId, array $data): array
     {
+
         try {
             $response = Http::withHeaders([
                 'X-API-Key' => $this->apiKey,
