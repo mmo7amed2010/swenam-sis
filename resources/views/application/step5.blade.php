@@ -122,23 +122,43 @@
             </div>
         </div>
 
-        {{-- Information Notice --}}
-        <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-6 mb-10">
-            <i class="ki-outline ki-information-5 fs-2tx text-primary me-4"></i>
-            <div class="d-flex flex-stack flex-grow-1">
-                <div class="fw-semibold">
-                    <h6 class="text-gray-900 fw-bold mb-3">Before You Submit</h6>
-                    <div class="fs-6 text-gray-700">
-                        <ul class="mb-0">
-                            <li>Please review all information for accuracy</li>
-                            <li>Ensure all required documents are uploaded</li>
-                            <li>You will receive a confirmation email with your application reference number</li>
-                            <li>Our admissions team will review your application and contact you within 5-7 business days</li>
-                        </ul>
+        @if(session()->has('agent_submission'))
+            {{-- Agent Information Notice --}}
+            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-6 mb-10">
+                <i class="ki-outline ki-information-5 fs-2tx text-primary me-4"></i>
+                <div class="d-flex flex-stack flex-grow-1">
+                    <div class="fw-semibold">
+                        <h6 class="text-gray-900 fw-bold mb-3">Before You Submit</h6>
+                        <div class="fs-6 text-gray-700">
+                            <ul class="mb-0">
+                                <li>Please review all student information for accuracy</li>
+                                <li>Ensure all required documents are uploaded</li>
+                                <li>The student will receive a confirmation email with the application reference number</li>
+                                <li>You can track the application status from your agent dashboard</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @else
+            {{-- Student Information Notice --}}
+            <div class="notice d-flex bg-light-primary rounded border-primary border border-dashed p-6 mb-10">
+                <i class="ki-outline ki-information-5 fs-2tx text-primary me-4"></i>
+                <div class="d-flex flex-stack flex-grow-1">
+                    <div class="fw-semibold">
+                        <h6 class="text-gray-900 fw-bold mb-3">Before You Submit</h6>
+                        <div class="fs-6 text-gray-700">
+                            <ul class="mb-0">
+                                <li>Please review all information for accuracy</li>
+                                <li>Ensure all required documents are uploaded</li>
+                                <li>You will receive a confirmation email with your application reference number</li>
+                                <li>Our admissions team will review your application and contact you within 5-7 business days</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Navigation Buttons --}}
         <div class="d-flex justify-content-between mt-10 pt-8 border-top border-gray-300">
