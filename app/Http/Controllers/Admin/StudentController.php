@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\StudentsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
 use App\Models\Student;
@@ -9,6 +10,7 @@ use App\Services\LmsApiService;
 use App\Services\StudentService;
 use App\Traits\HandlesDataTableRequests;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller
 {
@@ -143,6 +145,25 @@ class StudentController extends Controller
         }
 
         return $query;
+    }
+
+    /**
+     * Export students to Excel or CSV.
+     */
+    public function export(Request $request)
+    {
+        $format = $request->input('format', 'xlsx');
+        $extension = $format === 'csv' ? 'csv' : 'xlsx';
+        $filename = 'students-' . now()->format('Y-m-d') . '.' . $extension;
+
+        return Excel::download(
+            new StudentsExport(
+                $request->input('application_status'),
+                $request->input('program_id'),
+                $request->input('suspension_status')
+            ),
+            $filename
+        );
     }
 
     /**

@@ -52,27 +52,21 @@
                 search-placeholder="{{ __('Search students...') }}"
                 search-name="search"
                 :show-refresh="true">
-
-                <x-slot:filters>
-                    <select name="application_status" class="form-select form-select-sm w-175px">
-                        <option value="">{{ __('All Students') }}</option>
-                        <option value="with">{{ __('With Application') }}</option>
-                        <option value="without">{{ __('Without Application') }}</option>
-                    </select>
-                    <select name="program_id" class="form-select form-select-sm w-175px">
-                        <option value="">{{ __('All Programs') }}</option>
-                        @foreach($programs as $program)
-                            <option value="{{ $program['id'] }}">{{ $program['name'] }}</option>
-                        @endforeach
-                    </select>
-                    <select name="suspension_status" class="form-select form-select-sm w-175px">
-                        <option value="">{{ __('All Statuses') }}</option>
-                        <option value="active">{{ __('Active') }}</option>
-                        <option value="suspended">{{ __('Suspended') }}</option>
-                    </select>
-                </x-slot:filters>
-
                 <x-slot:actions>
+                    <x-tables.export-dropdown
+                        :export-url="route('admin.students.export')"
+                        filterId="students-filters"
+                    />
+                    <button type="button"
+                            class="btn btn-sm btn-light-primary d-flex align-items-center gap-2"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#students-filters"
+                            aria-expanded="false">
+                        <i class="ki-outline ki-filter fs-4"></i>
+                        {{ __('Filters') }}
+                        <span class="badge badge-circle badge-primary d-none"
+                              id="active-filter-count">0</span>
+                    </button>
                     <button type="button"
                             class="btn btn-sm btn-primary"
                             data-bs-toggle="modal"
@@ -83,6 +77,47 @@
                 </x-slot:actions>
             </x-tables.toolbar>
         </x-slot:toolbar>
+
+        {{-- Collapsible Filter Panel --}}
+        <div class="collapse" id="students-filters">
+            <div class="separator border-gray-200"></div>
+            <div class="py-5 px-3">
+                <div class="row g-4">
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Application') }}</label>
+                        <select name="application_status" class="form-select form-select-sm">
+                            <option value="">{{ __('All Students') }}</option>
+                            <option value="with">{{ __('With Application') }}</option>
+                            <option value="without">{{ __('Without Application') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Program') }}</label>
+                        <select name="program_id" class="form-select form-select-sm">
+                            <option value="">{{ __('All Programs') }}</option>
+                            @foreach($programs as $program)
+                                <option value="{{ $program['id'] }}">{{ $program['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Account Status') }}</label>
+                        <select name="suspension_status" class="form-select form-select-sm">
+                            <option value="">{{ __('All Statuses') }}</option>
+                            <option value="active">{{ __('Active') }}</option>
+                            <option value="suspended">{{ __('Suspended') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 col-lg-auto d-flex align-items-end">
+                        <button type="button" class="btn btn-sm btn-light-danger" id="reset-filters">
+                            <i class="ki-outline ki-arrows-circle fs-4 me-1"></i>
+                            {{ __('Reset') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="separator border-gray-200"></div>
+        </div>
 
         <!--begin::Table Container-->
         <div id="table-container">
@@ -136,6 +171,37 @@
         <script src="{{ asset('assets/js/custom/admin/tables/column-renderers.js') }}?v={{ filemtime(public_path('assets/js/custom/admin/tables/column-renderers.js')) }}"></script>
         <script src="{{ asset('assets/js/custom/admin/tables/admin-datatable.js') }}?v={{ filemtime(public_path('assets/js/custom/admin/tables/admin-datatable.js')) }}"></script>
         <script src="{{ asset('assets/js/custom/admin/tables/students-table.js') }}?v={{ filemtime(public_path('assets/js/custom/admin/tables/students-table.js')) }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const badge = document.getElementById('active-filter-count');
+                const resetBtn = document.getElementById('reset-filters');
+                const filtersPanel = document.getElementById('students-filters');
+                if (!filtersPanel) return;
+
+                const selects = filtersPanel.querySelectorAll('select');
+
+                function updateBadge() {
+                    let count = 0;
+                    selects.forEach(function(s) { if (s.value && s.value !== '') count++; });
+
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.classList.remove('d-none');
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                }
+
+                selects.forEach(function(s) { s.addEventListener('change', updateBadge); });
+
+                resetBtn.addEventListener('click', function() {
+                    selects.forEach(function(s) {
+                        s.value = '';
+                        s.dispatchEvent(new Event('change', { bubbles: true }));
+                    });
+                });
+            });
+        </script>
     @endpush
 
 </x-default-layout>
