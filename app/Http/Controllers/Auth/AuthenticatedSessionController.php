@@ -19,9 +19,9 @@ class AuthenticatedSessionController extends Controller
 
     private const DEFAULT_MAX_ATTEMPTS = 5;
 
-    private const ADMIN_LOCKOUT_MINUTES = 30;
+    private const ADMIN_LOCKOUT_MINUTES = 5;
 
-    private const DEFAULT_LOCKOUT_MINUTES = 15;
+    private const DEFAULT_LOCKOUT_MINUTES = 5;
 
     // Session timeout constants (in minutes)
     private const STUDENT_SESSION_TIMEOUT = 30;
