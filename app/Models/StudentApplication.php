@@ -527,6 +527,7 @@ class StudentApplication extends Model
             'payment_pending',
             'payment_uploaded',
             'payment_approved',
+            'approved',
         ]);
     }
 

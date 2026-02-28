@@ -37,8 +37,46 @@
         </div>
     </div>
 
+    {{-- Application Rejected Banner --}}
+    @if(isset($application) && $application->isRejected())
+        <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
+            <div class="col-xl-12">
+                <div class="card bg-light-danger border-0">
+                    <div class="card-body p-8">
+                        <div class="d-flex align-items-center">
+                            <i class="ki-duotone ki-shield-cross fs-3tx text-danger me-5">
+                                <span class="path1"></span>
+                                <span class="path2"></span>
+                            </i>
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1 text-gray-900">{{ __('Application Rejected') }}</h3>
+                                <p class="text-gray-700 mb-3">
+                                    {{ __('Your application') }}
+                                    <strong class="text-danger">{{ $application->reference_number }}</strong>
+                                    {{ __('has been rejected.') }}
+                                </p>
+                                <p class="text-muted mb-0 fs-7">
+                                    <i class="ki-duotone ki-information-2 fs-6 me-1">
+                                        <span class="path1"></span>
+                                        <span class="path2"></span>
+                                        <span class="path3"></span>
+                                    </i>
+                                    {{ __('Please contact support for more information.') }}
+                                </p>
+                            </div>
+                            <div class="ms-5 d-none d-md-block">
+                                <a href="{{ route('student.program.index') }}" class="btn btn-danger">
+                                    {{ __('View Application') }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     {{-- Application Status Banner (shown if pending approval) --}}
-    @if(!empty($isPendingApproval) && isset($application))
+    @elseif(!empty($isPendingApproval) && isset($application))
         <div class="row g-5 g-xl-10 mb-5 mb-xl-10">
             <div class="col-xl-12">
                 <div class="card bg-light-info border-0">

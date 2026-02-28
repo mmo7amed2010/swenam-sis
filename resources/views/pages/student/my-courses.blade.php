@@ -31,7 +31,24 @@
                         </div>
                     @endif
 
-                    @if($hasLmsAccount)
+                    @if(!empty($isRejected))
+                        <div class="text-center">
+                            <div class="mb-8">
+                                <i class="ki-duotone ki-lock fs-5tx text-danger mb-5">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                                <h2 class="fs-1 fw-bold text-gray-800 mb-3">{{ __('Course Access Locked') }}</h2>
+                                <p class="text-gray-600 fs-5 mb-5">
+                                    {{ __('Your application has been rejected. Course access is not available.') }}
+                                </p>
+                                <p class="text-gray-500 fs-6">
+                                    {{ __('Please contact support for more information.') }}
+                                </p>
+                            </div>
+                        </div>
+                    @elseif($hasLmsAccount)
                         <div class="text-center">
                             <div class="mb-8">
                                 <i class="ki-duotone ki-book-open fs-5tx text-primary mb-5">
