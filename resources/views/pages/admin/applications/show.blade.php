@@ -346,7 +346,7 @@
                                                         </a>
                                                         <button type="button"
                                                                 class="btn btn-sm btn-light-info"
-                                                                onclick="previewDocument('{{ route('admin.applications.download', [$application, $doc['key']]) }}?preview=1', '{{ $doc['label'] }}')">
+                                                                onclick="previewDocument('{{ route('admin.applications.download', [$application, $doc['key']]) }}?preview=1', '{{ $doc['label'] }}', '{{ strtolower(pathinfo($doc['path'], PATHINFO_EXTENSION)) }}')">
                                                             {!! getIcon('eye', 'fs-5 me-1') !!}
                                                             Preview
                                                         </button>
@@ -481,7 +481,7 @@
                                     </a>
                                     <button type="button"
                                             class="btn btn-sm btn-light-info"
-                                            onclick="previewDocument('{{ route('admin.applications.noa.download', $application) }}?preview=1', 'NOA Document')">
+                                            onclick="previewDocument('{{ route('admin.applications.noa.download', $application) }}?preview=1', 'NOA Document', '{{ strtolower(pathinfo($application->noa_document_path, PATHINFO_EXTENSION)) }}')">
                                         {!! getIcon('eye', 'fs-5 me-1') !!}
                                         Preview
                                     </button>
@@ -583,53 +583,107 @@
     {{-- All Modals --}}
     @include('pages.admin.applications._partials.modals')
 
+    @push('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.7/viewer.min.css" />
+    @endpush
+
     @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.7/viewer.min.js"></script>
     <script>
-        function previewDocument(url, type) {
-            const modal = new bootstrap.Modal(document.getElementById('previewModal'));
-            const titleEl = document.getElementById('previewTitle');
-            const bodyEl = document.getElementById('previewBody');
+        function previewDocument(url, title, ext) {
+            const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+            const pdfExts = ['pdf'];
 
-            titleEl.textContent = type;
+            if (imageExts.includes(ext)) {
+                // Use Viewer.js for images — fullscreen overlay with toolbar
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = title;
+                img.style.display = 'none';
+                document.body.appendChild(img);
 
-            bodyEl.innerHTML = `
-                <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 600px;">
-                    <div class="spinner-border text-gray-600 mb-3" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <span class="text-gray-600">Loading document...</span>
-                </div>
-            `;
+                const viewer = new Viewer(img, {
+                    inline: false,
+                    title: [1, () => title],
+                    toolbar: {
+                        zoomIn: 1,
+                        zoomOut: 1,
+                        oneToOne: 1,
+                        reset: 1,
+                        rotateLeft: 1,
+                        rotateRight: 1,
+                        flipHorizontal: 1,
+                        flipVertical: 1,
+                    },
+                    navbar: false,
+                    keyboard: true,
+                    ready() {
+                        var toolbar = document.querySelector('.viewer-toolbar ul');
+                        if (!toolbar) return;
+                        var li = document.createElement('li');
+                        li.setAttribute('role', 'button');
+                        li.setAttribute('tabindex', '0');
+                        li.setAttribute('title', 'Print (P)');
+                        li.style.cssText = 'cursor:pointer';
+                        li.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>';
+                        li.addEventListener('click', function() {
+                            var viewedImg = document.querySelector('.viewer-canvas img');
+                            if (!viewedImg) return;
+                            var transform = viewedImg.style.transform || '';
+                            var printWin = window.open('', '_blank');
+                            var s = '<' + 'style>';
+                            var se = '</' + 'style>';
+                            printWin.document.write(
+                                '<html><head><title>Print</' + 'title>' + s +
+                                '@media print{@page{margin:0.5cm}}' +
+                                'body{margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh}' +
+                                'img{max-width:100%;max-height:100vh;transform:' + transform + '}' +
+                                se + '</' + 'head>' +
+                                '<body><img src="' + url + '" onload="setTimeout(function(){window.print();window.close()},100)"></' + 'body></' + 'html>'
+                            );
+                            printWin.document.close();
+                        });
+                        toolbar.appendChild(li);
 
-            modal.show();
+                        document.addEventListener('keydown', function onKey(e) {
+                            if (e.key === 'p' || e.key === 'P') {
+                                if (!document.querySelector('.viewer-container')) {
+                                    document.removeEventListener('keydown', onKey);
+                                    return;
+                                }
+                                li.click();
+                            }
+                        });
+                    },
+                    hidden() {
+                        viewer.destroy();
+                        img.remove();
+                    },
+                });
+                viewer.show();
 
-            const isPdf = url.toLowerCase().includes('.pdf') || url.includes('preview=1');
-            const isImage = /\.(jpg|jpeg|png|gif|webp)/i.test(url);
+            } else if (pdfExts.includes(ext)) {
+                // Open PDF in new tab with browser's native PDF controls
+                window.open(url, '_blank');
 
-            setTimeout(() => {
-                if (isPdf) {
-                    bodyEl.innerHTML = `<embed src="${url}" type="application/pdf" width="100%" height="700px" style="border: none;">`;
-                } else if (isImage) {
-                    bodyEl.innerHTML = `
-                        <div class="d-flex align-items-center justify-content-center p-5" style="min-height: 600px; background: #f8f9fa;">
-                            <img src="${url}" class="img-fluid shadow-sm rounded" alt="${type}" style="max-height: 700px;">
-                        </div>
-                    `;
-                } else {
-                    bodyEl.innerHTML = `
-                        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 600px;">
-                            <div class="symbol symbol-100px mb-5">
-                                <span class="symbol-label bg-gray-100">
-                                    <i class="ki-outline ki-document fs-2x text-gray-600"></i>
-                                </span>
-                            </div>
-                            <h4 class="text-gray-600 fw-semibold mb-2">Preview Not Available</h4>
-                            <p class="text-gray-500 fs-7 mb-0">Please download the file to view its contents</p>
-                        </div>
-                    `;
-                }
-            }, 300);
+            } else {
+                // Fallback for unsupported file types
+                var modal = new bootstrap.Modal(document.getElementById('previewModal'));
+                document.getElementById('previewTitle').textContent = title;
+                document.getElementById('previewBody').innerHTML =
+                    '<div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 600px;">' +
+                    '<div class="symbol symbol-100px mb-5"><span class="symbol-label bg-gray-100">' +
+                    '<i class="ki-outline ki-document fs-2x text-gray-600"></i></span></div>' +
+                    '<h4 class="text-gray-600 fw-semibold mb-2">Preview Not Available</h4>' +
+                    '<p class="text-gray-500 fs-7 mb-0">Please download the file to view its contents</p></div>';
+                modal.show();
+            }
         }
+
+        // Clean up iframe when PDF modal closes to prevent memory leaks
+        document.getElementById('previewModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('previewBody').innerHTML = '';
+        });
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

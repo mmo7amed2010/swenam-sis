@@ -216,7 +216,7 @@
                     {!! getIcon('cross', 'fs-1') !!}
                 </div>
             </div>
-            <div class="modal-body p-0" id="previewBody" style="min-height: 600px;">
+            <div class="modal-body p-0" id="previewBody" style="min-height: 600px; overflow: hidden;">
                 <!-- Dynamic content loaded here -->
             </div>
         </div>

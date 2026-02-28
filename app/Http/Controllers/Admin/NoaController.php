@@ -40,10 +40,15 @@ class NoaController extends Controller
     /**
      * Download NOA document.
      */
-    public function download(StudentApplication $application): StreamedResponse
+    public function download(StudentApplication $application): StreamedResponse|\Symfony\Component\HttpFoundation\Response
     {
         if (! $application->noa_document_path || ! Storage::exists($application->noa_document_path)) {
             abort(404, 'NOA document not found.');
+        }
+
+        // Inline preview for document viewer
+        if (request()->has('preview')) {
+            return Storage::response($application->noa_document_path);
         }
 
         Log::info('NOA document downloaded', [
