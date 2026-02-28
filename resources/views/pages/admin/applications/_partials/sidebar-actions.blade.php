@@ -596,4 +596,21 @@
             @endif
         @endif
     @endif
+
+    @if(!$application->isRejected())
+        <div class="card border-0 shadow-sm mb-5">
+            <div class="card-body p-6">
+                <div class="separator separator-dashed mb-4"></div>
+                <div class="d-grid">
+                    <button type="button"
+                            class="btn btn-danger btn-lg d-flex align-items-center justify-content-center gap-2"
+                            data-bs-toggle="modal"
+                            data-bs-target="#rejectModal">
+                        {!! getIcon('cross-circle', 'fs-3') !!}
+                        <span>Reject Application</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
 @endif

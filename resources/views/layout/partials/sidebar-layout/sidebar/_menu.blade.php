@@ -67,7 +67,7 @@
                             </span>
                         </a>
                     @else
-                        <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Available after application approval') }}">
+                        <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ auth()->user()->student?->studentApplication?->isRejected() ? __('Your application has been rejected') : __('Available after application approval') }}">
                             <span class="menu-icon">{!! getIcon('book-open', 'fs-2 text-muted') !!}</span>
                             <span class="menu-title text-muted">{{ __('My Courses') }}</span>
                             <span class="menu-badge">
@@ -95,7 +95,7 @@
                             </span>
                         </a>
                     @else
-                        <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ __('Available after application approval') }}">
+                        <span class="menu-link disabled" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ auth()->user()->student?->studentApplication?->isRejected() ? __('Your application has been rejected') : __('Available after application approval') }}">
                             <span class="menu-icon">{!! getIcon('chart-simple', 'fs-2 text-muted') !!}</span>
                             <span class="menu-title text-muted">{{ __('My Grades') }}</span>
                             <span class="menu-badge">

@@ -26,10 +26,14 @@ class MyCoursesController extends Controller
         // Check if user has LMS account linked
         $hasLmsAccount = ! empty($user->lms_user_id);
 
+        // Check if student's application is rejected
+        $isRejected = $user->student?->studentApplication?->isRejected() ?? false;
+
         return view('pages.student.my-courses', [
             'user' => $user,
             'hasLmsAccount' => $hasLmsAccount,
             'lmsUrl' => config('lms.api_url'),
+            'isRejected' => $isRejected,
         ]);
     }
 
@@ -55,6 +59,12 @@ class MyCoursesController extends Controller
     protected function redirectToLms(Request $request, string $path = '/dashboard')
     {
         $user = $request->user();
+
+        // Check if student's application is rejected
+        if ($user->student?->studentApplication?->isRejected()) {
+            return redirect()->route('dashboard')
+                ->with('error', 'Your application has been rejected. Course access is not available.');
+        }
 
         // Check if user has LMS account
         if (empty($user->lms_user_id)) {
