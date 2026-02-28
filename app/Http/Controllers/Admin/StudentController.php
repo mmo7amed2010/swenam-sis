@@ -24,7 +24,7 @@ class StudentController extends Controller
     /**
      * Filters configuration for DataTables.
      */
-    protected array $filters = [
+    protected array $filterMethods = [
         'application_status' => 'applyApplicationStatusFilter',
         'program_id' => 'applyProgramFilter',
         'suspension_status' => 'applySuspensionStatusFilter',
@@ -85,7 +85,7 @@ class StudentController extends Controller
                     'unsuspend_url' => route('admin.students.unsuspend', $student),
                 ],
                 searchableColumns: $this->searchableColumns,
-                filters: $this->filters,
+                filters: array_map(fn ($method) => [$this, $method], $this->filterMethods),
                 orderableColumns: $this->orderableColumns
             );
         }

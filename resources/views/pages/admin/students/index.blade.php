@@ -181,7 +181,7 @@
                 const selects = filtersPanel.querySelectorAll('select');
 
                 function updateBadge() {
-                    let count = 0;
+                    var count = 0;
                     selects.forEach(function(s) { if (s.value && s.value !== '') count++; });
 
                     if (count > 0) {
@@ -192,13 +192,25 @@
                     }
                 }
 
-                selects.forEach(function(s) { s.addEventListener('change', updateBadge); });
+                function reloadTable() {
+                    if (window.studentsTable && typeof window.studentsTable.reload === 'function') {
+                        window.studentsTable.reload(true);
+                    }
+                }
+
+                selects.forEach(function(s) {
+                    s.addEventListener('change', function() {
+                        updateBadge();
+                        reloadTable();
+                    });
+                });
 
                 resetBtn.addEventListener('click', function() {
                     selects.forEach(function(s) {
                         s.value = '';
-                        s.dispatchEvent(new Event('change', { bubbles: true }));
                     });
+                    updateBadge();
+                    reloadTable();
                 });
             });
         </script>

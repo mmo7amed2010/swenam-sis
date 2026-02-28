@@ -457,9 +457,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             ],
             filters: {
-                application_status: 'select[name="application_status"]',
-                program_id: 'select[name="program_id"]',
-                suspension_status: 'select[name="suspension_status"]'
+                application_status: '#students-filters select[name="application_status"]',
+                program_id: '#students-filters select[name="program_id"]',
+                suspension_status: '#students-filters select[name="suspension_status"]'
             },
             order: [[4, 'desc']],
             translations: translations
