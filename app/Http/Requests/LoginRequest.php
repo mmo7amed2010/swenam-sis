@@ -46,20 +46,20 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            // Only track rate limiting in non-local environments
-            if (! app()->environment('local')) {
-                RateLimiter::hit($this->throttleKey());
-            }
+            // // Only track rate limiting in non-local environments
+            // if (! app()->environment('local')) {
+            //     RateLimiter::hit($this->throttleKey());
+            // }
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
 
-        // Clear rate limiter on successful login
-        if (! app()->environment('local')) {
-            RateLimiter::clear($this->throttleKey());
-        }
+        // // Clear rate limiter on successful login
+        // if (! app()->environment('local')) {
+        //     RateLimiter::clear($this->throttleKey());
+        // }
     }
 
     /**
@@ -71,6 +71,8 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited()
     {
+        return;
+
         // Skip rate limiting in local environment
         if (app()->environment('local')) {
             return;

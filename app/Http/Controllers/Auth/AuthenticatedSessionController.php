@@ -156,6 +156,8 @@ class AuthenticatedSessionController extends Controller
      */
     protected function hasTooManyLoginAttempts(Request $request)
     {
+        return false;
+
         // Skip rate limiting in local environment
         if (app()->environment('local')) {
             return false;
