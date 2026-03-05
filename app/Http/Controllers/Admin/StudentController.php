@@ -6,6 +6,7 @@ use App\Exports\StudentsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
 use App\Models\Student;
+use App\Jobs\SyncStudentStatusToLmsJob;
 use App\Services\LmsApiService;
 use App\Services\StudentService;
 use App\Traits\HandlesDataTableRequests;
@@ -345,6 +346,11 @@ class StudentController extends Controller
 
         $user->update(['is_suspended' => true]);
 
+        // Sync suspension to LMS
+        if ($user->lms_user_id) {
+            SyncStudentStatusToLmsJob::dispatch($user, 'suspend');
+        }
+
         \Illuminate\Support\Facades\Log::info('Student suspended', [
             'student_id' => $student->id,
             'user_id' => $user->id,
@@ -388,6 +394,11 @@ class StudentController extends Controller
         }
 
         $user->update(['is_suspended' => false]);
+
+        // Sync unsuspension to LMS
+        if ($user->lms_user_id) {
+            SyncStudentStatusToLmsJob::dispatch($user, 'unsuspend');
+        }
 
         \Illuminate\Support\Facades\Log::info('Student unsuspended', [
             'student_id' => $student->id,

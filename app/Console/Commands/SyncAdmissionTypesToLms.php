@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Services\LmsAdmissionTypeResolver;
 use App\Services\LmsApiService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -26,13 +27,13 @@ class SyncAdmissionTypesToLms extends Command
 
         $this->info("Found {$users->count()} students with LMS accounts.");
 
-        $stats = ['approved' => 0, 'bypass' => 0, 'rejected' => 0, 'errors' => 0];
+        $stats = ['approved' => 0, 'bypass' => 0, 'rejected' => 0, 'suspended' => 0, 'errors' => 0];
 
         $bar = $this->output->createProgressBar($users->count());
         $bar->start();
 
         foreach ($users as $user) {
-            $admissionType = $this->determineAdmissionType($user);
+            $admissionType = LmsAdmissionTypeResolver::resolve($user);
 
             if ($dryRun) {
                 $this->newLine();
@@ -41,6 +42,7 @@ class SyncAdmissionTypesToLms extends Command
                 try {
                     $result = $lmsApiService->updateStudent($user->lms_user_id, [
                         'admission_type' => $admissionType,
+                        'is_suspended' => $user->is_suspended,
                     ]);
 
                     if (! $result['success']) {
@@ -61,7 +63,9 @@ class SyncAdmissionTypesToLms extends Command
                 }
             }
 
-            if ($admissionType === null) {
+            if ($user->isSuspended()) {
+                $stats['suspended']++;
+            } elseif ($admissionType === null) {
                 $stats['rejected']++;
             } else {
                 $stats[$admissionType]++;
@@ -80,6 +84,7 @@ class SyncAdmissionTypesToLms extends Command
                 ['Approved', $stats['approved']],
                 ['Bypass', $stats['bypass']],
                 ['Rejected (set to null)', $stats['rejected']],
+                ['Suspended (set to null)', $stats['suspended']],
                 ['Errors', $stats['errors']],
             ]
         );
@@ -93,36 +98,4 @@ class SyncAdmissionTypesToLms extends Command
         return self::SUCCESS;
     }
 
-    /**
-     * Determine the admission_type for a SIS user.
-     *
-     * - Has an approved application → 'approved'
-     * - Has bypass_application flag → 'bypass'
-     * - Has a rejected application (was previously approved) → null (hide from LMS listing)
-     */
-    private function determineAdmissionType(User $user): ?string
-    {
-        // Check if user has a student application
-        $student = $user->student;
-        if ($student) {
-            $application = $student->studentApplication;
-
-            if ($application) {
-                if ($application->status === 'approved') {
-                    return 'approved';
-                }
-
-                // Any other status (pending, rejected, in-progress) — not yet approved
-                return null;
-            }
-        }
-
-        // No application — this is a bypass student
-        if ($user->bypass_application) {
-            return 'bypass';
-        }
-
-        // No application and no bypass flag — unknown origin, hide from listing
-        return null;
-    }
 }

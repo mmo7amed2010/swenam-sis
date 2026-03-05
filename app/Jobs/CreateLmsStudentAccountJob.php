@@ -6,6 +6,7 @@ use App\Mail\StudentLmsAccessActivatedMail;
 use App\Models\Student;
 use App\Models\StudentApplication;
 use App\Models\User;
+use App\Services\LmsAdmissionTypeResolver;
 use App\Services\LmsApiService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -94,7 +95,8 @@ class CreateLmsStudentAccountJob implements ShouldQueue
             $lmsApiService = app(LmsApiService::class);
 
             $result = $lmsApiService->updateStudent($user->lms_user_id, [
-                'admission_type' => 'approved',
+                'admission_type' => LmsAdmissionTypeResolver::resolve($user),
+                'is_suspended' => $user->is_suspended,
                 'sis_application_id' => $this->application->id,
             ]);
 
@@ -136,7 +138,8 @@ class CreateLmsStudentAccountJob implements ShouldQueue
                 'intake_id' => $this->application->intake_id,
                 'application_reference' => $this->application->reference_number,
                 'sis_application_id' => $this->application->id,
-                'admission_type' => 'approved',
+                'admission_type' => LmsAdmissionTypeResolver::resolve($user),
+                'is_suspended' => $user->is_suspended,
             ]);
 
             if ($result['success']) {

@@ -8,7 +8,8 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+use App\Jobs\SyncStudentStatusToLmsJob;
+use App\Services\LmsAdmissionTypeResolver;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -132,40 +133,22 @@ class StudentService
 
             // If bypass is enabled and no LMS account exists, create one
             // This handles both newly enabled bypass AND retry if previous creation failed
+            // Still creates account if suspended (so lms_user_id is set) but with admission_type = null
             if ($isNowBypassed && ! $student->user->lms_user_id && ! empty($data['intake_id'])) {
                 $this->createLmsAccountForBypassStudent($student->user, $student, $newProgramId, $data['intake_id']);
             }
 
-            // If bypass is re-enabled and LMS account already exists, restore admission_type
+            // If bypass is re-enabled and LMS account already exists, sync to LMS
             if ($isNowBypassed && $student->user->lms_user_id) {
-                try {
-                    $lmsApiService = app(LmsApiService::class);
-                    $lmsApiService->updateStudent($student->user->lms_user_id, [
-                        'admission_type' => 'bypass',
-                    ]);
-                } catch (\Exception $e) {
-                    Log::warning('Failed to sync admission_type restore to LMS', [
-                        'user_id' => $student->user->id,
-                        'lms_user_id' => $student->user->lms_user_id,
-                        'error' => $e->getMessage(),
-                    ]);
+                // Skip LMS restore if student is suspended — suspension takes precedence
+                if (! $student->user->isSuspended()) {
+                    SyncStudentStatusToLmsJob::dispatch($student->user, 'bypass_enabled');
                 }
             }
 
-            // If bypass is removed and student has an LMS account, clear admission_type in LMS
+            // If bypass is removed and student has an LMS account, sync to LMS
             if (! $isNowBypassed && $student->user->lms_user_id) {
-                try {
-                    $lmsApiService = app(LmsApiService::class);
-                    $lmsApiService->updateStudent($student->user->lms_user_id, [
-                        'admission_type' => null,
-                    ]);
-                } catch (\Exception $e) {
-                    Log::warning('Failed to sync admission_type removal to LMS', [
-                        'user_id' => $student->user->id,
-                        'lms_user_id' => $student->user->lms_user_id,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
+                SyncStudentStatusToLmsJob::dispatch($student->user, 'bypass_removed');
             }
         }
 
@@ -429,7 +412,8 @@ class StudentService
                 'date_of_birth' => $student->date_of_birth?->format('Y-m-d'),
                 'program_id' => $programId,
                 'intake_id' => $intakeId,
-                'admission_type' => 'bypass',
+                'admission_type' => LmsAdmissionTypeResolver::resolve($user),
+                'is_suspended' => $user->is_suspended,
             ]);
 
             if ($result['success'] && $result['user_id']) {
