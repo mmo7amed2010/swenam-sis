@@ -147,6 +147,32 @@ class ApplicationReviewService
             'reason' => $data['rejection_reason'],
         ]);
 
+        // Clear admission_type in LMS if the student has an LMS account
+        if ($application->created_user_id) {
+            $sisUser = User::find($application->created_user_id);
+            if ($sisUser && $sisUser->lms_user_id) {
+                try {
+                    $lmsApiService = app(LmsApiService::class);
+                    $result = $lmsApiService->updateStudent($sisUser->lms_user_id, [
+                        'admission_type' => null,
+                    ]);
+
+                    if (! $result['success']) {
+                        Log::error('Failed to clear admission_type in LMS after rejection', [
+                            'application_id' => $application->id,
+                            'lms_user_id' => $sisUser->lms_user_id,
+                            'error' => $result['error'] ?? 'Unknown error',
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('LMS API error when clearing admission_type after rejection', [
+                        'application_id' => $application->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
         // Send rejection email (queued)
         Mail::to($application->email)->queue(new ApplicationRejectedMail($application));
 

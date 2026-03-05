@@ -135,6 +135,38 @@ class StudentService
             if ($isNowBypassed && ! $student->user->lms_user_id && ! empty($data['intake_id'])) {
                 $this->createLmsAccountForBypassStudent($student->user, $student, $newProgramId, $data['intake_id']);
             }
+
+            // If bypass is re-enabled and LMS account already exists, restore admission_type
+            if ($isNowBypassed && $student->user->lms_user_id) {
+                try {
+                    $lmsApiService = app(LmsApiService::class);
+                    $lmsApiService->updateStudent($student->user->lms_user_id, [
+                        'admission_type' => 'bypass',
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to sync admission_type restore to LMS', [
+                        'user_id' => $student->user->id,
+                        'lms_user_id' => $student->user->lms_user_id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+
+            // If bypass is removed and student has an LMS account, clear admission_type in LMS
+            if (! $isNowBypassed && $student->user->lms_user_id) {
+                try {
+                    $lmsApiService = app(LmsApiService::class);
+                    $lmsApiService->updateStudent($student->user->lms_user_id, [
+                        'admission_type' => null,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to sync admission_type removal to LMS', [
+                        'user_id' => $student->user->id,
+                        'lms_user_id' => $student->user->lms_user_id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
         }
 
         // Log program change if applicable
@@ -397,6 +429,7 @@ class StudentService
                 'date_of_birth' => $student->date_of_birth?->format('Y-m-d'),
                 'program_id' => $programId,
                 'intake_id' => $intakeId,
+                'admission_type' => 'bypass',
             ]);
 
             if ($result['success'] && $result['user_id']) {

@@ -63,20 +63,59 @@ class CreateLmsStudentAccountJob implements ShouldQueue
             return;
         }
 
-        // Create LMS account
-        $this->createLmsAccount($user, $student);
+        // Create or update LMS account
+        if ($user->lms_user_id) {
+            // LMS account already exists (created on submission) — update it
+            $this->updateLmsAccount($user);
+        } else {
+            // No LMS account yet — create one
+            $this->createLmsAccount($user, $student);
+        }
 
         // Send LMS access activated email
         Mail::to($user->email)->queue(
             new StudentLmsAccessActivatedMail($user, $student, $this->application)
         );
 
-        Log::info('LMS account created for approved student', [
+        Log::info('LMS account created/updated for approved student', [
             'user_id' => $user->id,
             'student_number' => $student->student_number,
             'lms_user_id' => $user->fresh()->lms_user_id,
             'application_id' => $this->application->id,
         ]);
+    }
+
+    /**
+     * Update existing LMS account to set admission_type after approval.
+     */
+    private function updateLmsAccount(User $user): void
+    {
+        try {
+            $lmsApiService = app(LmsApiService::class);
+
+            $result = $lmsApiService->updateStudent($user->lms_user_id, [
+                'admission_type' => 'approved',
+                'sis_application_id' => $this->application->id,
+            ]);
+
+            if ($result['success']) {
+                Log::info('LMS account updated with admission_type for approved student', [
+                    'sis_user_id' => $user->id,
+                    'lms_user_id' => $user->lms_user_id,
+                ]);
+            } else {
+                Log::error('Failed to update LMS account admission_type', [
+                    'sis_user_id' => $user->id,
+                    'lms_user_id' => $user->lms_user_id,
+                    'error' => $result['error'] ?? 'Unknown error',
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('LMS API error during account update', [
+                'sis_user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**
@@ -97,6 +136,7 @@ class CreateLmsStudentAccountJob implements ShouldQueue
                 'intake_id' => $this->application->intake_id,
                 'application_reference' => $this->application->reference_number,
                 'sis_application_id' => $this->application->id,
+                'admission_type' => 'approved',
             ]);
 
             if ($result['success']) {
