@@ -856,3 +856,11 @@
     </div>
 </div>
 @endif
+
+{{-- Edit Field Modals --}}
+@include('pages.admin.applications._partials.modal-change-program')
+@include('pages.admin.applications._partials.modal-change-agency')
+@include('pages.admin.applications._partials.modal-change-funding')
+@include('pages.admin.applications._partials.modal-change-education')
+@include('pages.admin.applications._partials.modal-change-work')
+@include('pages.admin.applications._partials.modal-change-documents')

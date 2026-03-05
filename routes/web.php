@@ -118,6 +118,12 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('applications/{application}/approve', [ApplicationReviewController::class, 'approve'])->name('applications.approve');
         Route::post('applications/{application}/reject', [ApplicationReviewController::class, 'reject'])->name('applications.reject');
         Route::post('applications/{application}/update-intake', [ApplicationReviewController::class, 'updateIntake'])->name('applications.update-intake');
+        Route::post('applications/{application}/update-program', [ApplicationReviewController::class, 'updateProgram'])->name('applications.update-program');
+        Route::post('applications/{application}/update-agency', [ApplicationReviewController::class, 'updateAgency'])->name('applications.update-agency');
+        Route::post('applications/{application}/update-funding', [ApplicationReviewController::class, 'updateFundingType'])->name('applications.update-funding');
+        Route::post('applications/{application}/update-education', [ApplicationReviewController::class, 'updateEducation'])->name('applications.update-education');
+        Route::post('applications/{application}/update-work', [ApplicationReviewController::class, 'updateWork'])->name('applications.update-work');
+        Route::post('applications/{application}/update-documents', [ApplicationReviewController::class, 'updateDocuments'])->name('applications.update-documents');
         Route::get('applications/{application}/document/{documentType}', [ApplicationReviewController::class, 'downloadDocument'])->name('applications.download');
         
         // Contract Templates
