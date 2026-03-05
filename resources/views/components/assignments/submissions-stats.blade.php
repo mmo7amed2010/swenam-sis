@@ -23,9 +23,6 @@
         </div>
         <div class="flex-grow-1">
             <h4 class="fw-bold text-gray-900 mb-1">{{ __('Submission Status') }}</h4>
-            <p class="text-gray-600 mb-0">
-                {{ __(':submitted of :total program students submitted', ['submitted' => $submittedCount, 'total' => $totalStudents]) }}
-            </p>
         </div>
     </div>
 </x-cards.section>
