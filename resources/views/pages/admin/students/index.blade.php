@@ -38,6 +38,13 @@
             color="info"
             data-student-new-month-count
         />
+        <x-stat-card
+            icon="shield-tick"
+            :label="__('Active in LMS')"
+            :value="$activeLms"
+            color="dark"
+            data-student-active-lms-count
+        />
     </div>
     <!--end::Stats Row-->
 
@@ -106,6 +113,15 @@
                             <option value="">{{ __('All Statuses') }}</option>
                             <option value="active">{{ __('Active') }}</option>
                             <option value="suspended">{{ __('Suspended') }}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('LMS Status') }}</label>
+                        <select name="lms_status" class="form-select form-select-sm">
+                            <option value="">{{ __('All') }}</option>
+                            <option value="active_lms">{{ __('Active in LMS') }}</option>
+                            <option value="inactive_lms">{{ __('Not Active in LMS') }}</option>
+                            <option value="no_lms">{{ __('No LMS Account') }}</option>
                         </select>
                     </div>
                     <div class="col-md-2 col-lg-auto d-flex align-items-end">

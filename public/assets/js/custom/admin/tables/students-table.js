@@ -169,6 +169,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 el.textContent = payload.new_this_month;
             });
         }
+        if (typeof payload.active_lms !== 'undefined') {
+            document.querySelectorAll('[data-student-active-lms-count]').forEach(el => {
+                el.textContent = payload.active_lms;
+            });
+        }
     };
 
     // Handle bypass checkbox toggle for intake section visibility (create modal)
@@ -330,17 +335,30 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 {
-                    data: 'is_suspended',
+                    data: 'lms_status',
                     orderable: false,
                     searchable: false,
                     className: 'text-center',
                     render: function(data, type, row) {
-                        const suspendedLabel = tableElement.dataset.textSuspended || 'Suspended';
-                        const activeLabel = tableElement.dataset.textActive || 'Active';
+                        let html = '';
+
+                        // Account status badge
                         if (row.is_suspended) {
-                            return `<span class="badge badge-light-danger">${escapeAttr(suspendedLabel)}</span>`;
+                            html += '<span class="badge badge-light-danger d-block mb-1">Suspended</span>';
+                        } else {
+                            html += '<span class="badge badge-light-success d-block mb-1">Active</span>';
                         }
-                        return `<span class="badge badge-light-success">${escapeAttr(activeLabel)}</span>`;
+
+                        // LMS status badge
+                        if (data) {
+                            if (data.active) {
+                                html += `<span class="badge badge-light-primary fs-8"">LMS: ${escapeAttr(data.reason)}</span>`;
+                            } else {
+                                html += `<span class="badge badge-light-warning fs-8">LMS: ${escapeAttr(data.reason)}</span>`;
+                            }
+                        }
+
+                        return html;
                     }
                 },
                 {
@@ -459,7 +477,8 @@ document.addEventListener('DOMContentLoaded', function() {
             filters: {
                 application_status: '#students-filters select[name="application_status"]',
                 program_id: '#students-filters select[name="program_id"]',
-                suspension_status: '#students-filters select[name="suspension_status"]'
+                suspension_status: '#students-filters select[name="suspension_status"]',
+                lms_status: '#students-filters select[name="lms_status"]'
             },
             order: [[4, 'desc']],
             translations: translations

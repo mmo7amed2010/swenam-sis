@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
 use App\Models\Student;
 use App\Jobs\SyncStudentStatusToLmsJob;
+use App\Services\LmsAdmissionTypeResolver;
 use App\Services\LmsApiService;
 use App\Services\StudentService;
 use App\Traits\HandlesDataTableRequests;
@@ -29,6 +30,7 @@ class StudentController extends Controller
         'application_status' => 'applyApplicationStatusFilter',
         'program_id' => 'applyProgramFilter',
         'suspension_status' => 'applySuspensionStatusFilter',
+        'lms_status' => 'applyLmsStatusFilter',
     ];
 
     /**
@@ -82,6 +84,11 @@ class StudentController extends Controller
                     'delete_url' => route('admin.students.destroy', $student),
                     'can_delete' => $this->studentService->canDelete($student),
                     'is_suspended' => $student->user?->is_suspended ?? false,
+                    'lms_status' => $student->user ? LmsAdmissionTypeResolver::status($student->user) : [
+                        'active' => false,
+                        'reason' => 'No user account',
+                        'admission_type' => null,
+                    ],
                     'suspend_url' => route('admin.students.suspend', $student),
                     'unsuspend_url' => route('admin.students.unsuspend', $student),
                 ],
@@ -101,6 +108,7 @@ class StudentController extends Controller
             'withApplications' => $stats['with_applications'],
             'withoutApplications' => $stats['without_applications'],
             'newThisMonth' => $stats['new_this_month'],
+            'activeLms' => $stats['active_lms'],
             'programs' => $programs,
             'intakes' => $intakes,
         ]);
@@ -142,6 +150,45 @@ class StudentController extends Controller
         } elseif ($value === 'active') {
             return $query->whereHas('user', function ($q) {
                 $q->where('is_suspended', false);
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * Apply LMS status filter.
+     */
+    protected function applyLmsStatusFilter($query, $value)
+    {
+        if ($value === 'active_lms') {
+            return $query->whereHas('user', function ($q) {
+                $q->whereNotNull('lms_user_id')
+                    ->where('is_suspended', false)
+                    ->where(function ($q2) {
+                        $q2->whereHas('student.studentApplication', function ($q3) {
+                            $q3->where('status', 'approved');
+                        })->orWhere('bypass_application', true);
+                    });
+            });
+        } elseif ($value === 'inactive_lms') {
+            return $query->where(function ($q) {
+                $q->whereDoesntHave('user', function ($q2) {
+                    $q2->whereNotNull('lms_user_id');
+                })->orWhereHas('user', function ($q2) {
+                    $q2->where('is_suspended', true);
+                })->orWhereHas('user', function ($q2) {
+                    $q2->whereNotNull('lms_user_id')
+                        ->where('is_suspended', false)
+                        ->where('bypass_application', false)
+                        ->whereDoesntHave('student.studentApplication', function ($q3) {
+                            $q3->where('status', 'approved');
+                        });
+                });
+            });
+        } elseif ($value === 'no_lms') {
+            return $query->whereHas('user', function ($q) {
+                $q->whereNull('lms_user_id');
             });
         }
 

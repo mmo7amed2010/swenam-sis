@@ -365,6 +365,22 @@ class StudentService
     }
 
     /**
+     * Get count of students active in LMS (have lms_user_id, not suspended, and have admission_type basis).
+     */
+    public function getActiveLmsCount(): int
+    {
+        return Student::whereHas('user', function ($q) {
+            $q->whereNotNull('lms_user_id')
+                ->where('is_suspended', false)
+                ->where(function ($q2) {
+                    $q2->whereHas('student.studentApplication', function ($q3) {
+                        $q3->where('status', 'approved');
+                    })->orWhere('bypass_application', true);
+                });
+        })->count();
+    }
+
+    /**
      * Get student statistics.
      */
     public function getStatistics(): array
@@ -374,6 +390,7 @@ class StudentService
             'with_applications' => $this->getWithApplicationsCount(),
             'without_applications' => $this->getWithoutApplicationsCount(),
             'new_this_month' => $this->getNewThisMonthCount(),
+            'active_lms' => $this->getActiveLmsCount(),
         ];
     }
 
@@ -387,6 +404,7 @@ class StudentService
             'with_applications' => $this->getWithApplicationsCount(0),
             'without_applications' => $this->getWithoutApplicationsCount(0),
             'new_this_month' => $this->getNewThisMonthCount(0),
+            'active_lms' => $this->getActiveLmsCount(),
         ];
     }
 
