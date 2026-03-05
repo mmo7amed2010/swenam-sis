@@ -20,28 +20,29 @@
                 </div>
             </div>
 
-            <form action="{{ route('admin.applications.update-agency', $application) }}" method="POST" x-data="{ hasReferral: {{ $application->has_referral ? 'true' : 'false' }} }">
+            <form action="{{ route('admin.applications.update-agency', $application) }}" method="POST">
                 @csrf
                 <div class="modal-body py-8">
                     <div class="mb-6">
                         <label class="form-label text-gray-700 fw-semibold required">Has Agency Referral?</label>
                         <div class="d-flex gap-4">
                             <label class="d-flex align-items-center cursor-pointer">
-                                <input type="radio" name="has_referral" value="1" class="form-check-input me-2" x-on:change="hasReferral = true" {{ $application->has_referral ? 'checked' : '' }}>
+                                <input type="radio" name="has_referral" value="1" class="form-check-input me-2" onchange="document.getElementById('agencyNameField').style.display='block'" {{ $application->has_referral ? 'checked' : '' }}>
                                 <span class="text-gray-700 fw-semibold">Yes</span>
                             </label>
                             <label class="d-flex align-items-center cursor-pointer">
-                                <input type="radio" name="has_referral" value="0" class="form-check-input me-2" x-on:change="hasReferral = false" {{ !$application->has_referral ? 'checked' : '' }}>
+                                <input type="radio" name="has_referral" value="0" class="form-check-input me-2" onchange="document.getElementById('agencyNameField').style.display='none'" {{ !$application->has_referral ? 'checked' : '' }}>
                                 <span class="text-gray-700 fw-semibold">No</span>
                             </label>
                         </div>
                     </div>
 
-                    <div class="mb-6" x-show="hasReferral" x-transition>
+                    <div class="mb-6" id="agencyNameField" style="{{ $application->has_referral ? '' : 'display: none;' }}">
                         <label class="form-label text-gray-700 fw-semibold required">Agency Name</label>
                         <input type="text" name="referral_agency_name" class="form-control form-control-solid @error('referral_agency_name') is-invalid @enderror"
                                value="{{ old('referral_agency_name', $application->referral_agency_name) }}"
-                               placeholder="Enter agency name">
+                               placeholder="Enter the agency name"
+                               maxlength="255">
                         @error('referral_agency_name')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
