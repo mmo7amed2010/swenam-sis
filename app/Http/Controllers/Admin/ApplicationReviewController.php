@@ -402,20 +402,21 @@ class ApplicationReviewController extends Controller
     public function updateEducation(Request $request, StudentApplication $application)
     {
         $validated = $request->validate([
-            'education_country' => 'required|string|max:255',
+            'highest_education_level' => 'required|string|max:255',
+            'education_field' => 'required|string|max:255',
             'institution_name' => 'required|string|max:255',
+            'education_country' => 'required|string|max:100',
+            'education_completed' => 'required|in:yes,no,still_studying',
+            'has_disciplinary_action' => 'required|boolean',
         ]);
 
         DB::beginTransaction();
 
         try {
-            $oldCountry = $application->education_country ?? 'N/A';
             $oldInstitution = $application->institution_name ?? 'N/A';
+            $oldCountry = $application->education_country ?? 'N/A';
 
-            $application->update([
-                'education_country' => $validated['education_country'],
-                'institution_name' => $validated['institution_name'],
-            ]);
+            $application->update($validated);
 
             \App\Models\ApplicationAuditLog::create([
                 'application_id' => $application->id,
@@ -423,7 +424,7 @@ class ApplicationReviewController extends Controller
                 'action' => 'education_changed',
                 'old_status' => $application->status,
                 'new_status' => $application->status,
-                'reason' => "Education changed from \"{$oldInstitution} ({$oldCountry})\" to \"{$validated['institution_name']} ({$validated['education_country']})\"",
+                'reason' => "Education updated: \"{$oldInstitution} ({$oldCountry})\" to \"{$validated['institution_name']} ({$validated['education_country']})\"",
                 'ip_address' => request()->ip(),
                 'user_agent' => request()->userAgent(),
             ]);
@@ -451,11 +452,11 @@ class ApplicationReviewController extends Controller
     {
         $validated = $request->validate([
             'position_title' => 'required|string|max:255',
-            'position_level' => 'required|in:Senior Managerial Position,Managerial Position,Entry Level Position',
+            'position_level' => 'required|string|max:100',
             'organization_name' => 'required|string|max:255',
             'work_start_date' => 'required|date',
-            'work_end_date' => 'nullable|date|after_or_equal:work_start_date',
-            'years_of_experience' => 'required|integer|min:0|max:50',
+            'work_end_date' => 'nullable|date|after:work_start_date',
+            'years_of_experience' => 'required|string|max:50',
         ]);
 
         DB::beginTransaction();
