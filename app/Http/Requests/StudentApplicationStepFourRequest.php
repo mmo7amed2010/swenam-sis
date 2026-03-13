@@ -29,6 +29,9 @@ class StudentApplicationStepFourRequest extends FormRequest
             $rules['position_title'] = ['required', 'string', 'max:255'];
             $rules['organization_name'] = ['required', 'string', 'max:255'];
             $rules['work_start_date'] = ['required', 'date'];
+            $rules['work_end_day'] = ['nullable', 'required_with:work_end_month,work_end_year'];
+            $rules['work_end_month'] = ['nullable', 'required_with:work_end_day,work_end_year'];
+            $rules['work_end_year'] = ['nullable', 'required_with:work_end_day,work_end_month'];
             $rules['work_end_date'] = ['nullable', 'date', 'after:work_start_date'];
             $rules['years_of_experience'] = ['required', 'string', 'max:50'];
         }
@@ -47,6 +50,9 @@ class StudentApplicationStepFourRequest extends FormRequest
             'position_title.required' => 'Please provide your position title.',
             'organization_name.required' => 'Please provide the organization name.',
             'work_start_date.required' => 'Please provide the start date.',
+            'work_end_day.required_with' => 'Please complete all end date fields.',
+            'work_end_month.required_with' => 'Please complete all end date fields.',
+            'work_end_year.required_with' => 'Please complete all end date fields.',
             'work_end_date.after' => 'End date must be after start date.',
             'years_of_experience.required' => 'Please select your years of experience.',
         ];
@@ -64,10 +70,14 @@ class StudentApplicationStepFourRequest extends FormRequest
             ]);
         }
 
-        // Combine work end date components if they exist separately
-        if ($this->has('work_end_day') && $this->has('work_end_month') && $this->has('work_end_year')) {
+        // Combine work end date components if they exist separately and are not empty
+        if ($this->filled('work_end_day') && $this->filled('work_end_month') && $this->filled('work_end_year')) {
             $this->merge([
                 'work_end_date' => sprintf('%04d-%02d-%02d', $this->work_end_year, $this->work_end_month, $this->work_end_day),
+            ]);
+        } else {
+            $this->merge([
+                'work_end_date' => null,
             ]);
         }
     }

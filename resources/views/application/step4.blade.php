@@ -5,6 +5,28 @@
     {{-- Progress Indicator --}}
     <x-application-progress currentStep="4" />
 
+    @php
+        // Extract date components from stored combined dates for repopulating selects
+        try {
+            $startDate = isset($data['work_start_date']) ? \Carbon\Carbon::parse($data['work_start_date']) : null;
+        } catch (\Exception $e) {
+            $startDate = null;
+        }
+        try {
+            $endDate = isset($data['work_end_date']) ? \Carbon\Carbon::parse($data['work_end_date']) : null;
+        } catch (\Exception $e) {
+            $endDate = null;
+        }
+
+        $savedStartDay = $startDate?->day;
+        $savedStartMonth = $startDate?->month;
+        $savedStartYear = $startDate?->year;
+
+        $savedEndDay = $endDate?->day;
+        $savedEndMonth = $endDate?->month;
+        $savedEndYear = $endDate?->year;
+    @endphp
+
     <form method="POST" action="{{ route($rp . 'step4.store') }}" class="mt-10">
         @csrf
 
@@ -94,7 +116,7 @@
                                 <select name="work_start_day" class="form-select form-select-lg @error('work_start_date') is-invalid @enderror">
                                     <option value="">Day</option>
                                     @for($i = 1; $i <= 31; $i++)
-                                        <option value="{{ $i }}" {{ old('work_start_day') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        <option value="{{ $i }}" {{ old('work_start_day', $savedStartDay) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                     @endfor
                                 </select>
                             </div>
@@ -102,7 +124,7 @@
                                 <select name="work_start_month" class="form-select form-select-lg @error('work_start_date') is-invalid @enderror">
                                     <option value="">Month</option>
                                     @for($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }}" {{ old('work_start_month') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        <option value="{{ $i }}" {{ old('work_start_month', $savedStartMonth) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                     @endfor
                                 </select>
                             </div>
@@ -110,7 +132,7 @@
                                 <select name="work_start_year" class="form-select form-select-lg @error('work_start_date') is-invalid @enderror">
                                     <option value="">Year</option>
                                     @for($i = date('Y'); $i >= 1950; $i--)
-                                        <option value="{{ $i }}" {{ old('work_start_year') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        <option value="{{ $i }}" {{ old('work_start_year', $savedStartYear) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                     @endfor
                                 </select>
                             </div>
@@ -125,26 +147,26 @@
                         <label class="form-label fs-6 fw-semibold mb-3">End Date <span class="text-muted">(Optional)</span></label>
                         <div class="row g-3">
                             <div class="col-4">
-                                <select name="work_end_day" class="form-select form-select-lg @error('work_end_date') is-invalid @enderror">
+                                <select name="work_end_day" class="form-select form-select-lg @error('work_end_date') is-invalid @enderror @error('work_end_day') is-invalid @enderror">
                                     <option value="">Day</option>
                                     @for($i = 1; $i <= 31; $i++)
-                                        <option value="{{ $i }}" {{ old('work_end_day') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        <option value="{{ $i }}" {{ old('work_end_day', $savedEndDay) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                     @endfor
                                 </select>
                             </div>
                             <div class="col-4">
-                                <select name="work_end_month" class="form-select form-select-lg @error('work_end_date') is-invalid @enderror">
+                                <select name="work_end_month" class="form-select form-select-lg @error('work_end_date') is-invalid @enderror @error('work_end_month') is-invalid @enderror">
                                     <option value="">Month</option>
                                     @for($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }}" {{ old('work_end_month') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        <option value="{{ $i }}" {{ old('work_end_month', $savedEndMonth) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                     @endfor
                                 </select>
                             </div>
                             <div class="col-4">
-                                <select name="work_end_year" class="form-select form-select-lg @error('work_end_date') is-invalid @enderror">
+                                <select name="work_end_year" class="form-select form-select-lg @error('work_end_date') is-invalid @enderror @error('work_end_year') is-invalid @enderror">
                                     <option value="">Year</option>
                                     @for($i = date('Y'); $i >= 1950; $i--)
-                                        <option value="{{ $i }}" {{ old('work_end_year') == $i ? 'selected' : '' }}>{{ $i }}</option>
+                                        <option value="{{ $i }}" {{ old('work_end_year', $savedEndYear) == $i ? 'selected' : '' }}>{{ $i }}</option>
                                     @endfor
                                 </select>
                             </div>
@@ -153,6 +175,9 @@
                             <i class="ki-outline ki-information-5 fs-6 text-muted me-1"></i>
                             Leave blank if still employed
                         </div>
+                        @if ($errors->has('work_end_day') || $errors->has('work_end_month') || $errors->has('work_end_year'))
+                            <div class="text-danger small mt-2 d-block">{{ $errors->first('work_end_day') ?? $errors->first('work_end_month') ?? $errors->first('work_end_year') }}</div>
+                        @endif
                         @error('work_end_date')
                             <div class="text-danger small mt-2 d-block">{{ $message }}</div>
                         @enderror
