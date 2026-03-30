@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\StudentsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
+use App\Models\Course;
 use App\Models\Student;
 use App\Jobs\SyncStudentStatusToLmsJob;
 use App\Services\LmsAdmissionTypeResolver;
@@ -270,9 +271,45 @@ class StudentController extends Controller
             ]);
         }
 
-        $student->load('studentApplication');
+        $student->load([
+            'user.program',
+            'studentApplication.reviewer',
+            'studentApplication.initialApprover',
+            'studentApplication.contractSender',
+            'studentApplication.contractApprover',
+            'studentApplication.paymentApprover',
+            'studentApplication.noaRequester',
+            'studentApplication.noaApprover',
+            'studentApplication.msfaaRequester',
+            'studentApplication.msfaaApprover',
+            'studentApplication.msfaaRejecter',
+            'studentApplication.agent',
+            'studentApplication.latestContract.template',
+        ]);
 
-        return view('pages.admin.students.show', compact('student'));
+        $lmsStatus = $student->user
+            ? LmsAdmissionTypeResolver::status($student->user)
+            : ['active' => false, 'reason' => 'No user account', 'admission_type' => null];
+
+        $courses = ($student->user && $student->user->program)
+            ? Course::where('program_id', $student->user->program_id)
+                ->where('status', 'active')
+                ->with('instructors.instructor')
+                ->orderBy('course_code')
+                ->get()
+            : collect();
+
+        // Pre-resolve application program/intake names to avoid repeated LMS API calls in the view
+        $appProgramName = null;
+        $appIntakeName = null;
+        if ($student->studentApplication) {
+            $programs = collect($this->lmsApiService->getPrograms());
+            $intakes = collect($this->lmsApiService->getIntakes());
+            $appProgramName = $programs->firstWhere('id', $student->studentApplication->program_id)['name'] ?? null;
+            $appIntakeName = $intakes->firstWhere('id', $student->studentApplication->intake_id)['name'] ?? null;
+        }
+
+        return view('pages.admin.students.show', compact('student', 'lmsStatus', 'courses', 'appProgramName', 'appIntakeName'));
     }
 
     /**
