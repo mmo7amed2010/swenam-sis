@@ -160,6 +160,122 @@
             </div>
         @endif
 
+        {{-- Declarations & Acknowledgments --}}
+        @php
+            $isGovernmentFunded = ($data['funding_type'] ?? '') === 'government_funded';
+        @endphp
+        <div class="mb-10">
+            <h3 class="text-gray-800 fw-bold fs-4 mb-2">
+                <i class="ki-outline ki-shield-tick fs-3 text-primary me-2"></i>
+                Declarations & Acknowledgments
+            </h3>
+            <p class="text-gray-600 fs-6 mb-6">Please read each statement carefully and confirm your agreement</p>
+
+            @if($isGovernmentFunded)
+                {{-- Government Funding Loan Acknowledgment --}}
+                <div class="mb-8">
+                    <p class="fs-6 text-gray-700 mb-3">
+                        Do you acknowledge and fully understand that any government funding you may receive can include a repayable loan component, which constitutes a legal financial obligation that must be repaid in full in accordance with the terms, conditions, and repayment schedule established by the applicable government funding authority (such as StudentAid BC or other provincial/federal bodies), and that only a portion of the funding, if approved based on your eligibility assessment, may be provided as a non-repayable grant?
+                    </p>
+                    <label class="form-check form-check-custom form-check-solid form-check-lg">
+                        <input type="checkbox"
+                               name="ack_gov_funding_loan"
+                               value="1"
+                               class="form-check-input @error('ack_gov_funding_loan') is-invalid @enderror"
+                               {{ old('ack_gov_funding_loan') ? 'checked' : '' }}
+                               required />
+                        <span class="form-check-label fw-semibold text-gray-700">Yes, I understand and acknowledge the above <span class="text-danger">*</span></span>
+                    </label>
+                    @error('ack_gov_funding_loan')
+                        <div class="invalid-feedback d-block ms-9">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="separator separator-dashed mb-8"></div>
+            @endif
+
+            {{-- Applicant Information Declaration --}}
+            <div class="mb-8">
+                <p class="fs-6 text-gray-700 mb-3">
+                    Do you acknowledge and declare that all information, contact details, and supporting documents provided in this application are complete, accurate, and truthful to the best of your knowledge, and that you bear full responsibility for ensuring their correctness? You further understand that providing false, misleading, outdated, or incomplete information may result in the refusal of admission, cancellation of enrollment, reporting to applicable authorities (including funding bodies such as StudentAid), and any other actions deemed necessary by the institution.
+                </p>
+                <label class="form-check form-check-custom form-check-solid form-check-lg">
+                    <input type="checkbox"
+                           name="ack_information_declaration"
+                           value="1"
+                           class="form-check-input @error('ack_information_declaration') is-invalid @enderror"
+                           {{ old('ack_information_declaration') ? 'checked' : '' }}
+                           required />
+                    <span class="form-check-label fw-semibold text-gray-700">Yes, I confirm and acknowledge the above <span class="text-danger">*</span></span>
+                </label>
+                @error('ack_information_declaration')
+                    <div class="invalid-feedback d-block ms-9">{{ $message }}</div>
+                @enderror
+            </div>
+
+            @if($isGovernmentFunded)
+                {{-- Academic Engagement (Government Funded Only) --}}
+                <div class="separator separator-dashed mb-8"></div>
+                <div class="mb-8">
+                    <p class="fs-6 text-gray-700 mb-3">
+                        Do you acknowledge and understand that you are required to actively participate in your program (including logging into the learning platform, completing assignments, and engaging with course materials), and that failure to demonstrate academic engagement may result in termination of your enrollment and notification to applicable funding authorities (e.g., StudentAid), which may impact your funding eligibility?
+                    </p>
+                    <label class="form-check form-check-custom form-check-solid form-check-lg">
+                        <input type="checkbox"
+                               name="ack_gov_academic_engagement"
+                               value="1"
+                               class="form-check-input @error('ack_gov_academic_engagement') is-invalid @enderror"
+                               {{ old('ack_gov_academic_engagement') ? 'checked' : '' }}
+                               required />
+                        <span class="form-check-label fw-semibold text-gray-700">Yes, I understand and acknowledge <span class="text-danger">*</span></span>
+                    </label>
+                    @error('ack_gov_academic_engagement')
+                        <div class="invalid-feedback d-block ms-9">{{ $message }}</div>
+                    @enderror
+                </div>
+            @endif
+
+            {{-- Contact Information Responsibility --}}
+            <div class="separator separator-dashed mb-8"></div>
+            <div class="mb-8">
+                <p class="fs-6 text-gray-700 mb-3">
+                    Do you acknowledge that it is your responsibility to provide valid and active contact information (phone number and email) and to regularly monitor and respond to communications from the college, and that failure to do so may affect your enrollment status and access to services?
+                </p>
+                <label class="form-check form-check-custom form-check-solid form-check-lg">
+                    <input type="checkbox"
+                           name="ack_contact_responsibility"
+                           value="1"
+                           class="form-check-input @error('ack_contact_responsibility') is-invalid @enderror"
+                           {{ old('ack_contact_responsibility') ? 'checked' : '' }}
+                           required />
+                    <span class="form-check-label fw-semibold text-gray-700">Yes, I understand and acknowledge <span class="text-danger">*</span></span>
+                </label>
+                @error('ack_contact_responsibility')
+                    <div class="invalid-feedback d-block ms-9">{{ $message }}</div>
+                @enderror
+            </div>
+
+            {{-- Non-Attendance / Withdrawal --}}
+            <div class="separator separator-dashed mb-8"></div>
+            <div class="mb-8">
+                <p class="fs-6 text-gray-700 mb-3">
+                    Do you understand that failure to attend, participate, or respond to institutional communications may be considered non-attendance or withdrawal, which may result in cancellation of your enrollment, reporting to funding authorities, and financial consequences in accordance with institutional and regulatory policies?
+                </p>
+                <label class="form-check form-check-custom form-check-solid form-check-lg">
+                    <input type="checkbox"
+                           name="ack_non_attendance"
+                           value="1"
+                           class="form-check-input @error('ack_non_attendance') is-invalid @enderror"
+                           {{ old('ack_non_attendance') ? 'checked' : '' }}
+                           required />
+                    <span class="form-check-label fw-semibold text-gray-700">Yes, I understand and acknowledge <span class="text-danger">*</span></span>
+                </label>
+                @error('ack_non_attendance')
+                    <div class="invalid-feedback d-block ms-9">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
         {{-- Navigation Buttons --}}
         <div class="d-flex justify-content-between mt-10 pt-8 border-top border-gray-300">
             <a href="{{ route($rp . 'step4') }}" class="btn btn-light btn-lg fw-semibold px-8">
