@@ -163,6 +163,7 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
     // Admin-only routes - Student Management (SIS is master for students)
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('students/export', [StudentController::class, 'export'])->name('students.export');
+        Route::get('students/{student}/export-pdf', [StudentController::class, 'exportPdf'])->name('students.export-pdf');
         Route::resource('students', StudentController::class);
         Route::post('students/{student}/suspend', [StudentController::class, 'suspend'])->name('students.suspend');
         Route::post('students/{student}/unsuspend', [StudentController::class, 'unsuspend'])->name('students.unsuspend');

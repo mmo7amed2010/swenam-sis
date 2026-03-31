@@ -13,6 +13,7 @@ use App\Services\LmsApiService;
 use App\Services\StudentService;
 use App\Traits\HandlesDataTableRequests;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller
@@ -310,6 +311,45 @@ class StudentController extends Controller
         }
 
         return view('pages.admin.students.show', compact('student', 'lmsStatus', 'courses', 'appProgramName', 'appIntakeName'));
+    }
+
+    /**
+     * Export student profile as PDF.
+     */
+    public function exportPdf(Student $student)
+    {
+        $student->load([
+            'user.program',
+            'studentApplication.reviewer',
+            'studentApplication.initialApprover',
+            'studentApplication.agent',
+            'studentApplication.latestContract.template',
+        ]);
+
+        $application = $student->studentApplication;
+        $lmsStatus = $student->user
+            ? LmsAdmissionTypeResolver::status($student->user)
+            : ['active' => false, 'reason' => 'No user account', 'admission_type' => null];
+
+        $courses = ($student->user && $student->user->program)
+            ? Course::where('program_id', $student->user->program_id)
+                ->where('status', 'active')
+                ->with('instructors.instructor')
+                ->orderBy('course_code')
+                ->get()
+            : collect();
+
+        $pdf = Pdf::loadView('pdf.student', [
+            'student' => $student,
+            'application' => $application,
+            'lmsStatus' => $lmsStatus,
+            'courses' => $courses,
+            'generatedAt' => now(),
+        ]);
+
+        $filename = 'student-' . ($student->student_number ?? $student->id) . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     /**
