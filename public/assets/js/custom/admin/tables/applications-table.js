@@ -188,6 +188,9 @@ document.addEventListener('DOMContentLoaded', function() {
             status: 'select[name="status"]',
             noa_status: 'select[name="noa_status"]',
             msfaa_status: 'select[name="msfaa_status"]',
+            program: 'select[name="program"]',
+            intake: 'select[name="intake"]',
+            agency: 'select[name="agency"]',
             from: 'input[name="from"]',
             to: 'input[name="to"]',
             agent_id: 'input[name="agent_id"]'

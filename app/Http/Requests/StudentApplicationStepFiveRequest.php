@@ -19,13 +19,27 @@ class StudentApplicationStepFiveRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $isGovernmentFunded = session('application.funding_type') === 'government_funded';
+
+        $rules = [
             'government_id' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png'],
             'degree_certificate' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,docx'],
             'transcripts' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,docx'],
             'cv' => ['required', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,docx'],
             'english_test' => ['nullable', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,docx'],
+
+            // Declarations & Acknowledgments
+            'ack_information_declaration' => ['required', 'accepted'],
+            'ack_contact_responsibility' => ['required', 'accepted'],
+            'ack_non_attendance' => ['required', 'accepted'],
         ];
+
+        if ($isGovernmentFunded) {
+            $rules['ack_gov_funding_loan'] = ['required', 'accepted'];
+            $rules['ack_gov_academic_engagement'] = ['required', 'accepted'];
+        }
+
+        return $rules;
     }
 
     /**
@@ -52,6 +66,17 @@ class StudentApplicationStepFiveRequest extends FormRequest
 
             'english_test.max' => 'English test file size must not exceed 10MB.',
             'english_test.mimes' => 'English test results must be a PDF, JPG, PNG, or DOCX file.',
+
+            'ack_information_declaration.required' => 'You must acknowledge the applicant information declaration.',
+            'ack_information_declaration.accepted' => 'You must acknowledge the applicant information declaration.',
+            'ack_gov_funding_loan.required' => 'You must acknowledge the government funding loan terms.',
+            'ack_gov_funding_loan.accepted' => 'You must acknowledge the government funding loan terms.',
+            'ack_gov_academic_engagement.required' => 'You must acknowledge the academic engagement requirement.',
+            'ack_gov_academic_engagement.accepted' => 'You must acknowledge the academic engagement requirement.',
+            'ack_contact_responsibility.required' => 'You must acknowledge the contact information responsibility.',
+            'ack_contact_responsibility.accepted' => 'You must acknowledge the contact information responsibility.',
+            'ack_non_attendance.required' => 'You must acknowledge the non-attendance/withdrawal policy.',
+            'ack_non_attendance.accepted' => 'You must acknowledge the non-attendance/withdrawal policy.',
         ];
     }
 }

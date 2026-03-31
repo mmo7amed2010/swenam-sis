@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ApplicationReviewController extends Controller
 {
@@ -72,6 +73,8 @@ class ApplicationReviewController extends Controller
                     'noa_status' => fn ($q, $val) => $val !== 'all' ? $q->where('noa_status', $val) : $q,
                     'msfaa_status' => fn ($q, $val) => $val !== 'all' ? $q->where('msfaa_status', $val) : $q,
                     'program' => fn ($q, $val) => $val !== 'all' ? $q->where('program_id', $val) : $q,
+                    'intake' => fn ($q, $val) => $val !== 'all' ? $q->where('intake_id', $val) : $q,
+                    'agency' => fn ($q, $val) => $val !== 'all' ? $q->where('referral_agency_name', $val) : $q,
                     'from' => fn ($q, $val) => $q->whereDate('created_at', '>=', $val),
                     'to' => fn ($q, $val) => $q->whereDate('created_at', '<=', $val),
                     'agent_id' => fn ($q, $val) => $q->where('agent_id', (int) $val),
@@ -89,6 +92,15 @@ class ApplicationReviewController extends Controller
         // Regular page load - return view with stats
         $stats = $this->applicationRepository->getStats();
 
+        $lmsApiService = app(\App\Services\LmsApiService::class);
+        $programs = $lmsApiService->getPrograms();
+        $intakes = $lmsApiService->getIntakes();
+        $agencies = StudentApplication::whereNotNull('referral_agency_name')
+            ->where('referral_agency_name', '!=', '')
+            ->distinct()
+            ->orderBy('referral_agency_name')
+            ->pluck('referral_agency_name');
+
         $agentFilter = null;
         if ($request->filled('agent_id')) {
             $agentFilter = User::where('id', $request->input('agent_id'))
@@ -96,7 +108,7 @@ class ApplicationReviewController extends Controller
                 ->first(['id', 'name']);
         }
 
-        return view('pages.admin.applications.index', compact('stats', 'agentFilter'));
+        return view('pages.admin.applications.index', compact('stats', 'agentFilter', 'programs', 'intakes', 'agencies'));
     }
 
     /**
@@ -557,6 +569,21 @@ class ApplicationReviewController extends Controller
 
             return back()->with('error', 'Failed to update documents: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Export application as PDF
+     */
+    public function exportPdf(StudentApplication $application)
+    {
+        $application->load('reviewer', 'createdUser', 'agent', 'initialApprover', 'latestContract');
+
+        $pdf = Pdf::loadView('pdf.application', [
+            'application' => $application,
+            'generatedAt' => now(),
+        ]);
+
+        return $pdf->download("application-{$application->reference_number}.pdf");
     }
 
     /**

@@ -167,6 +167,33 @@
                             <option value="rejected">{{ __('Rejected') }}</option>
                         </select>
                     </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Program') }}</label>
+                        <select name="program" class="form-select form-select-sm">
+                            <option value="all">{{ __('All Programs') }}</option>
+                            @foreach($programs as $program)
+                                <option value="{{ $program['id'] }}">{{ $program['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Intake') }}</label>
+                        <select name="intake" class="form-select form-select-sm">
+                            <option value="all">{{ __('All Intakes') }}</option>
+                            @foreach($intakes as $intake)
+                                <option value="{{ $intake['id'] }}">{{ $intake['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg">
+                        <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Agency') }}</label>
+                        <select name="agency" class="form-select form-select-sm">
+                            <option value="all">{{ __('All Agencies') }}</option>
+                            @foreach($agencies as $agency)
+                                <option value="{{ $agency }}">{{ $agency }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-md-3 col-lg">
                         <label class="form-label fs-7 fw-semibold text-gray-600">{{ __('Date From') }}</label>
                         <input type="date" name="from" class="form-control form-control-sm"

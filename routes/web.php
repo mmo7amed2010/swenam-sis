@@ -124,6 +124,7 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('applications/{application}/update-education', [ApplicationReviewController::class, 'updateEducation'])->name('applications.update-education');
         Route::post('applications/{application}/update-work', [ApplicationReviewController::class, 'updateWork'])->name('applications.update-work');
         Route::post('applications/{application}/update-documents', [ApplicationReviewController::class, 'updateDocuments'])->name('applications.update-documents');
+        Route::get('applications/{application}/export-pdf', [ApplicationReviewController::class, 'exportPdf'])->name('applications.export-pdf');
         Route::get('applications/{application}/document/{documentType}', [ApplicationReviewController::class, 'downloadDocument'])->name('applications.download');
         
         // Contract Templates
@@ -162,6 +163,7 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
     // Admin-only routes - Student Management (SIS is master for students)
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('students/export', [StudentController::class, 'export'])->name('students.export');
+        Route::get('students/{student}/export-pdf', [StudentController::class, 'exportPdf'])->name('students.export-pdf');
         Route::resource('students', StudentController::class);
         Route::post('students/{student}/suspend', [StudentController::class, 'suspend'])->name('students.suspend');
         Route::post('students/{student}/unsuspend', [StudentController::class, 'unsuspend'])->name('students.unsuspend');

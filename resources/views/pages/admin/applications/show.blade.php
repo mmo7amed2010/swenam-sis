@@ -68,7 +68,15 @@
         :status="$application->status"
         :statusLabel="$config['label']"
         :pills="$headerPills"
-    />
+    >
+        <x-slot name="actions">
+            <a href="{{ route('admin.applications.export-pdf', $application) }}"
+               class="btn btn-sm btn-light-primary d-flex align-items-center gap-2">
+                {!! getIcon('document', 'fs-5') !!}
+                {{ __('Export as PDF') }}
+            </a>
+        </x-slot>
+    </x-profile.header>
 
     <div class="row g-6">
         {{-- Main Content --}}
