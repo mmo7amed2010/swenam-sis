@@ -124,6 +124,7 @@ Route::middleware(['auth', 'password.reset.required'])->group(function () {
         Route::post('applications/{application}/update-education', [ApplicationReviewController::class, 'updateEducation'])->name('applications.update-education');
         Route::post('applications/{application}/update-work', [ApplicationReviewController::class, 'updateWork'])->name('applications.update-work');
         Route::post('applications/{application}/update-documents', [ApplicationReviewController::class, 'updateDocuments'])->name('applications.update-documents');
+        Route::get('applications/{application}/export-pdf', [ApplicationReviewController::class, 'exportPdf'])->name('applications.export-pdf');
         Route::get('applications/{application}/document/{documentType}', [ApplicationReviewController::class, 'downloadDocument'])->name('applications.download');
         
         // Contract Templates

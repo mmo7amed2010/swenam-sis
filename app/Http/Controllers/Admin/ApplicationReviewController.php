@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ApplicationReviewController extends Controller
 {
@@ -568,6 +569,21 @@ class ApplicationReviewController extends Controller
 
             return back()->with('error', 'Failed to update documents: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Export application as PDF
+     */
+    public function exportPdf(StudentApplication $application)
+    {
+        $application->load('reviewer', 'createdUser', 'agent', 'initialApprover', 'latestContract');
+
+        $pdf = Pdf::loadView('pdf.application', [
+            'application' => $application,
+            'generatedAt' => now(),
+        ]);
+
+        return $pdf->download("application-{$application->reference_number}.pdf");
     }
 
     /**
