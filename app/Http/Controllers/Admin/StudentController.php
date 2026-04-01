@@ -300,17 +300,19 @@ class StudentController extends Controller
                 ->get()
             : collect();
 
-        // Pre-resolve application program/intake names to avoid repeated LMS API calls in the view
+        // Pre-resolve program/intake names from LMS API to avoid repeated calls in the view
+        $programs = collect($this->lmsApiService->getPrograms());
+        $studentProgramName = $programs->firstWhere('id', $student->user?->program_id)['name'] ?? null;
+
         $appProgramName = null;
         $appIntakeName = null;
         if ($student->studentApplication) {
-            $programs = collect($this->lmsApiService->getPrograms());
             $intakes = collect($this->lmsApiService->getIntakes());
             $appProgramName = $programs->firstWhere('id', $student->studentApplication->program_id)['name'] ?? null;
             $appIntakeName = $intakes->firstWhere('id', $student->studentApplication->intake_id)['name'] ?? null;
         }
 
-        return view('pages.admin.students.show', compact('student', 'lmsStatus', 'courses', 'appProgramName', 'appIntakeName'));
+        return view('pages.admin.students.show', compact('student', 'lmsStatus', 'courses', 'studentProgramName', 'appProgramName', 'appIntakeName'));
     }
 
     /**

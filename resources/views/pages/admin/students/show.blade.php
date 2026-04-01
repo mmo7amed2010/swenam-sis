@@ -15,7 +15,7 @@
 
         $headerPills = [
             __('Student #') => $student->student_number ?? 'N/A',
-            __('Program') => $student->user?->program?->name ?? 'N/A',
+            __('Program') => $studentProgramName ?? 'N/A',
             __('Member Since') => $student->created_at->format('M d, Y'),
         ];
         if ($student->user?->last_login_at) {
@@ -118,7 +118,7 @@
                         </div>
                     @endif
                     <div class="col-md-6">
-                        <x-detail.field icon="abstract-26" :label="__('Program')" :value="$student->user?->program?->name ?? 'N/A'" color="info" />
+                        <x-detail.field icon="abstract-26" :label="__('Program')" :value="$studentProgramName ?? 'N/A'" color="info" />
                     </div>
                     <div class="col-md-6">
                         <x-detail.field icon="flag" :label="__('Enrollment Status')" color="info">
