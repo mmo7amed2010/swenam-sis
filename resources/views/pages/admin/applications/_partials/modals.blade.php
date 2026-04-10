@@ -766,7 +766,7 @@
 </div>
 
 {{-- Change Intake Modal --}}
-@if(!$application->isRejected() && isset($intakes))
+@if(isset($intakes))
 <div class="modal fade" id="changeIntakeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <div class="modal-content border-0 shadow-lg">

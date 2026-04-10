@@ -1,5 +1,5 @@
 {{-- Change Program Modal --}}
-@if(!$application->isRejected() && isset($programs))
+@if(isset($programs))
 <div class="modal fade" id="changeProgramModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <div class="modal-content border-0 shadow-lg">

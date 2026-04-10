@@ -164,31 +164,27 @@
                             <div class="col-md-4">
                                 <div class="position-relative">
                                     <x-detail.info-card icon="abstract-26" label="Program" :value="$application->program_name ?? 'N/A'" color="primary" />
-                                    @if(!$application->isRejected())
-                                        <button type="button"
-                                                class="btn btn-icon btn-sm btn-light-primary position-absolute"
-                                                style="top: 8px; right: 8px;"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#changeProgramModal"
-                                                title="Change Program">
-                                            {!! getIcon('pencil', 'fs-6') !!}
-                                        </button>
-                                    @endif
+                                    <button type="button"
+                                            class="btn btn-icon btn-sm btn-light-primary position-absolute"
+                                            style="top: 8px; right: 8px;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#changeProgramModal"
+                                            title="Change Program">
+                                        {!! getIcon('pencil', 'fs-6') !!}
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="position-relative">
                                     <x-detail.info-card icon="calendar" label="Preferred Intake" :value="$application->intake_name ?? $application->preferred_intake ?? 'N/A'" color="primary" />
-                                    @if(!$application->isRejected())
-                                        <button type="button"
-                                                class="btn btn-icon btn-sm btn-light-primary position-absolute"
-                                                style="top: 8px; right: 8px;"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#changeIntakeModal"
-                                                title="Change Intake">
-                                            {!! getIcon('pencil', 'fs-6') !!}
-                                        </button>
-                                    @endif
+                                    <button type="button"
+                                            class="btn btn-icon btn-sm btn-light-primary position-absolute"
+                                            style="top: 8px; right: 8px;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#changeIntakeModal"
+                                            title="Change Intake">
+                                        {!! getIcon('pencil', 'fs-6') !!}
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -200,16 +196,14 @@
                                             <span class="text-gray-500">None</span>
                                         @endif
                                     </x-detail.info-card>
-                                    @if(!$application->isRejected())
-                                        <button type="button"
-                                                class="btn btn-icon btn-sm btn-light-primary position-absolute"
-                                                style="top: 8px; right: 8px;"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#changeAgencyModal"
-                                                title="Change Agency Referral">
-                                            {!! getIcon('pencil', 'fs-6') !!}
-                                        </button>
-                                    @endif
+                                    <button type="button"
+                                            class="btn btn-icon btn-sm btn-light-primary position-absolute"
+                                            style="top: 8px; right: 8px;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#changeAgencyModal"
+                                            title="Change Agency Referral">
+                                        {!! getIcon('pencil', 'fs-6') !!}
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -223,16 +217,14 @@
                                             <span class="text-gray-500">N/A</span>
                                         @endif
                                     </x-detail.info-card>
-                                    @if(!$application->isRejected())
-                                        <button type="button"
-                                                class="btn btn-icon btn-sm btn-light-primary position-absolute"
-                                                style="top: 8px; right: 8px;"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#changeFundingModal"
-                                                title="Change Funding Type">
-                                            {!! getIcon('pencil', 'fs-6') !!}
-                                        </button>
-                                    @endif
+                                    <button type="button"
+                                            class="btn btn-icon btn-sm btn-light-primary position-absolute"
+                                            style="top: 8px; right: 8px;"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#changeFundingModal"
+                                            title="Change Funding Type">
+                                        {!! getIcon('pencil', 'fs-6') !!}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -277,17 +269,15 @@
                 {{-- Education & Work Tab --}}
                 <div class="tab-pane fade" id="tab_education" role="tabpanel">
                     <x-cards.section title="Education History" class="mb-5">
-                        @if(!$application->isRejected())
-                            <x-slot:toolbar>
-                                <button type="button"
-                                        class="btn btn-icon btn-sm btn-light-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#changeEducationModal"
-                                        title="Edit Education Details">
-                                    {!! getIcon('pencil', 'fs-6') !!}
-                                </button>
-                            </x-slot:toolbar>
-                        @endif
+                        <x-slot:toolbar>
+                            <button type="button"
+                                    class="btn btn-icon btn-sm btn-light-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#changeEducationModal"
+                                    title="Edit Education Details">
+                                {!! getIcon('pencil', 'fs-6') !!}
+                            </button>
+                        </x-slot:toolbar>
                         <div class="card border border-dashed border-gray-300">
                             <div class="card-body p-5">
                                 <div class="d-flex justify-content-between align-items-start mb-4">
@@ -322,7 +312,7 @@
                     </x-cards.section>
 
                     <x-cards.section title="Work Experience">
-                        @if(!$application->isRejected() && $application->has_work_experience)
+                        @if($application->has_work_experience)
                             <x-slot:toolbar>
                                 <button type="button"
                                         class="btn btn-icon btn-sm btn-light-primary"
@@ -373,17 +363,15 @@
                 {{-- Documents Tab --}}
                 <div class="tab-pane fade" id="tab_documents" role="tabpanel">
                     <x-cards.section title="Uploaded Documents">
-                        @if(!$application->isRejected())
-                            <x-slot:toolbar>
-                                <button type="button"
-                                        class="btn btn-icon btn-sm btn-light-primary"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#changeDocumentsModal"
-                                        title="Upload/Replace Documents">
-                                    {!! getIcon('pencil', 'fs-6') !!}
-                                </button>
-                            </x-slot:toolbar>
-                        @endif
+                        <x-slot:toolbar>
+                            <button type="button"
+                                    class="btn btn-icon btn-sm btn-light-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#changeDocumentsModal"
+                                    title="Upload/Replace Documents">
+                                {!! getIcon('pencil', 'fs-6') !!}
+                            </button>
+                        </x-slot:toolbar>
                         @php
                             $documents = [
                                 ['key' => 'government_id', 'path' => $application->government_id_path, 'label' => 'Government-Issued Photo ID', 'icon' => 'verify', 'desc' => 'Passport, official national ID'],

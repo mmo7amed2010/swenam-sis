@@ -1,5 +1,5 @@
 {{-- Change Work Experience Modal --}}
-@if(!$application->isRejected() && $application->has_work_experience)
+@if($application->has_work_experience)
 <div class="modal fade" id="changeWorkModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <div class="modal-content border-0 shadow-lg">

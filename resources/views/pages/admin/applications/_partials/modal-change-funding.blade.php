@@ -1,5 +1,4 @@
 {{-- Change Funding Type Modal --}}
-@if(!$application->isRejected())
 <div class="modal fade" id="changeFundingModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered mw-650px">
         <div class="modal-content border-0 shadow-lg">
@@ -55,4 +54,3 @@
         </div>
     </div>
 </div>
-@endif
