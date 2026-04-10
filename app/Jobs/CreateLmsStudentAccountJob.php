@@ -140,6 +140,7 @@ class CreateLmsStudentAccountJob implements ShouldQueue
                 'sis_application_id' => $this->application->id,
                 'admission_type' => LmsAdmissionTypeResolver::resolve($user),
                 'is_suspended' => $user->is_suspended,
+                'student_number' => $student->student_number,
             ]);
 
             if ($result['success']) {

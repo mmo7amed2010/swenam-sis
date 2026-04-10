@@ -184,6 +184,7 @@ class CreateStudentAccountJob implements ShouldQueue
                 'application_reference' => $this->application->reference_number,
                 'sis_application_id' => $this->application->id,
                 'temp_password' => $tempPassword,
+                'student_number' => $student->student_number,
             ]);
 
             if ($result['success']) {

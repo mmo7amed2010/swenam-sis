@@ -128,6 +128,10 @@ class LmsApiService
 
     /**
      * Create a student account in LMS when application is approved.
+     *
+     * The $data array may include a 'student_number' key so the LMS uses the
+     * SIS/portal student_number instead of generating its own. This keeps the
+     * human-readable student ID identical in both systems.
      */
     public function createStudent(array $data): array
     {

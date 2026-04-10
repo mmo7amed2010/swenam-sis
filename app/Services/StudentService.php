@@ -432,6 +432,7 @@ class StudentService
                 'intake_id' => $intakeId,
                 'admission_type' => LmsAdmissionTypeResolver::resolve($user),
                 'is_suspended' => $user->is_suspended,
+                'student_number' => $student->student_number,
             ]);
 
             if ($result['success'] && $result['user_id']) {
